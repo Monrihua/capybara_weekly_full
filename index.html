@@ -1,0 +1,5228 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>水豚每週活動計算機｜週一至週日 v38</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #14213d;
+      --muted: #667085;
+      --line: #dbe2ea;
+      --blue: #2457d6;
+      --blue-soft: #edf3ff;
+      --purple: #7654d6;
+      --purple-soft: #f2eeff;
+      --green: #168a5b;
+      --green-soft: #eaf8f2;
+      --orange: #b86700;
+      --orange-soft: #fff5e6;
+      --shadow: 0 10px 28px rgba(20, 33, 61, 0.07);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      overflow-x: clip;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC",
+                   "PingFang TC", "Microsoft JhengHei", sans-serif;
+    }
+
+    body { padding: 16px 12px 36px; }
+    button, input { font: inherit; }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .page {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 10px;
+    }
+
+    .hero h1 {
+      margin: 0 0 5px;
+      font-size: clamp(25px, 4vw, 36px);
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .prototype-badge {
+      flex: 0 0 auto;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .day-tabs {
+      display: flex;
+      gap: 8px;
+      margin: 0 0 10px 222px;
+    }
+
+    .day-tab {
+      min-width: 104px;
+      min-height: 40px;
+      padding: 8px 16px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fff;
+      color: var(--text);
+      font-weight: 900;
+    }
+
+    .day-tab.active {
+      color: #fff;
+      border-color: var(--blue);
+      background: var(--blue);
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 250px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      min-width: 0;
+    }
+
+    .card {
+      min-width: 0;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 12px;
+      padding: 14px;
+    }
+
+    .sidebar h2 {
+      margin: 0 0 4px;
+      font-size: 18px;
+    }
+
+    .sidebar-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .setting-list {
+      display: grid;
+      gap: 7px;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 42px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .setting-row input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--blue);
+    }
+
+    .setting-help {
+      margin-top: 10px;
+      padding: 9px 10px;
+      border-radius: 12px;
+      background: var(--orange-soft);
+      color: #805000;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .owned-stamina-box {
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #bcd0fb;
+      border-radius: 12px;
+      background: var(--blue-soft);
+    }
+
+    .owned-stamina-input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 54px;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .owned-stamina-input-row input,
+    .owned-stamina-input-row select {
+      width: 100%;
+      height: 34px;
+      min-width: 0;
+      border: 1px solid #b7c7e6;
+      border-radius: 9px;
+      background: #fff;
+      color: var(--text);
+      font-weight: 900;
+    }
+
+    .owned-stamina-input-row input {
+      padding: 0 8px;
+      text-align: right;
+      font-size: 15px;
+    }
+
+    .owned-stamina-input-row select {
+      padding: 0 6px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .owned-stamina-box small {
+      display: block;
+      margin-top: 7px;
+      color: var(--blue);
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .owned-resource-box {
+      background: #f8fafc;
+      border-color: var(--line);
+    }
+
+    .owned-resource-box small {
+      color: var(--muted);
+    }
+
+    .inventory-box {
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+
+    .inventory-title {
+      margin-bottom: 7px;
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .inventory-list {
+      display: grid;
+      gap: 6px;
+    }
+
+    .inventory-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 86px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .inventory-name {
+      min-width: 0;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+
+    .inventory-row input {
+      width: 100%;
+      min-width: 0;
+      height: 34px;
+      padding: 0 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      text-align: right;
+      font-weight: 900;
+      font-size: 15px;
+    }
+
+    .inventory-box small {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.45;
+    }
+
+    .auto-box {
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #cec4f1;
+      border-radius: 12px;
+      background: var(--purple-soft);
+    }
+
+    .auto-box span {
+      display: block;
+      color: var(--purple);
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 3px;
+    }
+
+    .auto-box strong {
+      font-size: 24px;
+      letter-spacing: -0.03em;
+    }
+
+    .auto-box small {
+      display: block;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-top: 3px;
+    }
+
+    .main {
+      min-width: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .summary-card,
+    .section-card {
+      min-width: 0;
+      overflow: hidden;
+      padding: 12px;
+    }
+
+    .activity-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .activity-card {
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .activity-card.marathon { background: #f8fbff; }
+    .activity-card.archaeology { background: #fbf9ff; }
+
+    .activity-name {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .activity-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+
+    .archaeology .activity-dot { background: var(--purple); }
+
+    .activity-score {
+      font-size: clamp(27px, 4vw, 38px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .activity-extra {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px 12px;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .progress {
+      height: 9px;
+      margin-top: 9px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e8edf4;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #67a0ff, var(--blue));
+      transition: width 180ms ease;
+    }
+
+    .archaeology .progress-bar {
+      background: linear-gradient(90deg, #b59df4, var(--purple));
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .section-head h2,
+    .section-head h3 {
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .section-head h2 { font-size: 23px; }
+    .section-head h3 { font-size: 18px; }
+
+    .section-note {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .task-block + .task-block {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed #cbd5e1;
+    }
+
+    .task-block-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 7px;
+    }
+
+    .task-block-title strong { font-size: 16px; }
+
+    .task-block-title span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .type-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .type-free {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .type-shared {
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .type-arch {
+      color: var(--purple);
+      background: var(--purple-soft);
+    }
+
+    .stamina-summary,
+    .resource-summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      margin-bottom: 9px;
+    }
+
+    .resource-summary.five-stats {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .mini-stat {
+      border-radius: 13px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      padding: 9px 10px;
+    }
+
+    .mini-stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 2px;
+    }
+
+    .mini-stat strong {
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .mini-stat.marathon strong { color: var(--blue); }
+    .mini-stat.archaeology strong { color: var(--purple); }
+
+    .mini-stat .all-in-score {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .mini-stat.marathon .all-in-score {
+      color: var(--blue);
+    }
+
+    .mini-stat.archaeology .all-in-score {
+      color: var(--purple);
+    }
+
+    .resource-detail {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      align-items: center;
+      margin: -1px 0 9px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .resource-detail strong {
+      color: var(--text);
+    }
+
+    .resource-detail span {
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .source-group + .source-group { margin-top: 9px; }
+
+    .source-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 5px;
+      padding: 0 2px;
+    }
+
+    .source-title strong { font-size: 14px; }
+
+    .source-title span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .option-list,
+    .task-list {
+      display: grid;
+      gap: 6px;
+    }
+
+    .stamina-option,
+    .task-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 54px;
+      padding: 7px 9px 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fff;
+    }
+
+    .stamina-option.has-value,
+    .task-row.has-value {
+      border-color: #8db3ff;
+      box-shadow: 0 0 0 2px rgba(36, 87, 214, 0.07);
+    }
+
+
+    .task-row.auto {
+      background: #faf8ff;
+      border-color: #d9d0f6;
+    }
+
+    .option-info,
+    .task-info {
+      min-width: 0;
+    }
+
+    .option-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 8px;
+      align-items: baseline;
+    }
+
+    .option-name,
+    .task-name {
+      font-weight: 900;
+      font-size: 14px;
+    }
+
+    .task-name { margin-bottom: 2px; }
+
+    .option-meta,
+    .task-meta {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .score-pair,
+    .task-score {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 8px;
+      margin-top: 3px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .score-chip {
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .score-chip.marathon,
+    .task-score .marathon {
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .score-chip.archaeology,
+    .task-score .archaeology {
+      color: var(--purple);
+      background: var(--purple-soft);
+    }
+
+    .score-chip.reduced,
+    .arena-cost {
+      color: var(--orange);
+      background: var(--orange-soft);
+    }
+
+    .task-score span {
+      padding: 2px 6px;
+      border-radius: 999px;
+    }
+
+
+    .counter-wrap {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .counter,
+    .task-counter,
+    .chest-open-counter {
+      display: grid;
+      grid-template-columns: 32px 52px 32px;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .counter button,
+    .task-counter button,
+    .chest-open-counter button {
+      height: 32px;
+      border-radius: 9px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .counter button:disabled,
+    .task-counter button:disabled,
+    .chest-open-counter button:disabled {
+      cursor: not-allowed;
+      background: #e5e7eb;
+      color: #98a2b3;
+    }
+
+    .counter input,
+    .task-counter input,
+    .chest-open-counter input {
+      width: 52px;
+      height: 32px;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      text-align: center;
+      font-weight: 900;
+      color: var(--text);
+      background: #fff;
+      padding: 0;
+    }
+
+    input:focus {
+      outline: 2px solid #cfe0ff;
+      border-color: var(--blue);
+    }
+
+    .inline-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 5px;
+    }
+
+    .tiny-btn {
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: var(--purple-soft);
+      color: var(--purple);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 9px;
+    }
+
+    .action-btn {
+      min-height: 38px;
+      padding: 8px 13px;
+      border-radius: 11px;
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .action-primary {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .action-secondary {
+      background: #e9edf3;
+      color: var(--text);
+    }
+
+    .action-warning {
+      background: var(--orange-soft);
+      color: var(--orange);
+    }
+
+    .action-danger {
+      background: #feecec;
+      color: #b42318;
+    }
+
+    .weekly-marathon-card {
+      position: sticky;
+      top: 8px;
+      z-index: 40;
+      box-shadow: 0 14px 34px rgba(20, 33, 61, 0.14);
+      background:
+        linear-gradient(180deg, rgba(237, 243, 255, 0.7), rgba(255, 255, 255, 0) 150px),
+        var(--card);
+    }
+
+
+    .weekly-overview {
+      display: grid;
+      grid-template-columns: 210px minmax(0, 1fr);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .weekly-total-card {
+      display: grid;
+      grid-template-rows: repeat(2, minmax(0, 1fr));
+      gap: 0;
+      height: 100%;
+      padding: 7px 12px;
+      border: 1px solid #bcd0fb;
+      border-radius: 14px;
+      background: var(--blue-soft);
+    }
+
+    .weekly-total-item {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 0;
+      padding: 5px 0;
+    }
+
+    .weekly-total-item + .weekly-total-item {
+      border-top: 1px solid rgba(36, 87, 214, 0.15);
+    }
+
+    .weekly-star-line {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .weekly-pickaxe-label {
+      color: var(--purple);
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .weekly-pickaxe-value {
+      color: var(--text);
+      font-size: 21px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      white-space: nowrap;
+    }
+
+    .weekly-pickaxe-progress .progress-bar {
+      background: linear-gradient(90deg, #b59df4, var(--purple));
+    }
+
+    .weekly-star-label {
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .weekly-star-value {
+      color: var(--text);
+      font-size: 25px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      white-space: nowrap;
+    }
+
+
+    .weekly-day-stars {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 6px;
+      align-items: stretch;
+    }
+
+    .day-star-card {
+      display: grid;
+      grid-template-rows: repeat(2, minmax(0, 1fr));
+      min-width: 0;
+      height: 100%;
+      padding: 7px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      text-align: center;
+    }
+
+    .day-metric {
+      display: grid;
+      grid-template-rows: 18px 29px;
+      align-content: center;
+      min-height: 0;
+      padding: 5px 0;
+    }
+
+    .day-metric + .day-metric {
+      border-top: 1px solid var(--line);
+    }
+
+    .day-star-card.active {
+      border-color: #8db3ff;
+      box-shadow: 0 0 0 2px rgba(36, 87, 214, 0.08);
+    }
+
+    .day-card-label,
+    .day-card-value {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      line-height: 1;
+    }
+
+    .day-card-label {
+      height: 18px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .day-card-value {
+      height: 29px;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .day-star-value {
+      color: var(--blue);
+    }
+
+    .day-pickaxe-value {
+      color: var(--purple);
+      font-size: 13px;
+    }
+
+    .day-pickaxe-value.rest {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .weekly-stage-card {
+      background:
+        linear-gradient(180deg, rgba(242, 238, 255, 0.72), rgba(255, 255, 255, 0) 120px),
+        var(--card);
+    }
+
+    .weekly-summary-head-tools {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .weekly-summary-head-tools .section-note {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .reward-summary-toggle-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+
+    .reward-summary-toggle {
+      min-height: 32px;
+      padding: 6px 11px;
+      border: 1px solid #bcd0fb;
+      border-radius: 9px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .reward-summary-toggle:hover {
+      background: #dfeaff;
+    }
+
+    .reward-summary-content {
+      margin-top: 10px;
+    }
+
+    .reward-summary-content[hidden] {
+      display: none;
+    }
+
+    .weekly-reward-block + .weekly-reward-block {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed #cbd5e1;
+    }
+
+    .weekly-reward-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 7px;
+    }
+
+    .weekly-reward-heading strong {
+      font-size: 14px;
+    }
+
+    .weekly-reward-heading span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .reward-total-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .reward-total-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .reward-total-chip.star {
+      color: var(--blue);
+      border-color: #bcd0fb;
+      background: var(--blue-soft);
+    }
+
+    .reward-total-chip.weekly {
+      color: var(--purple);
+      border-color: #d4c9f5;
+      background: var(--purple-soft);
+    }
+
+    .reward-total-chip strong {
+      font-size: 14px;
+    }
+
+    .stage-grid.weekly-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .stage-grid {
+      display: grid;
+      gap: 7px;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .stage-grid.marathon-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .stage-grid.archaeology-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .stage {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 10px;
+      background: #f8fafc;
+    }
+
+    .stage.done {
+      border-color: #8bd2b2;
+      background: var(--green-soft);
+    }
+
+    .stage.arch-stage.done {
+      border-color: #baacf0;
+      background: var(--purple-soft);
+    }
+
+    .stage-top {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .stage-title {
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .stage-inline-score {
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .stage-status {
+      flex: 0 0 auto;
+      margin-left: auto;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #e8edf4;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .stage.done .stage-status {
+      background: #d6f2e5;
+      color: var(--green);
+    }
+
+    .stage.arch-stage.done .stage-status {
+      background: #e3dcfa;
+      color: var(--purple);
+    }
+
+    .stage-score {
+      margin: 5px 0 4px;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .stage-rewards {
+      color: var(--text);
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 900px) {
+      .day-tabs { margin-left: 0; }
+      .app-shell { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .setting-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+      .stage-grid.marathon-grid,
+      .stage-grid.weekly-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .weekly-overview {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 10px 8px 28px; }
+
+      .weekly-summary-head-tools {
+        align-items: flex-end;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .weekly-summary-head-tools .section-note {
+        white-space: normal;
+      }
+      .hero { display: block; }
+      .prototype-badge { display: inline-block; margin-top: 8px; }
+      .activity-summary { grid-template-columns: 1fr; }
+      .setting-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stamina-summary,
+      .resource-summary,
+      .resource-summary.five-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .stamina-option,
+      .task-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+        min-width: 0;
+      }
+
+      .option-info { display: block; min-width: 0; }
+      .option-meta, .score-pair { display: flex; margin-top: 2px; }
+      .counter, .task-counter, .chest-open-counter { grid-template-columns: 30px 44px 30px; }
+      .counter input, .task-counter input, .chest-open-counter input { width: 44px; }
+
+      .stage-grid.marathon-grid,
+      .stage-grid.archaeology-grid,
+      .stage-grid.weekly-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .weekly-day-stars {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .weekly-marathon-card {
+        position: static;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .stage-grid.marathon-grid,
+      .stage-grid.archaeology-grid,
+      .stage-grid.weekly-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .weekly-day-stars {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <h1>水豚每週活動計算機</h1>
+        <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
+      </div>
+      <div class="prototype-badge">週一至週日 v38</div>
+    </header>
+
+    <nav class="day-tabs" aria-label="星期切換">
+      <button class="day-tab active" type="button" data-day="mon">週一</button>
+      <button class="day-tab" type="button" data-day="tue">週二</button>
+      <button class="day-tab" type="button" data-day="wed">週三</button>
+      <button class="day-tab" type="button" data-day="thu">週四</button>
+      <button class="day-tab" type="button" data-day="fri">週五</button>
+      <button class="day-tab" type="button" data-day="sat">週六</button>
+      <button class="day-tab" type="button" data-day="sun">週日</button>
+    </nav>
+
+    <div class="app-shell">
+      <aside class="card sidebar" aria-label="全域共用設定">
+        <h2>全域設定</h2>
+        <div class="sidebar-note">設定會共用於週一至週日。</div>
+
+        <div class="setting-list">
+          <label class="setting-row">
+            <input type="checkbox" id="monthlyCard" />
+            我有月卡
+          </label>
+
+          <label class="setting-row">
+            <input type="checkbox" id="weeklyCard" />
+            我有週卡
+          </label>
+
+          <label class="setting-row">
+            <input type="checkbox" id="lifetimeCard" />
+            我有終身卡
+          </label>
+
+          <label class="setting-row">
+            <input type="checkbox" id="watchAds" />
+            我會看滿廣告
+          </label>
+
+          <label class="setting-row">
+            <input type="checkbox" id="tradeCard" />
+            我有貿易卡
+          </label>
+        </div>
+
+        <div class="setting-help">
+          月卡解鎖遊歷 ×50，週卡解鎖困難 ×5／×10／×20。貿易卡會把每日 UR／閃金商船上限由 4 艘提高至 6 艘。
+        </div>
+
+        <div class="owned-stamina-box" id="ownedStaminaBox">
+          <div class="inventory-title">擁有體力</div>
+          <div class="owned-stamina-input-row">
+            <input
+              type="text"
+              inputmode="decimal"
+              autocomplete="off"
+              id="ownedStaminaValue"
+              value="0"
+              aria-label="擁有體力數值"
+            />
+            <select id="ownedStaminaUnit" aria-label="擁有體力單位">
+              <option value="">空白</option>
+              <option value="K">K</option>
+              <option value="M">M</option>
+            </select>
+          </div>
+          <small id="ownedStaminaConverted">換算：0 體力</small>
+        </div>
+
+        <div class="owned-stamina-box owned-resource-box" data-owned-resource="spiritStone">
+          <div class="inventory-title">擁有靈石</div>
+          <div class="owned-stamina-input-row">
+            <input
+              type="text"
+              inputmode="decimal"
+              autocomplete="off"
+              data-owned-resource-value="spiritStone"
+              value="0"
+              aria-label="擁有靈石數值"
+            />
+            <select
+              data-owned-resource-unit="spiritStone"
+              aria-label="擁有靈石單位"
+            >
+              <option value="">空白</option>
+              <option value="K">K</option>
+              <option value="M">M</option>
+            </select>
+          </div>
+          <small data-owned-resource-converted="spiritStone">換算：0 靈石</small>
+        </div>
+
+        <div class="owned-stamina-box owned-resource-box" data-owned-resource="unchangingStone">
+          <div class="inventory-title">擁有不變石</div>
+          <div class="owned-stamina-input-row">
+            <input
+              type="text"
+              inputmode="decimal"
+              autocomplete="off"
+              data-owned-resource-value="unchangingStone"
+              value="0"
+              aria-label="擁有不變石數值"
+            />
+            <select
+              data-owned-resource-unit="unchangingStone"
+              aria-label="擁有不變石單位"
+            >
+              <option value="">空白</option>
+              <option value="K">K</option>
+              <option value="M">M</option>
+            </select>
+          </div>
+          <small data-owned-resource-converted="unchangingStone">換算：0 不變石</small>
+        </div>
+
+        <div class="owned-stamina-box owned-resource-box" data-owned-resource="petEgg">
+          <div class="inventory-title">擁有寵物蛋</div>
+          <div class="owned-stamina-input-row">
+            <input
+              type="text"
+              inputmode="decimal"
+              autocomplete="off"
+              data-owned-resource-value="petEgg"
+              value="0"
+              aria-label="擁有寵物蛋數值"
+            />
+            <select
+              data-owned-resource-unit="petEgg"
+              aria-label="擁有寵物蛋單位"
+            >
+              <option value="">空白</option>
+              <option value="K">K</option>
+              <option value="M">M</option>
+            </select>
+          </div>
+          <small data-owned-resource-converted="petEgg">換算：0 寵物蛋</small>
+        </div>
+
+        <div class="inventory-box">
+          <div class="inventory-title">寶箱持有數量</div>
+          <div class="inventory-list" id="chestInventoryList"></div>
+          <small>持有少於 10 個時每次開 1；10～99 個每次開 10；100 個以上每次開 50。</small>
+        </div>
+
+        <div class="auto-box">
+          <span>建議任意副本次數</span>
+          <strong id="recommendedDungeonSidebar">8 次</strong>
+          <small id="recommendedDungeonFormula">基本 8 次</small>
+        </div>
+      </aside>
+
+      <div class="main">
+        <section class="card summary-card" aria-label="今日雙活動進度">
+          <div class="activity-summary">
+            <div class="activity-card marathon">
+              <div class="activity-name"><span class="activity-dot"></span><span id="marathonTitle">馬拉松｜週一裝備寶箱</span></div>
+              <div class="activity-score" id="marathonTotalScore">0</div>
+              <div class="activity-extra">
+                <span>星星：<strong id="marathonStars">0 / 6</strong></span>
+                <span>距離滿星：<strong id="marathonRemaining">245,000</strong></span>
+              </div>
+              <div class="progress"><div class="progress-bar" id="marathonProgress"></div></div>
+            </div>
+
+            <div class="activity-card archaeology">
+              <div class="activity-name"><span class="activity-dot"></span><span id="archaeologyTitle">聯合考古｜週一任務</span></div>
+              <div class="activity-score" id="archaeologyTotalScore">0</div>
+              <div class="activity-extra">
+                <span>幸運礦鎬：<strong id="archaeologyPickaxes">0 / 56</strong></span>
+                <span>距離滿階：<strong id="archaeologyRemaining">320,000</strong></span>
+              </div>
+              <div class="progress"><div class="progress-bar" id="archaeologyProgress"></div></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card section-card weekly-marathon-card">
+          <div class="section-head">
+            <h3>馬拉松｜聯合考古｜本週獎勵統計</h3>
+            <div class="weekly-summary-head-tools">
+              <div class="section-note" id="weeklyNextStageText">統計每日已達成階段</div>
+              <button
+                class="reward-summary-toggle"
+                id="rewardSummaryToggle"
+                type="button"
+                aria-expanded="false"
+                aria-controls="rewardSummaryContent"
+              >顯示獎勵總計</button>
+            </div>
+          </div>
+
+          <div class="weekly-overview">
+            <div class="weekly-total-card">
+              <div class="weekly-total-item">
+                <div class="weekly-star-line">
+                  <span class="weekly-star-label">本週累計星星</span>
+                  <strong class="weekly-star-value" id="weeklyStarTotal">0 / 30</strong>
+                </div>
+                <div class="progress">
+                  <div class="progress-bar" id="weeklyStarProgress"></div>
+                </div>
+              </div>
+
+              <div class="weekly-total-item">
+                <div class="weekly-star-line">
+                  <span class="weekly-pickaxe-label">本週累計幸運礦鎬</span>
+                  <strong class="weekly-pickaxe-value" id="weeklyPickaxeTotal">0 / 336</strong>
+                </div>
+                <div class="progress weekly-pickaxe-progress">
+                  <div class="progress-bar" id="weeklyPickaxeProgress"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="weekly-day-stars" id="weeklyDayStars"></div>
+          </div>
+
+          <div
+            class="reward-summary-content"
+            id="rewardSummaryContent"
+            hidden
+          >
+            <div class="weekly-reward-block">
+              <div class="weekly-reward-heading">
+                <strong>每日階段獎勵總計</strong>
+                <span>統計週一至週日目前已解鎖的所有物品</span>
+              </div>
+              <div class="reward-total-list" id="dailyRewardTotals"></div>
+            </div>
+
+            <div class="weekly-reward-block">
+              <div class="weekly-reward-heading">
+                <strong>已取得每週獎勵總計</strong>
+                <span>包含所有已解鎖的每週階段</span>
+              </div>
+              <div class="reward-total-list" id="weeklyRewardTotals"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card section-card">
+          <div class="section-head">
+            <h2 id="dayTaskTitle">週一任務</h2>
+            <div class="section-note">所有數量欄位皆可用 −／＋ 或鍵盤 ↑／↓</div>
+          </div>
+
+          <div id="taskPanel"></div>
+
+          <div class="actions">
+            <button class="action-btn action-primary" id="applyDailyDefaults" type="button">依全域設定套用每日免費次數</button>
+            <button class="action-btn action-secondary" id="clearCurrentDay" type="button">歸 0＋預設基本任務進度</button>
+            <button class="action-btn action-warning" id="resetAllDaysDefaults" type="button">7 日歸 0＋預設基本任務進度</button>
+            <button class="action-btn action-danger" id="zeroAllDays" type="button">完全將任務設定歸 0</button>
+          </div>
+        </section>
+
+        <section class="card section-card weekly-stage-card">
+          <div class="section-head">
+            <h3>每週階段獎勵</h3>
+            <div class="section-note">依每日階段累積的星星解鎖</div>
+          </div>
+          <div class="stage-grid weekly-grid" id="weeklyStageGrid"></div>
+        </section>
+
+        <section class="card section-card">
+          <div class="section-head">
+            <h3 id="marathonStageTitle">馬拉松｜本日階段獎勵</h3>
+            <div class="section-note">達成後自動標示</div>
+          </div>
+          <div class="stage-grid marathon-grid" id="marathonStageGrid"></div>
+        </section>
+
+        <section class="card section-card">
+          <div class="section-head">
+            <h3>聯合考古｜本日階段獎勵</h3>
+            <div class="section-note">共 9 階，最多取得 56 個幸運礦鎬</div>
+          </div>
+          <div class="stage-grid archaeology-grid" id="archaeologyStageGrid"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEY = "capybara-weekly-full-v38";
+      const LEGACY_KEYS = [
+        "capybara-weekly-full-v37",
+        "capybara-weekly-full-v36",
+        "capybara-weekly-full-v35",
+        "capybara-weekly-full-v34",
+        "capybara-weekly-full-v33",
+        "capybara-weekly-full-v32",
+        "capybara-weekly-full-v31",
+        "capybara-weekly-full-v30",
+        "capybara-weekly-full-v29",
+        "capybara-weekly-full-v28",
+        "capybara-weekly-full-v27",
+        "capybara-weekly-full-v26",
+        "capybara-weekly-full-v25",
+        "capybara-weekly-full-v24",
+        "capybara-weekly-full-v23",
+        "capybara-weekly-full-v22",
+        "capybara-weekly-full-v21",
+        "capybara-weekly-full-v20",
+        "capybara-weekly-full-v19",
+        "capybara-weekly-full-v18",
+        "capybara-weekly-mon-tue-wed-thu-fri-sat-v17",
+        "capybara-weekly-mon-tue-wed-thu-fri-v16",
+        "capybara-weekly-mon-tue-wed-thu-v15",
+        "capybara-weekly-mon-tue-wed-thu-v14",
+        "capybara-weekly-mon-tue-wed-v13",
+        "capybara-weekly-mon-tue-wed-v12",
+        "capybara-weekly-mon-tue-wed-v11",
+        "capybara-weekly-mon-tue-v10",
+        "capybara-weekly-mon-tue-v9",
+        "capybara-weekly-mon-tue-v8",
+        "capybara-monday-integrated-v7",
+        "capybara-monday-integrated-v6",
+        "capybara-monday-integrated-v5"
+      ];
+
+      const MARATHON_TARGET = 245000;
+      const ARCHAEOLOGY_TARGET = 320000;
+      const MARATHON_STAMINA_RATE = 75;
+
+      const marathonStages = [
+        { score: 5600, stars: 1 },
+        { score: 18750, stars: 1 },
+        { score: 48750, stars: 1 },
+        { score: 116000, stars: 1 },
+        { score: 245000, stars: 2 }
+      ];
+
+      const marathonRewards = {
+        mon: [
+          ["星星*1", "神威錘*100", "靈石*350"],
+          ["星星*1", "卡皮機銀幣*1", "神威錘*100", "靈石*350"],
+          ["星星*1", "卡皮機銀幣*1", "神威錘*200", "靈石*700"],
+          ["星星*1", "暗月銀券*1", "神威錘*200", "靈石*700"],
+          ["星星*2", "暗月銀券*1", "神威錘*500", "靈石*1750"]
+        ],
+        tue: [
+          ["星星*1", "神威錘*100", "寵物蛋*70"],
+          ["星星*1", "卡皮機銀幣*1", "神威錘*100", "寵物蛋*70"],
+          ["星星*1", "卡皮機銀幣*1", "神威錘*200", "寵物蛋*140"],
+          ["星星*1", "暗月銀券*1", "神威錘*200", "寵物蛋*140"],
+          ["星星*2", "暗月銀券*1", "神威錘*500", "寵物蛋*350"]
+        ],
+        wed: [
+          ["星星*1", "神威錘*100", "白銀寶箱*10"],
+          ["星星*1", "卡皮機銀幣*1", "神威錘*100", "白銀寶箱*10"],
+          ["星星*1", "卡皮機銀幣*1", "神威錘*200", "白銀寶箱*20"],
+          ["星星*1", "暗月銀券*1", "神威錘*200", "白銀寶箱*20"],
+          ["星星*2", "暗月銀券*1", "神威錘*500", "白銀寶箱*50"]
+        ],
+        thu: [
+          ["星星*1", "神威錘*100", "寶石鑰匙*1"],
+          ["星星*1", "卡皮機銀幣*1", "神威錘*100", "寶石鑰匙*1"],
+          ["星星*1", "卡皮機銀幣*1", "神威錘*200", "寶石鑰匙*1"],
+          ["星星*1", "暗月銀券*1", "神威錘*200", "寶石鑰匙*2"],
+          ["星星*2", "暗月銀券*1", "神威錘*500", "寶石鑰匙*5"]
+        ],
+        fri: [
+          ["星星*1", "神威錘*100", "金蹄鐵*210"],
+          ["星星*1", "卡皮機銀幣*1", "神威錘*100", "金蹄鐵*210"],
+          ["星星*1", "卡皮機銀幣*1", "神威錘*200", "金蹄鐵*350"],
+          ["星星*1", "暗月銀券*1", "神威錘*200", "金蹄鐵*350"],
+          ["星星*2", "暗月銀券*1", "神威錘*500", "金蹄鐵*875"]
+        ],
+        sat: [
+          ["星星*1", "神威錘*100", "紫寶石*300"],
+          ["星星*1", "卡皮機銀幣*1", "神威錘*100", "紫寶石*300"],
+          ["星星*1", "卡皮機銀幣*1", "神威錘*200", "紫寶石*600"],
+          ["星星*1", "暗月銀券*1", "神威錘*200", "紫寶石*600"],
+          ["星星*2", "暗月銀券*1", "神威錘*500", "紫寶石*1500"]
+        ],
+        sun: [
+          ["星星*1", "神威錘*100", "傳說鑰匙*1"],
+          ["星星*1", "卡皮機銀幣*1", "神威錘*100", "傳說鑰匙*1"],
+          ["星星*1", "卡皮機銀幣*1", "神威錘*200", "傳說鑰匙*1"],
+          ["星星*1", "暗月銀券*1", "神威錘*200", "傳說鑰匙*2"],
+          ["星星*2", "暗月銀券*1", "神威錘*500", "傳說鑰匙*5"]
+        ]
+      };
+
+      const weeklyMarathonStages = [
+        {
+          stars: 3,
+          rewards: ["紫寶石*500", "神威錘*1000", "暗月金卷*1"]
+        },
+        {
+          stars: 9,
+          rewards: ["紫寶石*500", "神威錘*1500", "暗月金卷*2"]
+        },
+        {
+          stars: 18,
+          rewards: ["紫寶石*500", "神威錘*2000", "暗月金卷*2"]
+        },
+        {
+          stars: 25,
+          rewards: ["紫寶石*500", "神威錘*2500", "暗月金卷*2"]
+        },
+        {
+          stars: 30,
+          rewards: ["紫寶石*1000", "神威錘*3000", "暗月金卷*3"]
+        }
+      ];
+
+      const dayOrder = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+
+      const shortDayLabels = {
+        mon: "週一",
+        tue: "週二",
+        wed: "週三",
+        thu: "週四",
+        fri: "週五",
+        sat: "週六",
+        sun: "週日"
+      };
+
+      const archaeologyStages = [
+        { score: 2500, pickaxes: 3 },
+        { score: 5000, pickaxes: 3 },
+        { score: 12000, pickaxes: 6 },
+        { score: 25000, pickaxes: 5 },
+        { score: 45000, pickaxes: 5 },
+        { score: 100000, pickaxes: 10 },
+        { score: 150000, pickaxes: 6 },
+        { score: 200000, pickaxes: 6 },
+        { score: 320000, pickaxes: 12 }
+      ];
+
+      const staminaGroups = [
+        {
+          title: "自動遊歷｜主線",
+          hint: "選擇遊歷倍率",
+          options: [
+            { id: "travel1", label: "遊歷 ×1", stamina: 5 },
+            { id: "travel3", label: "遊歷 ×3", stamina: 15 },
+            { id: "travel5", label: "遊歷 ×5", stamina: 25 },
+            { id: "travel10", label: "遊歷 ×10", stamina: 50 },
+            { id: "travel20", label: "遊歷 ×20", stamina: 100 },
+            { id: "travel50", label: "遊歷 ×50", stamina: 250, requires: "monthly" }
+          ]
+        },
+        {
+          title: "困難副本",
+          hint: "×5 以上為週卡限定",
+          options: [
+            { id: "hard1", label: "困難 ×1", stamina: 15 },
+            { id: "hard2", label: "困難 ×2", stamina: 30 },
+            { id: "hard3", label: "困難 ×3", stamina: 45 },
+            { id: "hard5", label: "困難 ×5", stamina: 75, requires: "weekly" },
+            { id: "hard10", label: "困難 ×10", stamina: 150, requires: "weekly" },
+            { id: "hard20", label: "困難 ×20", stamina: 300, requires: "weekly" }
+          ]
+        }
+      ];
+
+      const optionMap = new Map(
+        staminaGroups.flatMap(group => group.options).map(option => [option.id, option])
+      );
+
+      const arenaCumulativeGemCosts = [
+        0,
+        5, 15, 30, 50, 75,
+        105, 140, 180, 225, 275,
+        330, 390, 455, 525, 600,
+        680, 765, 855, 950, 1050
+      ];
+
+      const chestConfigs = {
+        bronzeBox: { name: "青銅寶箱", pointPerBox: 1 },
+        silverBox: { name: "白銀寶箱", pointPerBox: 10 },
+        goldBox: { name: "黃金寶箱", pointPerBox: 20 },
+        petBox: { name: "寵物寶箱", pointPerBox: 50 }
+      };
+
+      function defaultChestInventory() {
+        return Object.fromEntries(
+          Object.keys(chestConfigs).map(key => [key, 0])
+        );
+      }
+
+      function defaultChestHistory() {
+        return Object.fromEntries(
+          Object.keys(chestConfigs).map(key => [key, []])
+        );
+      }
+
+      function getChestBatch(holding) {
+        const count = toInt(holding);
+        if (count >= 100) return 50;
+        if (count >= 10) return 10;
+        if (count > 0) return 1;
+        return 0;
+      }
+
+      const defaultSettings = () => ({
+        monthlyCard: false,
+        weeklyCard: false,
+        lifetimeCard: false,
+        watchAds: false,
+        tradeCard: false
+      });
+
+      function defaultMonday(settings) {
+        return {
+          staminaCounts: Object.fromEntries([...optionMap.keys()].map(id => [id, 0])),
+          heroSupply: settings.watchAds ? 1 : 0,
+          adventurerSupply: settings.watchAds ? 4 : 1,
+          dungeonCount: getRecommendedDungeon(settings).total,
+          guildRaid: 2,
+          arena: 5,
+          equipBox: 0,
+          cube: 0,
+          goblin: 0,
+          emeraldPack: 0
+        };
+      }
+
+      function defaultTuesday(settings) {
+        return {
+          goblin: 0,
+          petBase: 0,
+          petStone1: 0,
+          petStone2: 0,
+          petStone3: 0,
+          petStone4: 0,
+          tradeShip: 0,
+          treasureDraw: 0,
+          dungeonCount: getRecommendedDungeon(settings).total,
+          guildRaid: 2,
+          arena: 5,
+          emeraldPack: 0
+        };
+      }
+
+      function defaultWednesday(settings) {
+        return {
+          staminaCounts: Object.fromEntries([...optionMap.keys()].map(id => [id, 0])),
+          petEggBundle1: 0,
+          petEggBundle3: 0,
+          petEggBundle5: 0,
+          petEggBundle10: 0,
+          brandDraw: 0,
+          dungeonCount: getRecommendedDungeon(settings).total,
+          guildRaid: 2,
+          goblin: 0,
+          arena: 5,
+          emeraldPack: 0
+        };
+      }
+
+      function normalizeWednesday(source, settings) {
+        const base = defaultWednesday(settings);
+        const saved = source && typeof source === "object" ? source : {};
+        const hasNewBundleData = [
+          "petEggBundle1",
+          "petEggBundle3",
+          "petEggBundle5",
+          "petEggBundle10"
+        ].some(key => Object.prototype.hasOwnProperty.call(saved, key));
+
+        return {
+          ...base,
+          ...saved,
+          // 舊版的 ×1／×3／×5／×10 代表開蛋顆數，與新版禮包語意不同，
+          // 因此不直接轉換，避免把舊數字誤算成 35 倍。
+          petEggBundle1: hasNewBundleData ? toInt(saved.petEggBundle1) : 0,
+          petEggBundle3: hasNewBundleData ? toInt(saved.petEggBundle3) : 0,
+          petEggBundle5: hasNewBundleData ? toInt(saved.petEggBundle5) : 0,
+          petEggBundle10: hasNewBundleData ? toInt(saved.petEggBundle10) : 0,
+          staminaCounts: {
+            ...base.staminaCounts,
+            ...(saved.staminaCounts || {})
+          }
+        };
+      }
+
+      function defaultThursday(settings) {
+        return {
+          dungeonCount: getRecommendedDungeon(settings).total,
+          guildRaid: 2,
+          arena: 5,
+          bronzeBox: 0,
+          silverBox: 0,
+          goldBox: 0,
+          petBox: 0,
+          chestOpenHistory: defaultChestHistory(),
+          tradeShip: 0,
+          treasureDraw: 0,
+          goblin: 0,
+          emeraldPack: 0
+        };
+      }
+
+      function normalizeThursday(source, settings) {
+        const base = defaultThursday(settings);
+        const saved = source && typeof source === "object" ? source : {};
+
+        return {
+          ...base,
+          ...saved,
+          chestOpenHistory: {
+            ...base.chestOpenHistory,
+            ...(saved.chestOpenHistory || {})
+          }
+        };
+      }
+
+      function defaultFriday(settings) {
+        return {
+          dungeonCount: getRecommendedDungeon(settings).total,
+          guildRaid: 2,
+          arena: 5,
+          guruTicket: 0,
+          gemDraw: 0,
+          gemRefineImmortal: 0,
+          gemRefineTranscendent: 0,
+          gemRefinePeerless: 0,
+          goblin: 0,
+          emeraldPack: 0
+        };
+      }
+
+      function normalizeFriday(source, settings) {
+        const base = defaultFriday(settings);
+        const saved = source && typeof source === "object" ? source : {};
+
+        return {
+          ...base,
+          ...saved,
+          gemRefineImmortal: toInt(saved.gemRefineImmortal),
+          gemRefineTranscendent: toInt(saved.gemRefineTranscendent),
+          gemRefinePeerless: toInt(saved.gemRefinePeerless)
+        };
+      }
+
+      function getFridayGemRefineSummary() {
+        const day = state.days.fri;
+        const rows = [
+          ["gemRefineImmortal", 10],
+          ["gemRefineTranscendent", 12],
+          ["gemRefinePeerless", 20]
+        ];
+
+        let actions = 0;
+        let reagents = 0;
+
+        for (const [key, reagentPerAction] of rows) {
+          const count = toInt(day[key]);
+          actions += count;
+          reagents += count * reagentPerAction;
+        }
+
+        return {
+          actions,
+          reagents,
+          archaeologyScore: reagents * 800
+        };
+      }
+
+      function defaultSaturday(settings) {
+        return {
+          staminaCounts: Object.fromEntries(
+            [...optionMap.keys()].map(id => [id, 0])
+          ),
+          dungeonCount: getRecommendedDungeon(settings).total,
+          guildRaid: 2,
+          arena: 5,
+          dungeonTicket: 5,
+          horseshoe: 0,
+          brandDraw: 0,
+          goblin: 0,
+          emeraldPack: 0
+        };
+      }
+
+      function normalizeSaturday(source, settings) {
+        const base = defaultSaturday(settings);
+        const saved = source && typeof source === "object" ? source : {};
+
+        return {
+          ...base,
+          ...saved,
+          dungeonTicket: clamp(
+            toInt(saved.dungeonTicket ?? base.dungeonTicket),
+            0,
+            5
+          ),
+          staminaCounts: {
+            ...base.staminaCounts,
+            ...(saved.staminaCounts || {})
+          }
+        };
+      }
+
+      function defaultSunday(settings) {
+        return {
+          arena: 5,
+          equipBox: 0,
+          heroSupply: settings.watchAds ? 1 : 0,
+          adventurerSupply: settings.watchAds ? 4 : 1,
+          horseshoe: 0,
+          petEggBundle1: 0,
+          petEggBundle3: 0,
+          petEggBundle5: 0,
+          petEggBundle10: 0,
+          bronzeBox: 0,
+          silverBox: 0,
+          goldBox: 0,
+          petBox: 0,
+          chestOpenHistory: defaultChestHistory(),
+          gemDraw: 0,
+          petBase: 0,
+          petStone1: 0,
+          petStone2: 0,
+          petStone3: 0,
+          petStone4: 0
+        };
+      }
+
+      function normalizeSunday(source, settings) {
+        const base = defaultSunday(settings);
+        const saved = source && typeof source === "object" ? source : {};
+
+        return {
+          ...base,
+          ...saved,
+          chestOpenHistory: {
+            ...base.chestOpenHistory,
+            ...(saved.chestOpenHistory || {})
+          }
+        };
+      }
+
+      function defaultState() {
+        const settings = defaultSettings();
+        return {
+          activeDay: "mon",
+          settings,
+          ownedStamina: {
+            value: 0,
+            unit: "K"
+          },
+          ownedResources: {
+            spiritStone: {
+              value: 0,
+              unit: "K"
+            },
+            unchangingStone: {
+              value: 0,
+              unit: ""
+            },
+            petEgg: {
+              value: 0,
+              unit: "K"
+            }
+          },
+          inventory: defaultChestInventory(),
+          days: {
+            mon: defaultMonday(settings),
+            tue: defaultTuesday(settings),
+            wed: defaultWednesday(settings),
+            thu: defaultThursday(settings),
+            fri: defaultFriday(settings),
+            sat: defaultSaturday(settings),
+            sun: defaultSunday(settings)
+          }
+        };
+      }
+
+      let state = loadState();
+
+      const els = {
+        dayTabs: [...document.querySelectorAll(".day-tab")],
+        monthlyCard: document.getElementById("monthlyCard"),
+        weeklyCard: document.getElementById("weeklyCard"),
+        lifetimeCard: document.getElementById("lifetimeCard"),
+        watchAds: document.getElementById("watchAds"),
+        tradeCard: document.getElementById("tradeCard"),
+        ownedStaminaBox: document.getElementById("ownedStaminaBox"),
+        ownedStaminaValue: document.getElementById("ownedStaminaValue"),
+        ownedStaminaUnit: document.getElementById("ownedStaminaUnit"),
+        ownedStaminaConverted: document.getElementById("ownedStaminaConverted"),
+        ownedResourceValues: [
+          ...document.querySelectorAll("[data-owned-resource-value]")
+        ],
+        ownedResourceUnits: [
+          ...document.querySelectorAll("[data-owned-resource-unit]")
+        ],
+        ownedResourceConverted: [
+          ...document.querySelectorAll("[data-owned-resource-converted]")
+        ],
+        chestInventoryList: document.getElementById("chestInventoryList"),
+        recommendedDungeonSidebar: document.getElementById("recommendedDungeonSidebar"),
+        recommendedDungeonFormula: document.getElementById("recommendedDungeonFormula"),
+
+        marathonTitle: document.getElementById("marathonTitle"),
+        archaeologyTitle: document.getElementById("archaeologyTitle"),
+        marathonTotalScore: document.getElementById("marathonTotalScore"),
+        marathonStars: document.getElementById("marathonStars"),
+        marathonRemaining: document.getElementById("marathonRemaining"),
+        marathonProgress: document.getElementById("marathonProgress"),
+        archaeologyTotalScore: document.getElementById("archaeologyTotalScore"),
+        archaeologyPickaxes: document.getElementById("archaeologyPickaxes"),
+        archaeologyRemaining: document.getElementById("archaeologyRemaining"),
+        archaeologyProgress: document.getElementById("archaeologyProgress"),
+
+        dayTaskTitle: document.getElementById("dayTaskTitle"),
+        taskPanel: document.getElementById("taskPanel"),
+        marathonStageTitle: document.getElementById("marathonStageTitle"),
+        marathonStageGrid: document.getElementById("marathonStageGrid"),
+        archaeologyStageGrid: document.getElementById("archaeologyStageGrid"),
+        weeklyStarTotal: document.getElementById("weeklyStarTotal"),
+        weeklyStarProgress: document.getElementById("weeklyStarProgress"),
+        weeklyPickaxeTotal: document.getElementById("weeklyPickaxeTotal"),
+        weeklyPickaxeProgress: document.getElementById("weeklyPickaxeProgress"),
+        weeklyNextStageText: document.getElementById("weeklyNextStageText"),
+        weeklyDayStars: document.getElementById("weeklyDayStars"),
+        weeklyStageGrid: document.getElementById("weeklyStageGrid"),
+        dailyRewardTotals: document.getElementById("dailyRewardTotals"),
+        weeklyRewardTotals: document.getElementById("weeklyRewardTotals"),
+        rewardSummaryContent: document.getElementById("rewardSummaryContent"),
+        rewardSummaryToggle: document.getElementById("rewardSummaryToggle")
+      };
+
+      function toNonNegativeNumber(value) {
+        const number = Number(value);
+        return Number.isFinite(number) ? Math.max(0, number) : 0;
+      }
+
+      function getOwnedStaminaAmount() {
+        const value = toNonNegativeNumber(state.ownedStamina.value);
+        return Math.round(value * getOwnedStaminaMultiplier());
+      }
+
+      function getOwnedStaminaMultiplier() {
+        if (state.ownedStamina.unit === "M") return 1000000;
+        if (state.ownedStamina.unit === "K") return 1000;
+        return 1;
+      }
+
+      function ownedStaminaValueFromAmount(amount) {
+        const safeAmount = Math.max(0, Math.round(Number(amount) || 0));
+        const multiplier = getOwnedStaminaMultiplier();
+
+        if (multiplier === 1) return safeAmount;
+
+        const decimals = multiplier === 1000000 ? 6 : 3;
+        return Number((safeAmount / multiplier).toFixed(decimals));
+      }
+
+      function syncOwnedStaminaDisplay() {
+        if (document.activeElement !== els.ownedStaminaValue) {
+          els.ownedStaminaValue.value = state.ownedStamina.value;
+        }
+        updateOwnedStaminaConvertedText();
+      }
+
+      function setOwnedStaminaAmount(amount) {
+        state.ownedStamina.value = ownedStaminaValueFromAmount(amount);
+        syncOwnedStaminaDisplay();
+      }
+
+      function setStaminaCount(dayKey, optionId, requestedCount) {
+        const day = state.days[dayKey];
+        const option = optionMap.get(optionId);
+        if (!day || !option || !day.staminaCounts) return 0;
+
+        const oldCount = toInt(day.staminaCounts[optionId]);
+        let nextCount = Math.max(0, toInt(requestedCount));
+        const ownedAmount = getOwnedStaminaAmount();
+
+        if (nextCount > oldCount) {
+          const requestedIncrease = nextCount - oldCount;
+          const affordableIncrease = Math.floor(
+            ownedAmount / option.stamina
+          );
+          const actualIncrease = Math.min(
+            requestedIncrease,
+            affordableIncrease
+          );
+
+          nextCount = oldCount + actualIncrease;
+          setOwnedStaminaAmount(
+            ownedAmount - actualIncrease * option.stamina
+          );
+        } else if (nextCount < oldCount) {
+          const returnedStamina =
+            (oldCount - nextCount) * option.stamina;
+
+          setOwnedStaminaAmount(ownedAmount + returnedStamina);
+        }
+
+        day.staminaCounts[optionId] = nextCount;
+        return nextCount;
+      }
+
+      function returnAllStaminaForDay(dayKey) {
+        const day = state.days[dayKey];
+        if (!day || !day.staminaCounts) return;
+
+        for (const optionId of Object.keys(day.staminaCounts)) {
+          setStaminaCount(dayKey, optionId, 0);
+        }
+      }
+
+      const ownedResourceLabels = {
+        spiritStone: "靈石",
+        unchangingStone: "不變石",
+        petEgg: "寵物蛋"
+      };
+
+      function getUnitMultiplier(unit) {
+        if (unit === "M") return 1000000;
+        if (unit === "K") return 1000;
+        return 1;
+      }
+
+      function getOwnedResourceAmount(key) {
+        const resource = state.ownedResources[key];
+        if (!resource) return 0;
+
+        return Math.round(
+          toNonNegativeNumber(resource.value) *
+          getUnitMultiplier(resource.unit)
+        );
+      }
+
+      function ownedResourceValueFromAmount(key, amount) {
+        const resource = state.ownedResources[key];
+        if (!resource) return 0;
+
+        const safeAmount = Math.max(0, Math.round(Number(amount) || 0));
+        const multiplier = getUnitMultiplier(resource.unit);
+
+        if (multiplier === 1) return safeAmount;
+
+        const decimals = multiplier === 1000000 ? 6 : 3;
+        return Number((safeAmount / multiplier).toFixed(decimals));
+      }
+
+      function setOwnedResourceAmount(key, amount) {
+        const resource = state.ownedResources[key];
+        if (!resource) return;
+
+        resource.value = ownedResourceValueFromAmount(key, amount);
+        updateOwnedResourceDisplay(key);
+      }
+
+      const taskResourceCosts = {
+        tue: {
+          petBase: { spiritStone: 200 },
+          petStone1: { spiritStone: 200, unchangingStone: 1 },
+          petStone2: { spiritStone: 200, unchangingStone: 2 },
+          petStone3: { spiritStone: 200, unchangingStone: 3 },
+          petStone4: { spiritStone: 200, unchangingStone: 4 }
+        },
+        wed: {
+          petEggBundle1: { petEgg: 30 },
+          petEggBundle3: { petEgg: 90 },
+          petEggBundle5: { petEgg: 150 },
+          petEggBundle10: { petEgg: 300 }
+        },
+        sun: {
+          petBase: { spiritStone: 200 },
+          petStone1: { spiritStone: 200, unchangingStone: 1 },
+          petStone2: { spiritStone: 200, unchangingStone: 2 },
+          petStone3: { spiritStone: 200, unchangingStone: 3 },
+          petStone4: { spiritStone: 200, unchangingStone: 4 },
+          petEggBundle1: { petEgg: 30 },
+          petEggBundle3: { petEgg: 90 },
+          petEggBundle5: { petEgg: 150 },
+          petEggBundle10: { petEgg: 300 }
+        }
+      };
+
+      function getTaskResourceCosts(dayKey, taskKey) {
+        return (taskResourceCosts[dayKey] || {})[taskKey] || null;
+      }
+
+      function getAffordableTaskIncrease(dayKey, taskKey) {
+        const costs = getTaskResourceCosts(dayKey, taskKey);
+        if (!costs) return Number.POSITIVE_INFINITY;
+
+        let affordable = Number.POSITIVE_INFINITY;
+
+        for (const [resourceKey, costPerAction] of Object.entries(costs)) {
+          if (costPerAction <= 0) continue;
+
+          affordable = Math.min(
+            affordable,
+            Math.floor(getOwnedResourceAmount(resourceKey) / costPerAction)
+          );
+        }
+
+        return Number.isFinite(affordable) ? affordable : 0;
+      }
+
+      function canAffordTaskIncrease(dayKey, taskKey, step = 1) {
+        const costs = getTaskResourceCosts(dayKey, taskKey);
+        if (!costs) return true;
+
+        return getAffordableTaskIncrease(dayKey, taskKey) >= step;
+      }
+
+      function setResourceTaskCount(dayKey, taskKey, requestedCount) {
+        const day = state.days[dayKey];
+        const costs = getTaskResourceCosts(dayKey, taskKey);
+        if (!day || !costs) return null;
+
+        const oldCount = toInt(day[taskKey]);
+        let nextCount = Math.max(0, toInt(requestedCount));
+
+        if (nextCount > oldCount) {
+          const requestedIncrease = nextCount - oldCount;
+          const actualIncrease = Math.min(
+            requestedIncrease,
+            getAffordableTaskIncrease(dayKey, taskKey)
+          );
+
+          nextCount = oldCount + actualIncrease;
+
+          for (const [resourceKey, costPerAction] of Object.entries(costs)) {
+            setOwnedResourceAmount(
+              resourceKey,
+              getOwnedResourceAmount(resourceKey) -
+                actualIncrease * costPerAction
+            );
+          }
+        } else if (nextCount < oldCount) {
+          const returnedActions = oldCount - nextCount;
+
+          for (const [resourceKey, costPerAction] of Object.entries(costs)) {
+            setOwnedResourceAmount(
+              resourceKey,
+              getOwnedResourceAmount(resourceKey) +
+                returnedActions * costPerAction
+            );
+          }
+        }
+
+        day[taskKey] = nextCount;
+        return nextCount;
+      }
+
+      function returnAllResourceTasksForDay(dayKey) {
+        const dayCosts = taskResourceCosts[dayKey] || {};
+
+        for (const taskKey of Object.keys(dayCosts)) {
+          setResourceTaskCount(dayKey, taskKey, 0);
+        }
+      }
+
+      function getPetCultivationAllIn(day, currentMarathonScore) {
+        const availableSpirit = getOwnedResourceAmount("spiritStone");
+        const availableUnchanging =
+          getOwnedResourceAmount("unchangingStone");
+
+        const additionalActions = Math.floor(availableSpirit / 200);
+        const usableUnchanging = Math.min(
+          availableUnchanging,
+          additionalActions * 4
+        );
+
+        return {
+          marathonScore:
+            currentMarathonScore +
+            additionalActions * 3000 +
+            usableUnchanging * 1750,
+          archaeologyScore:
+            getPetCultivationSummary(day).spiritStones * 5 +
+            additionalActions * 1000
+        };
+      }
+
+      function getPetEggAllIn(petEggSummary, includeArchaeology = true) {
+        const additionalActions = Math.floor(
+          getOwnedResourceAmount("petEgg") / 30
+        );
+        const additionalOpenedEggs = additionalActions * 35;
+
+        return {
+          marathonScore:
+            petEggSummary.marathonScore +
+            additionalOpenedEggs * 60,
+          archaeologyScore: includeArchaeology
+            ? petEggSummary.archaeologyScore +
+              additionalOpenedEggs * 20
+            : 0
+        };
+      }
+
+      function updateOwnedResourceDisplay(key) {
+        const resource = state.ownedResources[key];
+        if (!resource) return;
+
+        const valueInput = els.ownedResourceValues.find(
+          input => input.dataset.ownedResourceValue === key
+        );
+        const unitSelect = els.ownedResourceUnits.find(
+          select => select.dataset.ownedResourceUnit === key
+        );
+        const converted = els.ownedResourceConverted.find(
+          item => item.dataset.ownedResourceConverted === key
+        );
+
+        if (valueInput && document.activeElement !== valueInput) {
+          valueInput.value = resource.value;
+        }
+
+        if (unitSelect) {
+          unitSelect.value = ["", "K", "M"].includes(resource.unit)
+            ? resource.unit
+            : "";
+        }
+
+        if (converted) {
+          converted.textContent =
+            `換算：${format(getOwnedResourceAmount(key))} ` +
+            ownedResourceLabels[key];
+        }
+      }
+
+      function updateAllOwnedResourceDisplays() {
+        for (const key of Object.keys(ownedResourceLabels)) {
+          updateOwnedResourceDisplay(key);
+        }
+      }
+
+      function sanitizeOwnedStaminaInput(rawValue) {
+        let value = String(rawValue ?? "")
+          .replace(/,/g, ".")
+          .replace(/[^\d.]/g, "");
+
+        const firstDot = value.indexOf(".");
+        if (firstDot !== -1) {
+          value =
+            value.slice(0, firstDot + 1) +
+            value.slice(firstDot + 1).replace(/\./g, "");
+        }
+
+        return value;
+      }
+
+      function updateOwnedStaminaConvertedText() {
+        els.ownedStaminaConverted.textContent =
+          `換算：${format(getOwnedStaminaAmount())} 體力`;
+      }
+
+      function refreshOwnedStaminaScores() {
+        updateOwnedStaminaConvertedText();
+        saveState();
+
+        if (["mon", "wed", "sat"].includes(state.activeDay)) {
+          renderTaskPanel();
+          renderSummary();
+        }
+      }
+
+      function toInt(value) {
+        const number = Number(value);
+        return Number.isFinite(number) ? Math.max(0, Math.floor(number)) : 0;
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function format(value) {
+        return new Intl.NumberFormat("zh-TW").format(value);
+      }
+
+      function getRecommendedDungeon(settings = state.settings) {
+        const base = 8;
+        const monthly = settings.monthlyCard ? 2 : 0;
+        const lifetime = settings.lifetimeCard ? 4 : 0;
+        const ads = settings.watchAds ? 8 : 0;
+
+        const pieces = ["基本 8"];
+        if (monthly) pieces.push("月卡 +2");
+        if (lifetime) pieces.push("終身卡 +4");
+        if (ads) pieces.push("廣告 +8");
+
+        return {
+          total: base + monthly + lifetime + ads,
+          formula: pieces.join("・")
+        };
+      }
+
+      function getArenaGemCost(totalAttempts) {
+        const paidAttempts = clamp(toInt(totalAttempts) - 5, 0, 20);
+        return {
+          paidAttempts,
+          gems: arenaCumulativeGemCosts[paidAttempts]
+        };
+      }
+
+      function mondayArchaeologyStaminaScore(stamina) {
+        return Math.min(stamina, 200) * 100 +
+          Math.max(0, stamina - 200) * 1;
+      }
+
+      function wednesdayArchaeologyStaminaScore(stamina) {
+        return Math.min(stamina, 200) * 200 +
+          Math.max(0, stamina - 200) * 20;
+      }
+
+      function archaeologyGoblinScore(count) {
+        return Math.min(count, 200) * 20 + Math.max(0, count - 200) * 2;
+      }
+
+      function loadState() {
+        const base = defaultState();
+
+        try {
+          const current = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          if (current && current.settings && current.days) {
+            const settings = { ...base.settings, ...current.settings };
+            return {
+              activeDay: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"].includes(current.activeDay) ? current.activeDay : "mon",
+              settings,
+              ownedStamina: {
+                ...base.ownedStamina,
+                ...(current.ownedStamina || {})
+              },
+              ownedResources: {
+                spiritStone: {
+                  ...base.ownedResources.spiritStone,
+                  ...((current.ownedResources || {}).spiritStone || {})
+                },
+                unchangingStone: {
+                  ...base.ownedResources.unchangingStone,
+                  ...((current.ownedResources || {}).unchangingStone || {})
+                },
+                petEgg: {
+                  ...base.ownedResources.petEgg,
+                  ...((current.ownedResources || {}).petEgg || {})
+                }
+              },
+              inventory: {
+                ...base.inventory,
+                ...(current.inventory || {})
+              },
+              days: {
+                mon: {
+                  ...defaultMonday(settings),
+                  ...(current.days.mon || {}),
+                  staminaCounts: {
+                    ...defaultMonday(settings).staminaCounts,
+                    ...((current.days.mon || {}).staminaCounts || {})
+                  }
+                },
+                tue: {
+                  ...defaultTuesday(settings),
+                  ...(current.days.tue || {})
+                },
+                wed: normalizeWednesday(current.days.wed, settings),
+                thu: normalizeThursday(current.days.thu, settings),
+                fri: normalizeFriday(current.days.fri, settings),
+                sat: normalizeSaturday(current.days.sat, settings),
+                sun: normalizeSunday(current.days.sun, settings)
+              }
+            };
+          }
+
+          for (const key of LEGACY_KEYS) {
+            const legacy = JSON.parse(localStorage.getItem(key));
+            if (!legacy || typeof legacy !== "object") continue;
+
+            // v8～v10 已使用 settings／days 結構，完整保留週一與週二紀錄。
+            if (legacy.settings && legacy.days) {
+              const settings = { ...base.settings, ...legacy.settings };
+
+              return {
+                activeDay: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"].includes(legacy.activeDay)
+                  ? legacy.activeDay
+                  : "mon",
+                settings,
+                ownedStamina: {
+                  ...base.ownedStamina,
+                  ...(legacy.ownedStamina || {})
+                },
+                ownedResources: {
+                  spiritStone: {
+                    ...base.ownedResources.spiritStone,
+                    ...((legacy.ownedResources || {}).spiritStone || {})
+                  },
+                  unchangingStone: {
+                    ...base.ownedResources.unchangingStone,
+                    ...((legacy.ownedResources || {}).unchangingStone || {})
+                  },
+                  petEgg: {
+                    ...base.ownedResources.petEgg,
+                    ...((legacy.ownedResources || {}).petEgg || {})
+                  }
+                },
+                inventory: {
+                  ...base.inventory,
+                  ...(legacy.inventory || {})
+                },
+                days: {
+                  mon: {
+                    ...defaultMonday(settings),
+                    ...(legacy.days.mon || {}),
+                    staminaCounts: {
+                      ...defaultMonday(settings).staminaCounts,
+                      ...((legacy.days.mon || {}).staminaCounts || {})
+                    }
+                  },
+                  tue: {
+                    ...defaultTuesday(settings),
+                    ...(legacy.days.tue || {})
+                  },
+                  wed: normalizeWednesday(legacy.days.wed, settings),
+                  thu: normalizeThursday(legacy.days.thu, settings),
+                  fri: normalizeFriday(legacy.days.fri, settings),
+                  sat: normalizeSaturday(legacy.days.sat, settings),
+                  sun: normalizeSunday(legacy.days.sun, settings)
+                }
+              };
+            }
+
+            // 更早期的單日扁平資料格式。
+            const settings = {
+              monthlyCard: Boolean(legacy.monthlyCard),
+              weeklyCard: Boolean(legacy.weeklyCard),
+              lifetimeCard: Boolean(legacy.lifetimeCard),
+              watchAds: Boolean(legacy.watchAds),
+              tradeCard: Boolean(legacy.tradeCard)
+            };
+
+            return {
+              activeDay: "mon",
+              settings,
+              ownedStamina: {
+                value: 0,
+                unit: "K"
+              },
+              ownedResources: {
+                spiritStone: {
+                  value: 0,
+                  unit: "K"
+                },
+                unchangingStone: {
+                  value: 0,
+                  unit: ""
+                },
+                petEgg: {
+                  value: 0,
+                  unit: "K"
+                }
+              },
+              inventory: defaultChestInventory(),
+              days: {
+                mon: {
+                  ...defaultMonday(settings),
+                  staminaCounts: {
+                    ...defaultMonday(settings).staminaCounts,
+                    ...(legacy.staminaCounts || {})
+                  },
+                  heroSupply: toInt(legacy.heroSupply),
+                  adventurerSupply: toInt(legacy.adventurerSupply),
+                  dungeonCount: toInt(legacy.dungeonCount),
+                  guildRaid: clamp(toInt(legacy.guildRaid), 0, 2),
+                  arena: clamp(toInt(legacy.arena), 0, 25),
+                  equipBox: toInt(legacy.equipBox),
+                  cube: toInt(legacy.cube),
+                  goblin: toInt(legacy.goblin),
+                  emeraldPack: toInt(legacy.emeraldPack)
+                },
+                tue: defaultTuesday(settings),
+                wed: defaultWednesday(settings),
+                thu: defaultThursday(settings),
+                fri: defaultFriday(settings),
+                sat: defaultSaturday(settings),
+                sun: defaultSunday(settings)
+              }
+            };
+          }
+        } catch {
+          return base;
+        }
+
+        return base;
+      }
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function activeData() {
+        return state.days[state.activeDay];
+      }
+
+      function isStaminaUnlocked(option) {
+        if (option.requires === "monthly") return state.settings.monthlyCard;
+        if (option.requires === "weekly") return state.settings.weeklyCard;
+        return true;
+      }
+
+      function getMondayStaminaSummary() {
+        const day = state.days.mon;
+        let stamina = 0;
+        let actions = 0;
+
+        for (const [id, rawCount] of Object.entries(day.staminaCounts)) {
+          const option = optionMap.get(id);
+          if (!option) continue;
+          const count = toInt(rawCount);
+          stamina += option.stamina * count;
+          actions += count;
+        }
+
+        return {
+          stamina,
+          actions,
+          marathonScore: stamina * MARATHON_STAMINA_RATE,
+          archaeologyScore: mondayArchaeologyStaminaScore(stamina)
+        };
+      }
+
+      function getPetCultivationSummary(day) {
+        const variants = [
+          ["petBase", 0],
+          ["petStone1", 1],
+          ["petStone2", 2],
+          ["petStone3", 3],
+          ["petStone4", 4]
+        ];
+
+        let actions = 0;
+        const stable = [0, 0, 0, 0, 0];
+
+        for (const [key, level] of variants) {
+          const count = toInt(day[key]);
+          actions += count;
+          stable[level] = count;
+        }
+
+        const unchangingStoneTotal =
+          stable[1] * 1 +
+          stable[2] * 2 +
+          stable[3] * 3 +
+          stable[4] * 4;
+
+        return {
+          actions,
+          spiritStones: actions * 200,
+          stable,
+          unchangingStoneTotal
+        };
+      }
+
+      function getTuesdayPetSummary() {
+        return getPetCultivationSummary(state.days.tue);
+      }
+
+      function getMondayScores() {
+        const day = state.days.mon;
+        const stamina = getMondayStaminaSummary();
+
+        const marathon =
+          stamina.marathonScore +
+          day.heroSupply * 300 +
+          day.adventurerSupply * 100 +
+          day.equipBox * 3000;
+
+        const archaeology =
+          stamina.archaeologyScore +
+          day.equipBox * 1000 +
+          day.cube * 5000 +
+          day.dungeonCount * 200 +
+          day.guildRaid * 1000 +
+          archaeologyGoblinScore(day.goblin) +
+          day.arena * 400 +
+          day.emeraldPack * 50;
+
+        return { marathon, archaeology };
+      }
+
+      function getTuesdayScores() {
+        const day = state.days.tue;
+        const pet = getTuesdayPetSummary();
+
+        const marathon =
+          day.goblin * 40 +
+          day.petBase * 3000 +
+          day.petStone1 * 4750 +
+          day.petStone2 * 6500 +
+          day.petStone3 * 8250 +
+          day.petStone4 * 10000;
+
+        const archaeology =
+          archaeologyGoblinScore(day.goblin) +
+          pet.spiritStones * 5 +
+          day.tradeShip * 8000 +
+          day.treasureDraw * 1000 +
+          day.dungeonCount * 200 +
+          day.guildRaid * 1000 +
+          day.arena * 400 +
+          day.emeraldPack * 50;
+
+        return { marathon, archaeology };
+      }
+
+      function getWednesdayPetEggSummary() {
+        const day = state.days.wed;
+        const variants = [
+          ["petEggBundle1", 1],
+          ["petEggBundle3", 3],
+          ["petEggBundle5", 5],
+          ["petEggBundle10", 10]
+        ];
+
+        let actions = 0;
+        let consumedEggs = 0;
+        let bonusEggs = 0;
+        let openedEggs = 0;
+
+        for (const [key, multiplier] of variants) {
+          const count = toInt(day[key]);
+          actions += count;
+          consumedEggs += count * 30 * multiplier;
+          bonusEggs += count * 5 * multiplier;
+          openedEggs += count * 35 * multiplier;
+        }
+
+        return {
+          actions,
+          consumedEggs,
+          bonusEggs,
+          openedEggs,
+          marathonScore: openedEggs * 60,
+          archaeologyScore: openedEggs * 20
+        };
+      }
+
+      function getWednesdayStaminaSummary() {
+        const day = state.days.wed;
+        let stamina = 0;
+        let actions = 0;
+
+        for (const [id, rawCount] of Object.entries(day.staminaCounts)) {
+          const option = optionMap.get(id);
+          if (!option) continue;
+
+          const count = toInt(rawCount);
+          stamina += option.stamina * count;
+          actions += count;
+        }
+
+        return {
+          stamina,
+          actions,
+          archaeologyScore: wednesdayArchaeologyStaminaScore(stamina)
+        };
+      }
+
+      function getWednesdayScores() {
+        const day = state.days.wed;
+        const stamina = getWednesdayStaminaSummary();
+        const petEggs = getWednesdayPetEggSummary();
+
+        const marathon =
+          day.guildRaid * 3750 +
+          petEggs.marathonScore;
+
+        const archaeology =
+          stamina.archaeologyScore +
+          petEggs.archaeologyScore +
+          day.brandDraw * 1000 +
+          day.dungeonCount * 200 +
+          day.guildRaid * 1000 +
+          archaeologyGoblinScore(day.goblin) +
+          day.arena * 400 +
+          day.emeraldPack * 50;
+
+        return { marathon, archaeology };
+      }
+
+      function getChestSummary(dayKey) {
+        const day = state.days[dayKey];
+        let openedBoxes = 0;
+        let chestPoints = 0;
+
+        for (const [key, config] of Object.entries(chestConfigs)) {
+          const opened = toInt(day[key]);
+          openedBoxes += opened;
+          chestPoints += opened * config.pointPerBox;
+        }
+
+        return {
+          openedBoxes,
+          chestPoints,
+          marathonScore: chestPoints * 48,
+          archaeologyScore: chestPoints * 15
+        };
+      }
+
+      function getHeldChestSummary() {
+        let heldBoxes = 0;
+        let chestPoints = 0;
+
+        for (const [key, config] of Object.entries(chestConfigs)) {
+          const held = toInt(state.inventory[key]);
+          heldBoxes += held;
+          chestPoints += held * config.pointPerBox;
+        }
+
+        return {
+          heldBoxes,
+          chestPoints,
+          marathonScore: chestPoints * 48,
+          archaeologyScore: chestPoints * 15
+        };
+      }
+
+      function getChestAllInSummary(dayKey) {
+        const current = getChestSummary(dayKey);
+        const held = getHeldChestSummary();
+        const chestPoints = current.chestPoints + held.chestPoints;
+
+        return {
+          openedBoxes: current.openedBoxes + held.heldBoxes,
+          chestPoints,
+          marathonScore: chestPoints * 48,
+          archaeologyScore: chestPoints * 15
+        };
+      }
+
+      function getThursdayScores() {
+        const day = state.days.thu;
+        const chests = getChestSummary("thu");
+
+        const marathon =
+          day.dungeonCount * 500 +
+          chests.marathonScore;
+
+        const archaeology =
+          day.tradeShip * 8000 +
+          chests.archaeologyScore +
+          day.treasureDraw * 1000 +
+          day.dungeonCount * 200 +
+          day.guildRaid * 1000 +
+          archaeologyGoblinScore(day.goblin) +
+          day.arena * 400 +
+          day.emeraldPack * 50;
+
+        return { marathon, archaeology };
+      }
+
+      function getSundayPetEggSummary() {
+        const day = state.days.sun;
+        const variants = [
+          ["petEggBundle1", 1],
+          ["petEggBundle3", 3],
+          ["petEggBundle5", 5],
+          ["petEggBundle10", 10]
+        ];
+
+        let actions = 0;
+        let consumedEggs = 0;
+        let bonusEggs = 0;
+        let openedEggs = 0;
+
+        for (const [key, multiplier] of variants) {
+          const count = toInt(day[key]);
+          actions += count;
+          consumedEggs += count * 30 * multiplier;
+          bonusEggs += count * 5 * multiplier;
+          openedEggs += count * 35 * multiplier;
+        }
+
+        return {
+          actions,
+          consumedEggs,
+          bonusEggs,
+          openedEggs,
+          marathonScore: openedEggs * 60
+        };
+      }
+
+      function getSaturdayStaminaSummary() {
+        const day = state.days.sat;
+        let stamina = 0;
+        let actions = 0;
+
+        for (const [id, rawCount] of Object.entries(day.staminaCounts)) {
+          const option = optionMap.get(id);
+          if (!option) continue;
+
+          const count = toInt(rawCount);
+          stamina += option.stamina * count;
+          actions += count;
+        }
+
+        return {
+          stamina,
+          actions,
+          archaeologyScore: wednesdayArchaeologyStaminaScore(stamina)
+        };
+      }
+
+      function getFridayScores() {
+        const day = state.days.fri;
+        const gemRefine = getFridayGemRefineSummary();
+
+        const marathon =
+          day.guruTicket * 1500 +
+          day.gemDraw * 3000;
+
+        const archaeology =
+          day.guruTicket * 4000 +
+          day.gemDraw * 1000 +
+          gemRefine.archaeologyScore +
+          day.dungeonCount * 200 +
+          day.guildRaid * 1000 +
+          archaeologyGoblinScore(day.goblin) +
+          day.arena * 400 +
+          day.emeraldPack * 50;
+
+        return { marathon, archaeology };
+      }
+
+      function getSaturdayScores() {
+        const day = state.days.sat;
+        const stamina = getSaturdayStaminaSummary();
+
+        const marathon =
+          day.dungeonTicket * 3750 +
+          day.horseshoe * 32;
+
+        const archaeology =
+          day.horseshoe * 10 +
+          day.brandDraw * 1000 +
+          day.dungeonCount * 200 +
+          stamina.archaeologyScore +
+          day.guildRaid * 1000 +
+          archaeologyGoblinScore(day.goblin) +
+          day.arena * 400 +
+          day.emeraldPack * 50;
+
+        return { marathon, archaeology };
+      }
+
+      function getSundayScores() {
+        const day = state.days.sun;
+        const petEggs = getSundayPetEggSummary();
+        const petCultivation = getPetCultivationSummary(day);
+        const chests = getChestSummary("sun");
+
+        const petCultivationScore =
+          day.petBase * 3000 +
+          day.petStone1 * 4750 +
+          day.petStone2 * 6500 +
+          day.petStone3 * 8250 +
+          day.petStone4 * 10000;
+
+        const marathon =
+          day.arena * 750 +
+          day.equipBox * 3000 +
+          day.heroSupply * 300 +
+          day.adventurerSupply * 100 +
+          day.horseshoe * 32 +
+          petEggs.marathonScore +
+          chests.marathonScore +
+          day.gemDraw * 3000 +
+          petCultivationScore;
+
+        return { marathon, archaeology: 0 };
+      }
+
+      function getScoresForDay(dayKey) {
+        if (dayKey === "mon") return getMondayScores();
+        if (dayKey === "tue") return getTuesdayScores();
+        if (dayKey === "wed") return getWednesdayScores();
+        if (dayKey === "thu") return getThursdayScores();
+        if (dayKey === "fri") return getFridayScores();
+        if (dayKey === "sat") return getSaturdayScores();
+        return getSundayScores();
+      }
+
+      function getActiveScores() {
+        return getScoresForDay(state.activeDay);
+      }
+
+      function getMarathonStars(score) {
+        return marathonStages.reduce(
+          (sum, stage) => sum + (score >= stage.score ? stage.stars : 0),
+          0
+        );
+      }
+
+      function getArchaeologyPickaxes(score) {
+        return archaeologyStages.reduce(
+          (sum, stage) => sum + (score >= stage.score ? stage.pickaxes : 0),
+          0
+        );
+      }
+
+      function taskCounter(key, options = {}) {
+        const value = toInt(activeData()[key]);
+        const maxAttr = options.max == null ? "" : ` max="${options.max}"`;
+        const step = toInt(options.step || 1) || 1;
+        const maxReached =
+          options.max != null && value >= options.max;
+        const resourceBlocked =
+          !canAffordTaskIncrease(state.activeDay, key, step);
+
+        return `
+          <div class="task-counter" data-counter-key="${key}" data-counter-step="${step}">
+            <button type="button" data-task-change="-1" ${value <= 0 ? "disabled" : ""}>−</button>
+            <input type="number" min="0"${maxAttr} step="${step}" inputmode="numeric"
+                   data-task-input="${key}" value="${value}" />
+            <button type="button" data-task-change="1"
+                    ${maxReached || resourceBlocked ? "disabled" : ""}>＋</button>
+          </div>
+        `;
+      }
+
+      function taskRow({ key, name, meta, scoreHtml, max, step, className = "", extraHtml = "" }) {
+        const value = toInt(activeData()[key]);
+        return `
+          <div class="task-row ${className} ${value > 0 ? "has-value" : ""}">
+            <div class="task-info">
+              <div class="task-name">${name}</div>
+              <div class="task-meta">${meta}</div>
+              <div class="task-score">${scoreHtml}</div>
+              ${extraHtml}
+            </div>
+            ${taskCounter(key, { max, step })}
+          </div>
+        `;
+      }
+
+      function renderStaminaOptions(dayKey = "mon") {
+        const day = state.days[dayKey];
+        const isMonday = dayKey === "mon";
+
+        return staminaGroups.map(group => `
+          <div class="source-group">
+            <div class="source-title">
+              <strong>${group.title}</strong>
+              <span>${group.hint}</span>
+            </div>
+
+            <div class="option-list">
+              ${group.options
+                .filter(option => isStaminaUnlocked(option))
+                .map(option => {
+                  const count = toInt(day.staminaCounts[option.id]);
+                  const canIncrease =
+                    getOwnedStaminaAmount() >= option.stamina;
+
+                  return `
+                    <article class="stamina-option ${count > 0 ? "has-value" : ""}">
+                      <div class="option-info">
+                        <span class="option-name">${option.label}</span>
+                        <span class="option-meta">${format(option.stamina)} 體力</span>
+                        <span class="score-pair">
+                          ${isMonday ? `
+                            <span class="score-chip marathon">馬拉松 ${format(option.stamina * 75)}／次</span>
+                            <span class="score-chip archaeology">考古 ${format(option.stamina * 100)}／次（200 體內）</span>
+                            <span class="score-chip reduced">考古 ${format(option.stamina * 1)}／次（超過 200 體）</span>
+                          ` : `
+                            <span class="score-chip archaeology">考古 ${format(option.stamina * 200)}／次（200 體內）</span>
+                            <span class="score-chip reduced">考古 ${format(option.stamina * 20)}／次（超過 200 體）</span>
+                          `}
+                        </span>
+                      </div>
+
+                      <div class="counter-wrap">
+                        <span>（</span>
+                        <div class="counter">
+                          <button type="button" data-stamina-change="-1" data-option="${option.id}"
+                                  ${count === 0 ? "disabled" : ""}>−</button>
+                          <input type="number" min="0" step="1" inputmode="numeric"
+                                 value="${count}" data-stamina-input="${option.id}" />
+                          <button type="button" data-stamina-change="1" data-option="${option.id}"
+                                  ${canIncrease ? "" : "disabled"}>＋</button>
+                        </div>
+                        <span>）</span>
+                      </div>
+                    </article>
+                  `;
+                }).join("")}
+            </div>
+          </div>
+        `).join("");
+      }
+
+      function renderMondayTasks() {
+        const day = state.days.mon;
+        const stamina = getMondayStaminaSummary();
+        const ownedStamina = getOwnedStaminaAmount();
+        const allInStamina = stamina.stamina + ownedStamina;
+        const allInMarathonScore = allInStamina * MARATHON_STAMINA_RATE;
+        const allInArchaeologyScore =
+          mondayArchaeologyStaminaScore(allInStamina);
+        const arenaCost = getArenaGemCost(day.arena);
+        const dungeon = getRecommendedDungeon();
+
+        return `
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>無消耗型任務</strong>
+              <span class="type-badge type-free">免費／廣告／每日重置</span>
+            </div>
+
+            <div class="task-list">
+              ${taskRow({
+                key: "heroSupply",
+                name: "英雄補給寶箱",
+                meta: "每日廣告 1 次；其他管道取得的鑰匙可額外增加",
+                scoreHtml: `<span class="marathon">馬拉松 ${format(day.heroSupply * 300)} 分</span>`
+              })}
+
+              ${taskRow({
+                key: "adventurerSupply",
+                name: "冒險者補給寶箱",
+                meta: "每日直送 1 次＋廣告 3 次；其他管道取得的鑰匙可額外增加",
+                scoreHtml: `<span class="marathon">馬拉松 ${format(day.adventurerSupply * 100)} 分</span>`
+              })}
+
+              ${taskRow({
+                key: "dungeonCount",
+                name: "通關任意副本",
+                meta: `聯合考古 200 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
+                scoreHtml: `<span class="archaeology">考古 ${format(day.dungeonCount * 200)} 分</span>`,
+                className: "auto",
+                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
+              })}
+
+              ${taskRow({
+                key: "guildRaid",
+                name: "挑戰公會討伐",
+                meta: "每日重置 2 次，不可累積；一天最多 2 次",
+                scoreHtml: `<span class="archaeology">考古 ${format(day.guildRaid * 1000)} 分</span>`,
+                max: 2
+              })}
+
+              ${taskRow({
+                key: "arena",
+                name: "挑戰競技場",
+                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次",
+                scoreHtml: `
+                  <span class="archaeology">考古 ${format(day.arena * 400)} 分</span>
+                  <span class="arena-cost">${arenaCost.paidAttempts > 0
+                    ? `加購 ${arenaCost.paidAttempts} 次・累計 ${format(arenaCost.gems)} 寶石`
+                    : "免費次數內・0 寶石"}</span>
+                `,
+                max: 25
+              })}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>共用消耗型任務</strong>
+              <span class="type-badge type-shared">馬拉松＋聯合考古同步</span>
+            </div>
+
+            <div class="task-block-title">
+              <strong>消耗體力</strong>
+              <span>考古前 200 體每點 100 分，超過後每點 1 分</span>
+            </div>
+
+            <div class="stamina-summary">
+              <div class="mini-stat"><span>累計體力</span><strong>${format(stamina.stamina)}</strong></div>
+              <div class="mini-stat"><span>操作次數</span><strong>${format(stamina.actions)}</strong></div>
+              <div class="mini-stat marathon">
+                <span>馬拉松積分</span>
+                <strong>${format(stamina.marathonScore)}</strong>
+                <small class="all-in-score">持有體力 ALL IN：${format(allInMarathonScore)}</small>
+              </div>
+              <div class="mini-stat archaeology">
+                <span>考古積分</span>
+                <strong>${format(stamina.archaeologyScore)}</strong>
+                <small class="all-in-score">持有體力 ALL IN：${format(allInArchaeologyScore)}</small>
+              </div>
+            </div>
+
+            <div id="staminaOptions">${renderStaminaOptions("mon")}</div>
+
+            <div class="task-list" style="margin-top: 9px;">
+              ${taskRow({
+                key: "equipBox",
+                name: "限定秘藏箱／傳說秘寶箱 抽 1 次裝備",
+                meta: "同一個抽取次數會同時套用兩個活動",
+                scoreHtml: `
+                  <span class="marathon">馬拉松 ${format(day.equipBox * 3000)} 分</span>
+                  <span class="archaeology">考古 ${format(day.equipBox * 1000)} 分</span>
+                `
+              })}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>聯合考古專屬消耗型任務</strong>
+              <span class="type-badge type-arch">只計入聯合考古</span>
+            </div>
+
+            <div class="task-list">
+              ${taskRow({
+                key: "cube",
+                name: "靈能洗練 消耗神兵魔方",
+                meta: "5,000 分／個",
+                scoreHtml: `<span class="archaeology">考古 ${format(day.cube * 5000)} 分</span>`
+              })}
+
+              ${taskRow({
+                key: "goblin",
+                name: "哥布林礦工挖礦",
+                meta: "前 200 次每次 20 分，超過後每次 2 分",
+                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyGoblinScore(day.goblin))} 分</span>`
+              })}
+
+              ${taskRow({
+                key: "emeraldPack",
+                name: "購買價值 100 翡翠石禮包",
+                meta: "50 分／個",
+                scoreHtml: `<span class="archaeology">考古 ${format(day.emeraldPack * 50)} 分</span>`
+              })}
+            </div>
+          </div>
+        `;
+      }
+
+      function renderTuesdayTasks() {
+        const day = state.days.tue;
+        const pet = getTuesdayPetSummary();
+        const arenaCost = getArenaGemCost(day.arena);
+        const dungeon = getRecommendedDungeon();
+
+        const petRows = [
+          ["petBase", "寵物培育｜不鎖定詞綴", 3000, 0],
+          ["petStone1", "寵物培育｜鎖定 1 條詞綴", 4750, 1],
+          ["petStone2", "寵物培育｜鎖定 2 條詞綴", 6500, 2],
+          ["petStone3", "寵物培育｜鎖定 3 條詞綴", 8250, 3],
+          ["petStone4", "寵物培育｜鎖定 4 條詞綴", 10000, 4]
+        ];
+
+        const petMarathonScore =
+          day.petBase * 3000 +
+          day.petStone1 * 4750 +
+          day.petStone2 * 6500 +
+          day.petStone3 * 8250 +
+          day.petStone4 * 10000;
+
+        const petAllIn = getPetCultivationAllIn(
+          day,
+          petMarathonScore
+        );
+
+        return `
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>無消耗型任務</strong>
+              <span class="type-badge type-free">免費／廣告／每日重置</span>
+            </div>
+
+            <div class="task-list">
+              ${taskRow({
+                key: "dungeonCount",
+                name: "通關任意副本",
+                meta: `考古 200 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
+                scoreHtml: `<span class="archaeology">考古 ${format(day.dungeonCount * 200)} 分</span>`,
+                className: "auto",
+                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
+              })}
+
+              ${taskRow({
+                key: "guildRaid",
+                name: "挑戰公會討伐",
+                meta: "每日重置 2 次，不可累積；一天最多 2 次",
+                scoreHtml: `<span class="archaeology">考古 ${format(day.guildRaid * 1000)} 分</span>`,
+                max: 2
+              })}
+
+              ${taskRow({
+                key: "arena",
+                name: "挑戰競技場",
+                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次",
+                scoreHtml: `
+                  <span class="archaeology">考古 ${format(day.arena * 400)} 分</span>
+                  <span class="arena-cost">${arenaCost.paidAttempts > 0
+                    ? `加購 ${arenaCost.paidAttempts} 次・累計 ${format(arenaCost.gems)} 寶石`
+                    : "免費次數內・0 寶石"}</span>
+                `,
+                max: 25
+              })}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>共用消耗型任務</strong>
+              <span class="type-badge type-shared">馬拉松＋聯合考古同步</span>
+            </div>
+
+            <div class="resource-summary five-stats">
+              <div class="mini-stat">
+                <span>培育總次數</span>
+                <strong>${format(pet.actions)}</strong>
+              </div>
+              <div class="mini-stat">
+                <span>消耗靈石</span>
+                <strong>${format(pet.spiritStones)}</strong>
+              </div>
+              <div class="mini-stat">
+                <span>消耗不變石</span>
+                <strong>${format(pet.unchangingStoneTotal)}</strong>
+              </div>
+              <div class="mini-stat marathon">
+                <span>馬拉松培育分數</span>
+                <strong>${format(petMarathonScore)}</strong>
+                <small class="all-in-score">持有靈石＋不變石 ALL IN：${format(petAllIn.marathonScore)}</small>
+              </div>
+              <div class="mini-stat archaeology">
+                <span>考古培育分數</span>
+                <strong>${format(pet.spiritStones * 5)}</strong>
+                <small class="all-in-score">持有靈石 ALL IN：${format(petAllIn.archaeologyScore)}</small>
+              </div>
+            </div>
+
+            <div class="task-list">
+              ${taskRow({
+                key: "goblin",
+                name: "哥布林礦工挖礦",
+                meta: "馬拉松每次固定 40 分、無上限；考古超過 200 次後由每次 20 分降為 2 分",
+                scoreHtml: `
+                  <span class="marathon">馬拉松 ${format(day.goblin * 40)} 分</span>
+                  <span class="archaeology">考古 ${format(archaeologyGoblinScore(day.goblin))} 分</span>
+                `
+              })}
+
+              ${petRows.map(([key, name, marathonRate, lockedAffixes]) => {
+                const count = toInt(day[key]);
+                const stonePerAction = lockedAffixes;
+                const stoneTotal = count * stonePerAction;
+
+                const perActionText = stonePerAction === 0
+                  ? "每次消耗 200 靈石，隨機刷新 5 條詞綴"
+                  : `每次消耗 200 靈石＋${stonePerAction} 顆不變石，鎖定 ${lockedAffixes} 條詞綴`;
+
+                const totalText = stonePerAction === 0
+                  ? `累計消耗：靈石 ${format(count * 200)}`
+                  : `累計消耗：靈石 ${format(count * 200)}・不變石 ${format(stoneTotal)} 顆`;
+
+                return taskRow({
+                  key,
+                  name,
+                  meta: `${perActionText}・${totalText}`,
+                  scoreHtml: `
+                    <span class="marathon">馬拉松 ${format(count * marathonRate)} 分（${format(marathonRate)}／次）</span>
+                    <span class="archaeology">考古 ${format(count * 1000)} 分（1,000／次）</span>
+                  `
+                });
+              }).join("")}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>聯合考古專屬消耗型任務</strong>
+              <span class="type-badge type-arch">只計入聯合考古</span>
+            </div>
+
+            <div class="task-list">
+              ${taskRow({
+                key: "tradeShip",
+                name: "卡皮貿易 發 UR／閃金商船",
+                meta: `8,000 分／艘・每日上限 ${state.settings.tradeCard ? 6 : 4} 艘${state.settings.tradeCard ? "（貿易卡 +2）" : ""}`,
+                scoreHtml: `<span class="archaeology">考古 ${format(day.tradeShip * 8000)} 分</span>`,
+                max: state.settings.tradeCard ? 6 : 4
+              })}
+
+              ${taskRow({
+                key: "treasureDraw",
+                name: "珍寶商店 抽 1 次秘寶",
+                meta: "1,000 分／次",
+                scoreHtml: `<span class="archaeology">考古 ${format(day.treasureDraw * 1000)} 分</span>`
+              })}
+
+              ${taskRow({
+                key: "emeraldPack",
+                name: "購買價值 100 翡翠石禮包",
+                meta: "50 分／個",
+                scoreHtml: `<span class="archaeology">考古 ${format(day.emeraldPack * 50)} 分</span>`
+              })}
+            </div>
+          </div>
+        `;
+      }
+
+      function renderWednesdayTasks() {
+        const day = state.days.wed;
+        const stamina = getWednesdayStaminaSummary();
+        const ownedStamina = getOwnedStaminaAmount();
+        const allInArchaeologyScore =
+          wednesdayArchaeologyStaminaScore(
+            stamina.stamina + ownedStamina
+          );
+        const petEggs = getWednesdayPetEggSummary();
+        const petEggAllIn = getPetEggAllIn(petEggs, true);
+        const arenaCost = getArenaGemCost(day.arena);
+        const dungeon = getRecommendedDungeon();
+
+        const petEggRows = [
+          ["petEggBundle1", 1],
+          ["petEggBundle3", 3],
+          ["petEggBundle5", 5],
+          ["petEggBundle10", 10]
+        ];
+
+        return `
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>無消耗型任務</strong>
+              <span class="type-badge type-free">免費／廣告／每日重置</span>
+            </div>
+
+            <div class="task-list">
+              ${taskRow({
+                key: "dungeonCount",
+                name: "通關任意副本",
+                meta: `考古 200 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
+                scoreHtml: `<span class="archaeology">考古 ${format(day.dungeonCount * 200)} 分</span>`,
+                className: "auto",
+                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
+              })}
+
+              ${taskRow({
+                key: "guildRaid",
+                name: "挑戰公會討伐",
+                meta: "每日重置 2 次，不可累積；一天最多 2 次",
+                scoreHtml: `
+                  <span class="marathon">馬拉松 ${format(day.guildRaid * 3750)} 分（3,750／次）</span>
+                  <span class="archaeology">考古 ${format(day.guildRaid * 1000)} 分（1,000／次）</span>
+                `,
+                max: 2
+              })}
+
+              ${taskRow({
+                key: "arena",
+                name: "挑戰競技場",
+                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次",
+                scoreHtml: `
+                  <span class="archaeology">考古 ${format(day.arena * 400)} 分</span>
+                  <span class="arena-cost">${arenaCost.paidAttempts > 0
+                    ? `加購 ${arenaCost.paidAttempts} 次・累計 ${format(arenaCost.gems)} 寶石`
+                    : "免費次數內・0 寶石"}</span>
+                `,
+                max: 25
+              })}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>共用消耗型任務</strong>
+              <span class="type-badge type-shared">馬拉松＋聯合考古同步</span>
+            </div>
+
+            <div class="resource-summary five-stats">
+              <div class="mini-stat">
+                <span>操作次數</span>
+                <strong>${format(petEggs.actions)}</strong>
+              </div>
+              <div class="mini-stat">
+                <span>實際消耗／計分開啟</span>
+                <strong>${format(petEggs.consumedEggs)}／${format(petEggs.openedEggs)}</strong>
+              </div>
+              <div class="mini-stat">
+                <span>額外贈送</span>
+                <strong>${format(petEggs.bonusEggs)}</strong>
+              </div>
+              <div class="mini-stat marathon">
+                <span>馬拉松積分</span>
+                <strong>${format(petEggs.marathonScore)}</strong>
+                <small class="all-in-score">持有寵物蛋 ALL IN：${format(petEggAllIn.marathonScore)}</small>
+              </div>
+              <div class="mini-stat archaeology">
+                <span>考古積分</span>
+                <strong>${format(petEggs.archaeologyScore)}</strong>
+                <small class="all-in-score">持有寵物蛋 ALL IN：${format(petEggAllIn.archaeologyScore)}</small>
+              </div>
+            </div>
+
+            <div class="task-list">
+              ${petEggRows.map(([key, multiplier]) => {
+                const count = toInt(day[key]);
+                const consumedPerAction = 30 * multiplier;
+                const bonusPerAction = 5 * multiplier;
+                const openedPerAction = 35 * multiplier;
+                const consumedTotal = count * consumedPerAction;
+                const bonusTotal = count * bonusPerAction;
+                const openedTotal = count * openedPerAction;
+
+                return taskRow({
+                  key,
+                  name: `寵物蛋 30 顆送 5 顆 ×${multiplier}`,
+                  meta: `每次實際消耗${format(consumedPerAction)}／計分開啟${format(openedPerAction)} 顆，贈送 ${format(bonusPerAction)} 顆・目前累計實際消耗${format(consumedTotal)}／計分開啟${format(openedTotal)} 顆，贈送 ${format(bonusTotal)} 顆`,
+                  scoreHtml: `
+                    <span class="marathon">馬拉松 ${format(openedTotal * 60)} 分（${format(openedPerAction * 60)}／次）</span>
+                    <span class="archaeology">考古 ${format(openedTotal * 20)} 分（${format(openedPerAction * 20)}／次）</span>
+                  `
+                });
+              }).join("")}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>聯合考古專屬消耗型任務</strong>
+              <span class="type-badge type-arch">只計入聯合考古</span>
+            </div>
+
+            <div class="task-block-title">
+              <strong>消耗體力</strong>
+              <span>前 200 體每點 200 分，超過後每點 20 分</span>
+            </div>
+
+            <div class="stamina-summary">
+              <div class="mini-stat"><span>累計體力</span><strong>${format(stamina.stamina)}</strong></div>
+              <div class="mini-stat"><span>操作次數</span><strong>${format(stamina.actions)}</strong></div>
+              <div class="mini-stat archaeology">
+                <span>考古體力積分</span>
+                <strong>${format(stamina.archaeologyScore)}</strong>
+                <small class="all-in-score">持有體力 ALL IN：${format(allInArchaeologyScore)}</small>
+              </div>
+              <div class="mini-stat"><span>計分倍率</span><strong>200 → 20</strong></div>
+            </div>
+
+            <div id="staminaOptions">${renderStaminaOptions("wed")}</div>
+
+            <div class="task-list" style="margin-top: 9px;">
+              ${taskRow({
+                key: "brandDraw",
+                name: "祈願／限時祈願 抽 1 次烙印",
+                meta: "1,000 分／次",
+                scoreHtml: `<span class="archaeology">考古 ${format(day.brandDraw * 1000)} 分</span>`
+              })}
+
+              ${taskRow({
+                key: "goblin",
+                name: "哥布林礦工挖礦",
+                meta: "前 200 次每次 20 分，超過後每次 2 分",
+                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyGoblinScore(day.goblin))} 分</span>`
+              })}
+
+              ${taskRow({
+                key: "emeraldPack",
+                name: "購買價值 100 翡翠石禮包",
+                meta: "50 分／個",
+                scoreHtml: `<span class="archaeology">考古 ${format(day.emeraldPack * 50)} 分</span>`
+              })}
+            </div>
+          </div>
+        `;
+      }
+
+
+      function chestOpenRow(key, dayKey = state.activeDay) {
+        const day = state.days[dayKey];
+        const config = chestConfigs[key];
+        const opened = toInt(day[key]);
+        const holding = toInt(state.inventory[key]);
+        const nextBatch = getChestBatch(holding);
+        const history = Array.isArray(day.chestOpenHistory[key])
+          ? day.chestOpenHistory[key]
+          : [];
+        const chestPoints = opened * config.pointPerBox;
+
+        return `
+          <div class="task-row ${opened > 0 ? "has-value" : ""}">
+            <div class="task-info">
+              <div class="task-name">${config.name}</div>
+              <div class="task-meta">
+                每個獲得 ${config.pointPerBox} 寶箱積分・目前持有 ${format(holding)} 個・
+                ${nextBatch > 0 ? `下一次開 ${format(nextBatch)} 個` : "目前沒有可開啟的寶箱"}
+              </div>
+              <div class="task-score">
+                <span>已開 ${format(opened)} 個・寶箱積分 ${format(chestPoints)}</span>
+                <span class="marathon">馬拉松 ${format(chestPoints * 48)} 分</span>
+                <span class="archaeology">考古 ${format(chestPoints * 15)} 分</span>
+              </div>
+            </div>
+
+            <div class="chest-open-counter" data-chest-key="${key}">
+              <button type="button" data-chest-action="undo"
+                      ${history.length === 0 ? "disabled" : ""}>−</button>
+              <input type="number" value="${opened}" readonly
+                     data-chest-open-input="${key}" aria-label="${config.name}已開數量" />
+              <button type="button" data-chest-action="open"
+                      ${nextBatch === 0 ? "disabled" : ""}>＋</button>
+            </div>
+          </div>
+        `;
+      }
+
+      function openChestBatch(key, dayKey = state.activeDay) {
+        const day = state.days[dayKey];
+        const holding = toInt(state.inventory[key]);
+        const batch = getChestBatch(holding);
+        if (batch <= 0) return false;
+
+        state.inventory[key] = holding - batch;
+        day[key] = toInt(day[key]) + batch;
+
+        if (!Array.isArray(day.chestOpenHistory[key])) {
+          day.chestOpenHistory[key] = [];
+        }
+        day.chestOpenHistory[key].push(batch);
+        return true;
+      }
+
+      function undoChestBatch(key, dayKey = state.activeDay) {
+        const day = state.days[dayKey];
+        const history = Array.isArray(day.chestOpenHistory[key])
+          ? day.chestOpenHistory[key]
+          : [];
+
+        if (history.length === 0) return false;
+
+        const batch = toInt(history.pop());
+        day[key] = Math.max(0, toInt(day[key]) - batch);
+        state.inventory[key] = toInt(state.inventory[key]) + batch;
+        return true;
+      }
+
+      function renderThursdayTasks() {
+        const day = state.days.thu;
+        const arenaCost = getArenaGemCost(day.arena);
+        const dungeon = getRecommendedDungeon();
+
+        const chestSummary = getChestSummary("thu");
+        const chestAllIn = getChestAllInSummary("thu");
+
+        return `
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>無消耗型任務</strong>
+              <span class="type-badge type-free">免費／廣告／每日重置</span>
+            </div>
+
+            <div class="task-list">
+              ${taskRow({
+                key: "dungeonCount",
+                name: "通關任意副本",
+                meta: `同時計入兩個活動・建議 ${dungeon.total} 次（${dungeon.formula}），可再加入其他管道取得的副本券`,
+                scoreHtml: `
+                  <span class="marathon">馬拉松 ${format(day.dungeonCount * 500)} 分（500／次）</span>
+                  <span class="archaeology">考古 ${format(day.dungeonCount * 200)} 分（200／次）</span>
+                `,
+                className: "auto",
+                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
+              })}
+
+              ${taskRow({
+                key: "guildRaid",
+                name: "挑戰公會討伐",
+                meta: "每日重置 2 次，不可累積；一天最多 2 次",
+                scoreHtml: `<span class="archaeology">考古 ${format(day.guildRaid * 1000)} 分</span>`,
+                max: 2
+              })}
+
+              ${taskRow({
+                key: "arena",
+                name: "挑戰競技場",
+                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次",
+                scoreHtml: `
+                  <span class="archaeology">考古 ${format(day.arena * 400)} 分</span>
+                  <span class="arena-cost">${arenaCost.paidAttempts > 0
+                    ? `加購 ${arenaCost.paidAttempts} 次・累計 ${format(arenaCost.gems)} 寶石`
+                    : "免費次數內・0 寶石"}</span>
+                `,
+                max: 25
+              })}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>共用消耗型任務</strong>
+              <span class="type-badge type-shared">寶箱積分 × 馬拉松 48／考古 15</span>
+            </div>
+
+            <div class="resource-summary">
+              <div class="mini-stat"><span>已開寶箱</span><strong>${format(chestSummary.openedBoxes)}</strong></div>
+              <div class="mini-stat"><span>獲得寶箱積分</span><strong>${format(chestSummary.chestPoints)}</strong></div>
+              <div class="mini-stat marathon">
+                <span>馬拉松積分</span>
+                <strong>${format(chestSummary.marathonScore)}</strong>
+                <small class="all-in-score">持有寶箱 ALL IN：${format(chestAllIn.marathonScore)}</small>
+              </div>
+              <div class="mini-stat archaeology">
+                <span>考古積分</span>
+                <strong>${format(chestSummary.archaeologyScore)}</strong>
+                <small class="all-in-score">持有寶箱 ALL IN：${format(chestAllIn.archaeologyScore)}</small>
+              </div>
+            </div>
+
+            <div class="task-list">
+              ${Object.keys(chestConfigs).map(key => chestOpenRow(key, "thu")).join("")}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>聯合考古專屬消耗型任務</strong>
+              <span class="type-badge type-arch">只計入聯合考古</span>
+            </div>
+
+            <div class="task-list">
+              ${taskRow({
+                key: "tradeShip",
+                name: "卡皮貿易 發 UR／閃金商船",
+                meta: `8,000 分／艘・每日上限 ${state.settings.tradeCard ? 6 : 4} 艘${state.settings.tradeCard ? "（貿易卡 +2）" : ""}`,
+                scoreHtml: `<span class="archaeology">考古 ${format(day.tradeShip * 8000)} 分</span>`,
+                max: state.settings.tradeCard ? 6 : 4
+              })}
+
+              ${taskRow({
+                key: "treasureDraw",
+                name: "珍寶商店 抽 1 次秘寶",
+                meta: "1,000 分／次",
+                scoreHtml: `<span class="archaeology">考古 ${format(day.treasureDraw * 1000)} 分</span>`
+              })}
+
+              ${taskRow({
+                key: "goblin",
+                name: "哥布林礦工挖礦",
+                meta: "前 200 次每次 20 分，超過後每次 2 分",
+                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyGoblinScore(day.goblin))} 分</span>`
+              })}
+
+              ${taskRow({
+                key: "emeraldPack",
+                name: "購買價值 100 翡翠石禮包",
+                meta: "50 分／個",
+                scoreHtml: `<span class="archaeology">考古 ${format(day.emeraldPack * 50)} 分</span>`
+              })}
+            </div>
+          </div>
+        `;
+      }
+
+
+      function renderFridayTasks() {
+        const day = state.days.fri;
+        const arenaCost = getArenaGemCost(day.arena);
+        const dungeon = getRecommendedDungeon();
+        const gemRefine = getFridayGemRefineSummary();
+
+        const gemRefineRows = [
+          ["gemRefineImmortal", "不朽寶石", 10],
+          ["gemRefineTranscendent", "超越寶石", 12],
+          ["gemRefinePeerless", "絕世寶石", 20]
+        ];
+
+        return `
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>無消耗型任務</strong>
+              <span class="type-badge type-free">免費／廣告／每日重置</span>
+            </div>
+
+            <div class="task-list">
+              ${taskRow({
+                key: "dungeonCount",
+                name: "通關任意副本",
+                meta: `考古 200 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
+                scoreHtml: `<span class="archaeology">考古 ${format(day.dungeonCount * 200)} 分</span>`,
+                className: "auto",
+                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
+              })}
+
+              ${taskRow({
+                key: "guildRaid",
+                name: "挑戰公會討伐",
+                meta: "每日重置 2 次，不可累積；一天最多 2 次",
+                scoreHtml: `<span class="archaeology">考古 ${format(day.guildRaid * 1000)} 分</span>`,
+                max: 2
+              })}
+
+              ${taskRow({
+                key: "arena",
+                name: "挑戰競技場",
+                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次",
+                scoreHtml: `
+                  <span class="archaeology">考古 ${format(day.arena * 400)} 分</span>
+                  <span class="arena-cost">${arenaCost.paidAttempts > 0
+                    ? `加購 ${arenaCost.paidAttempts} 次・累計 ${format(arenaCost.gems)} 寶石`
+                    : "免費次數內・0 寶石"}</span>
+                `,
+                max: 25
+              })}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>共用消耗型任務</strong>
+              <span class="type-badge type-shared">馬拉松＋聯合考古同步</span>
+            </div>
+
+            <div class="task-list">
+              ${taskRow({
+                key: "guruTicket",
+                name: "消耗咕嚕礦場門票",
+                meta: "每日最多計算 10 張",
+                scoreHtml: `
+                  <span class="marathon">馬拉松 ${format(day.guruTicket * 1500)} 分（1,500／張）</span>
+                  <span class="archaeology">考古 ${format(day.guruTicket * 4000)} 分（4,000／張）</span>
+                `,
+                max: 10
+              })}
+
+              ${taskRow({
+                key: "gemDraw",
+                name: "珍寶商店 抽 1 次寶石",
+                meta: "同一次抽取同時計入兩個活動",
+                scoreHtml: `
+                  <span class="marathon">馬拉松 ${format(day.gemDraw * 3000)} 分（3,000／次）</span>
+                  <span class="archaeology">考古 ${format(day.gemDraw * 1000)} 分（1,000／次）</span>
+                `
+              })}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>聯合考古專屬消耗型任務</strong>
+              <span class="type-badge type-arch">只計入聯合考古</span>
+            </div>
+
+            <div class="resource-summary">
+              <div class="mini-stat"><span>洗煉總次數</span><strong>${format(gemRefine.actions)}</strong></div>
+              <div class="mini-stat"><span>消耗高級煉金試劑</span><strong>${format(gemRefine.reagents)}</strong></div>
+              <div class="mini-stat archaeology"><span>考古積分</span><strong>${format(gemRefine.archaeologyScore)}</strong></div>
+              <div class="mini-stat"><span>每個試劑積分</span><strong>800</strong></div>
+            </div>
+
+            <div class="task-list">
+              ${gemRefineRows.map(([key, name, reagentPerAction]) => {
+                const count = toInt(day[key]);
+                const reagents = count * reagentPerAction;
+
+                return taskRow({
+                  key,
+                  name: `寶石洗煉｜${name}`,
+                  meta: `每次消耗 ${reagentPerAction} 個高級煉金試劑・目前累計消耗 ${format(reagents)} 個`,
+                  scoreHtml: `<span class="archaeology">考古 ${format(reagents * 800)} 分（${format(reagentPerAction * 800)}／次）</span>`
+                });
+              }).join("")}
+
+              ${taskRow({
+                key: "goblin",
+                name: "哥布林礦工挖礦",
+                meta: "前 200 次每次 20 分，超過後每次 2 分",
+                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyGoblinScore(day.goblin))} 分</span>`
+              })}
+
+              ${taskRow({
+                key: "emeraldPack",
+                name: "購買價值 100 翡翠石禮包",
+                meta: "50 分／個",
+                scoreHtml: `<span class="archaeology">考古 ${format(day.emeraldPack * 50)} 分</span>`
+              })}
+            </div>
+          </div>
+        `;
+      }
+
+
+      function renderSaturdayTasks() {
+        const day = state.days.sat;
+        const stamina = getSaturdayStaminaSummary();
+        const ownedStamina = getOwnedStaminaAmount();
+        const allInArchaeologyScore =
+          wednesdayArchaeologyStaminaScore(
+            stamina.stamina + ownedStamina
+          );
+        const arenaCost = getArenaGemCost(day.arena);
+        const dungeon = getRecommendedDungeon();
+
+        return `
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>無消耗型任務</strong>
+              <span class="type-badge type-free">免費／廣告／每日重置</span>
+            </div>
+
+            <div class="task-list">
+              ${taskRow({
+                key: "dungeonCount",
+                name: "通關任意副本",
+                meta: `考古 200 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
+                scoreHtml: `<span class="archaeology">考古 ${format(day.dungeonCount * 200)} 分</span>`,
+                className: "auto",
+                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
+              })}
+
+              ${taskRow({
+                key: "guildRaid",
+                name: "挑戰公會討伐",
+                meta: "每日重置 2 次，不可累積；一天最多 2 次",
+                scoreHtml: `<span class="archaeology">考古 ${format(day.guildRaid * 1000)} 分</span>`,
+                max: 2
+              })}
+
+              ${taskRow({
+                key: "arena",
+                name: "挑戰競技場",
+                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次",
+                scoreHtml: `
+                  <span class="archaeology">考古 ${format(day.arena * 400)} 分</span>
+                  <span class="arena-cost">${arenaCost.paidAttempts > 0
+                    ? `加購 ${arenaCost.paidAttempts} 次・累計 ${format(arenaCost.gems)} 寶石`
+                    : "免費次數內・0 寶石"}</span>
+                `,
+                max: 25
+              })}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>共用消耗型任務</strong>
+              <span class="type-badge type-shared">馬拉松＋聯合考古同步</span>
+            </div>
+
+            <div class="task-list">
+              ${taskRow({
+                key: "horseshoe",
+                name: "坐騎升級 消耗金蹄鐵",
+                meta: "每消耗 1 個金蹄鐵，同時計入兩個活動",
+                scoreHtml: `
+                  <span class="marathon">馬拉松 ${format(day.horseshoe * 32)} 分（32／個）</span>
+                  <span class="archaeology">考古 ${format(day.horseshoe * 10)} 分（10／個）</span>
+                `
+              })}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>馬拉松專屬消耗型任務</strong>
+              <span class="type-badge type-shared">只計入馬拉松</span>
+            </div>
+
+            <div class="task-list">
+              ${taskRow({
+                key: "dungeonTicket",
+                name: "消耗地牢挑戰券",
+                meta: "3,750 分／張・每日最多計算 5 張",
+                scoreHtml: `<span class="marathon">馬拉松 ${format(day.dungeonTicket * 3750)} 分</span>`,
+                max: 5
+              })}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>聯合考古專屬消耗型任務</strong>
+              <span class="type-badge type-arch">只計入聯合考古</span>
+            </div>
+
+            <div class="task-block-title">
+              <strong>消耗體力</strong>
+              <span>前 200 體每點 200 分，超過後每點 20 分</span>
+            </div>
+
+            <div class="stamina-summary">
+              <div class="mini-stat"><span>累計體力</span><strong>${format(stamina.stamina)}</strong></div>
+              <div class="mini-stat"><span>操作次數</span><strong>${format(stamina.actions)}</strong></div>
+              <div class="mini-stat archaeology">
+                <span>考古體力積分</span>
+                <strong>${format(stamina.archaeologyScore)}</strong>
+                <small class="all-in-score">持有體力 ALL IN：${format(allInArchaeologyScore)}</small>
+              </div>
+              <div class="mini-stat"><span>計分倍率</span><strong>200 → 20</strong></div>
+            </div>
+
+            <div id="staminaOptions">${renderStaminaOptions("sat")}</div>
+
+            <div class="task-list" style="margin-top: 9px;">
+              ${taskRow({
+                key: "brandDraw",
+                name: "祈願／限時祈願 抽 1 次烙印",
+                meta: "1,000 分／次",
+                scoreHtml: `<span class="archaeology">考古 ${format(day.brandDraw * 1000)} 分</span>`
+              })}
+
+              ${taskRow({
+                key: "goblin",
+                name: "哥布林礦工挖礦",
+                meta: "前 200 次每次 20 分，超過後每次 2 分",
+                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyGoblinScore(day.goblin))} 分</span>`
+              })}
+
+              ${taskRow({
+                key: "emeraldPack",
+                name: "購買價值 100 翡翠石禮包",
+                meta: "50 分／個",
+                scoreHtml: `<span class="archaeology">考古 ${format(day.emeraldPack * 50)} 分</span>`
+              })}
+            </div>
+          </div>
+        `;
+      }
+
+
+      function renderSundayTasks() {
+        const day = state.days.sun;
+        const arenaCost = getArenaGemCost(day.arena);
+        const petEggs = getSundayPetEggSummary();
+        const petEggAllIn = getPetEggAllIn(petEggs, false);
+        const pet = getPetCultivationSummary(day);
+        const chestSummary = getChestSummary("sun");
+        const chestAllIn = getChestAllInSummary("sun");
+
+        const petCultivationMarathonScore =
+          day.petBase * 3000 +
+          day.petStone1 * 4750 +
+          day.petStone2 * 6500 +
+          day.petStone3 * 8250 +
+          day.petStone4 * 10000;
+
+        const petCultivationAllIn = getPetCultivationAllIn(
+          day,
+          petCultivationMarathonScore
+        );
+
+        const petEggRows = [
+          ["petEggBundle1", 1],
+          ["petEggBundle3", 3],
+          ["petEggBundle5", 5],
+          ["petEggBundle10", 10]
+        ];
+
+        const petRows = [
+          ["petBase", "寵物培育｜不鎖定詞綴", 3000, 0],
+          ["petStone1", "寵物培育｜鎖定 1 條詞綴", 4750, 1],
+          ["petStone2", "寵物培育｜鎖定 2 條詞綴", 6500, 2],
+          ["petStone3", "寵物培育｜鎖定 3 條詞綴", 8250, 3],
+          ["petStone4", "寵物培育｜鎖定 4 條詞綴", 10000, 4]
+        ];
+
+        return `
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>無消耗型任務</strong>
+              <span class="type-badge type-free">免費／廣告／每日重置</span>
+            </div>
+
+            <div class="task-list">
+              ${taskRow({
+                key: "heroSupply",
+                name: "英雄補給寶箱",
+                meta: "每日廣告 1 次；其他管道取得的鑰匙可額外增加",
+                scoreHtml: `<span class="marathon">馬拉松 ${format(day.heroSupply * 300)} 分</span>`
+              })}
+
+              ${taskRow({
+                key: "adventurerSupply",
+                name: "冒險者補給寶箱",
+                meta: "每日直送 1 次＋廣告 3 次；其他管道取得的鑰匙可額外增加",
+                scoreHtml: `<span class="marathon">馬拉松 ${format(day.adventurerSupply * 100)} 分</span>`
+              })}
+
+              ${taskRow({
+                key: "arena",
+                name: "挑戰競技場",
+                meta: "馬拉松 750 分／次；每日免費 5 次，最多加購 20 張入場券",
+                scoreHtml: `
+                  <span class="marathon">馬拉松 ${format(day.arena * 750)} 分</span>
+                  <span class="arena-cost">${arenaCost.paidAttempts > 0
+                    ? `加購 ${arenaCost.paidAttempts} 次・累計 ${format(arenaCost.gems)} 寶石`
+                    : "免費次數內・0 寶石"}</span>
+                `,
+                max: 25
+              })}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>裝備、坐騎與寶石</strong>
+              <span class="type-badge type-shared">只計入週日馬拉松</span>
+            </div>
+
+            <div class="task-list">
+              ${taskRow({
+                key: "equipBox",
+                name: "限定秘藏箱／傳說秘寶箱 抽 1 次裝備",
+                meta: "3,000 分／次",
+                scoreHtml: `<span class="marathon">馬拉松 ${format(day.equipBox * 3000)} 分</span>`
+              })}
+
+              ${taskRow({
+                key: "horseshoe",
+                name: "坐騎升級 消耗金蹄鐵",
+                meta: "32 分／個",
+                scoreHtml: `<span class="marathon">馬拉松 ${format(day.horseshoe * 32)} 分</span>`
+              })}
+
+              ${taskRow({
+                key: "gemDraw",
+                name: "珍寶商店 抽 1 次寶石",
+                meta: "3,000 分／次",
+                scoreHtml: `<span class="marathon">馬拉松 ${format(day.gemDraw * 3000)} 分</span>`
+              })}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>寵物蛋</strong>
+              <span class="type-badge type-shared">只計入週日馬拉松</span>
+            </div>
+
+            <div class="resource-summary">
+              <div class="mini-stat">
+                <span>操作次數</span>
+                <strong>${format(petEggs.actions)}</strong>
+              </div>
+              <div class="mini-stat">
+                <span>實際消耗／計分開啟</span>
+                <strong>${format(petEggs.consumedEggs)}／${format(petEggs.openedEggs)}</strong>
+              </div>
+              <div class="mini-stat">
+                <span>額外贈送</span>
+                <strong>${format(petEggs.bonusEggs)}</strong>
+              </div>
+              <div class="mini-stat marathon">
+                <span>馬拉松積分</span>
+                <strong>${format(petEggs.marathonScore)}</strong>
+                <small class="all-in-score">持有寵物蛋 ALL IN：${format(petEggAllIn.marathonScore)}</small>
+              </div>
+            </div>
+
+            <div class="task-list">
+              ${petEggRows.map(([key, multiplier]) => {
+                const count = toInt(day[key]);
+                const consumedPerAction = 30 * multiplier;
+                const bonusPerAction = 5 * multiplier;
+                const openedPerAction = 35 * multiplier;
+                const consumedTotal = count * consumedPerAction;
+                const bonusTotal = count * bonusPerAction;
+                const openedTotal = count * openedPerAction;
+
+                return taskRow({
+                  key,
+                  name: `寵物蛋 30 顆送 5 顆 ×${multiplier}`,
+                  meta: `每次實際消耗${format(consumedPerAction)}／計分開啟${format(openedPerAction)} 顆，贈送 ${format(bonusPerAction)} 顆・目前累計實際消耗${format(consumedTotal)}／計分開啟${format(openedTotal)} 顆，贈送 ${format(bonusTotal)} 顆`,
+                  scoreHtml: `<span class="marathon">馬拉松 ${format(openedTotal * 60)} 分（${format(openedPerAction * 60)}／次）</span>`
+                });
+              }).join("")}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>寶箱積分</strong>
+              <span class="type-badge type-shared">寶箱積分 × 馬拉松 48</span>
+            </div>
+
+            <div class="resource-summary">
+              <div class="mini-stat"><span>已開寶箱</span><strong>${format(chestSummary.openedBoxes)}</strong></div>
+              <div class="mini-stat"><span>寶箱積分</span><strong>${format(chestSummary.chestPoints)}</strong></div>
+              <div class="mini-stat marathon">
+                <span>馬拉松積分</span>
+                <strong>${format(chestSummary.marathonScore)}</strong>
+                <small class="all-in-score">持有寶箱 ALL IN：${format(chestAllIn.marathonScore)}</small>
+              </div>
+              <div class="mini-stat"><span>考古</span><strong>週日休息</strong></div>
+            </div>
+
+            <div class="task-list">
+              ${Object.keys(chestConfigs)
+                .map(key => chestOpenRow(key, "sun"))
+                .join("")}
+            </div>
+          </div>
+
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>寵物詞綴洗練</strong>
+              <span class="type-badge type-shared">只計入週日馬拉松</span>
+            </div>
+
+            <div class="resource-summary">
+              <div class="mini-stat"><span>培育總次數</span><strong>${format(pet.actions)}</strong></div>
+              <div class="mini-stat"><span>消耗靈石</span><strong>${format(pet.spiritStones)}</strong></div>
+              <div class="mini-stat"><span>消耗不變石</span><strong>${format(pet.unchangingStoneTotal)}</strong></div>
+              <div class="mini-stat marathon">
+                <span>馬拉松積分</span>
+                <strong>${format(petCultivationMarathonScore)}</strong>
+                <small class="all-in-score">持有靈石＋不變石 ALL IN：${format(petCultivationAllIn.marathonScore)}</small>
+              </div>
+            </div>
+
+            <div class="task-list">
+              ${petRows.map(([key, name, marathonRate, lockedAffixes]) => {
+                const count = toInt(day[key]);
+                const stoneTotal = count * lockedAffixes;
+                const meta = lockedAffixes === 0
+                  ? `每次消耗 200 靈石，隨機刷新 5 條詞綴`
+                  : `每次消耗 200 靈石＋${lockedAffixes} 顆不變石，鎖定 ${lockedAffixes} 條詞綴`;
+
+                return taskRow({
+                  key,
+                  name,
+                  meta: `${meta}・累計靈石 ${format(count * 200)}${lockedAffixes ? `、不變石 ${format(stoneTotal)}` : ""}`,
+                  scoreHtml: `<span class="marathon">馬拉松 ${format(count * marathonRate)} 分（${format(marathonRate)}／次）</span>`
+                });
+              }).join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      function renderTaskPanel() {
+        if (state.activeDay === "mon") {
+          els.taskPanel.innerHTML = renderMondayTasks();
+        } else if (state.activeDay === "tue") {
+          els.taskPanel.innerHTML = renderTuesdayTasks();
+        } else if (state.activeDay === "wed") {
+          els.taskPanel.innerHTML = renderWednesdayTasks();
+        } else if (state.activeDay === "thu") {
+          els.taskPanel.innerHTML = renderThursdayTasks();
+        } else if (state.activeDay === "fri") {
+          els.taskPanel.innerHTML = renderFridayTasks();
+        } else if (state.activeDay === "sat") {
+          els.taskPanel.innerHTML = renderSaturdayTasks();
+        } else {
+          els.taskPanel.innerHTML = renderSundayTasks();
+        }
+      }
+
+      function parseReward(rewardText) {
+        const match = String(rewardText).match(/^(.+)\*(\d+)$/);
+        if (!match) {
+          return { name: String(rewardText), amount: 1 };
+        }
+
+        return {
+          name: match[1],
+          amount: toInt(match[2])
+        };
+      }
+
+      function addRewardToTotals(totals, rewardText) {
+        const reward = parseReward(rewardText);
+        totals[reward.name] = toInt(totals[reward.name]) + reward.amount;
+      }
+
+      function getWeeklyMarathonSummary() {
+        const dailyRewards = {};
+        const dayStars = {};
+        const dayPickaxes = {};
+        let totalStars = 0;
+        let totalPickaxes = 0;
+
+        for (const dayKey of dayOrder) {
+          const scores = getScoresForDay(dayKey);
+          const score = scores.marathon;
+          let stars = 0;
+
+          const pickaxes = dayKey === "sun"
+            ? 0
+            : getArchaeologyPickaxes(scores.archaeology);
+
+          dayPickaxes[dayKey] = pickaxes;
+
+          if (dayKey !== "sun") {
+            totalPickaxes += pickaxes;
+          }
+
+          marathonStages.forEach((stage, index) => {
+            if (score < stage.score) return;
+
+            stars += stage.stars;
+            for (const rewardText of marathonRewards[dayKey][index]) {
+              addRewardToTotals(dailyRewards, rewardText);
+            }
+          });
+
+          dayStars[dayKey] = stars;
+          totalStars += stars;
+        }
+
+        const weeklyRewards = {};
+        for (const stage of weeklyMarathonStages) {
+          if (totalStars < stage.stars) continue;
+
+          for (const rewardText of stage.rewards) {
+            addRewardToTotals(weeklyRewards, rewardText);
+          }
+        }
+
+        return {
+          totalStars,
+          totalPickaxes,
+          dayStars,
+          dayPickaxes,
+          dailyRewards,
+          weeklyRewards
+        };
+      }
+
+      function rewardSortIndex(name) {
+        const preferredOrder = [
+          "星星",
+          "神威錘",
+          "卡皮機銀幣",
+          "暗月銀券",
+          "暗月金卷",
+          "紫寶石",
+          "靈石",
+          "寵物蛋",
+          "白銀寶箱",
+          "寶石鑰匙",
+          "金蹄鐵",
+          "傳說鑰匙"
+        ];
+
+        const index = preferredOrder.indexOf(name);
+        return index === -1 ? preferredOrder.length : index;
+      }
+
+      function renderRewardTotals(container, totals, chipClass = "") {
+        const entries = Object.entries(totals)
+          .filter(([, amount]) => toInt(amount) > 0)
+          .sort(([nameA], [nameB]) => {
+            const indexDifference =
+              rewardSortIndex(nameA) - rewardSortIndex(nameB);
+
+            return indexDifference || nameA.localeCompare(nameB, "zh-Hant");
+          });
+
+        if (entries.length === 0) {
+          container.innerHTML = `
+            <span class="reward-total-chip">
+              尚未達成任何獎勵階段
+            </span>
+          `;
+          return;
+        }
+
+        container.innerHTML = entries
+          .map(([name, amount]) => {
+            const extraClass = name === "星星"
+              ? "star"
+              : chipClass;
+
+            return `
+              <span class="reward-total-chip ${extraClass}">
+                <span>${name}</span>
+                <strong>× ${format(amount)}</strong>
+              </span>
+            `;
+          })
+          .join("");
+      }
+
+      function renderWeeklyMarathonSummary() {
+        const summary = getWeeklyMarathonSummary();
+        const targetStars = 30;
+        const nextStage = weeklyMarathonStages.find(
+          stage => summary.totalStars < stage.stars
+        );
+
+        els.weeklyStarTotal.textContent =
+          `${format(summary.totalStars)} / ${targetStars}`;
+        els.weeklyStarProgress.style.width =
+          `${Math.min(100, summary.totalStars / targetStars * 100)}%`;
+
+        const weeklyPickaxeTarget = 56 * 6;
+        els.weeklyPickaxeTotal.textContent =
+          `${format(summary.totalPickaxes)} / ${format(weeklyPickaxeTarget)}`;
+        els.weeklyPickaxeProgress.style.width =
+          `${Math.min(100, summary.totalPickaxes / weeklyPickaxeTarget * 100)}%`;
+
+        els.weeklyNextStageText.textContent = nextStage
+          ? `距離下一階段還差 ${format(nextStage.stars - summary.totalStars)} 顆星`
+          : `已解鎖全部每週階段獎勵`;
+
+        els.weeklyDayStars.innerHTML = dayOrder
+          .map(dayKey => {
+            const isSunday = dayKey === "sun";
+            const pickaxeText = isSunday
+              ? "休息"
+              : `${summary.dayPickaxes[dayKey]} / 56`;
+
+            return `
+              <div class="day-star-card ${dayKey === state.activeDay ? "active" : ""}">
+                <div class="day-metric">
+                  <div class="day-card-label">${shortDayLabels[dayKey]}</div>
+                  <div class="day-card-value day-star-value">${summary.dayStars[dayKey]} / 6</div>
+                </div>
+
+                <div class="day-metric">
+                  <div class="day-card-label">${shortDayLabels[dayKey]}</div>
+                  <div class="day-card-value day-pickaxe-value ${isSunday ? "rest" : ""}">
+                    ${pickaxeText}
+                  </div>
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+
+
+        renderRewardTotals(
+          els.dailyRewardTotals,
+          summary.dailyRewards
+        );
+
+        renderRewardTotals(
+          els.weeklyRewardTotals,
+          summary.weeklyRewards,
+          "weekly"
+        );
+
+        els.weeklyStageGrid.innerHTML = weeklyMarathonStages
+          .map((stage, index) => {
+            const done = summary.totalStars >= stage.stars;
+
+            return `
+              <div class="stage ${done ? "done" : ""}">
+                <div class="stage-top">
+                  <div class="stage-title">每週階段${index + 1}</div>
+                  <div class="stage-inline-score">${format(stage.stars)} 顆星</div>
+                  <div class="stage-status">${done ? "已解鎖" : "未解鎖"}</div>
+                </div>
+                <div class="stage-rewards">${stage.rewards.join("，")}</div>
+              </div>
+            `;
+          })
+          .join("");
+
+      }
+
+      function renderStages(marathonScore, archaeologyScore) {
+        els.marathonStageGrid.innerHTML = marathonStages.map((stage, index) => {
+          const done = marathonScore >= stage.score;
+          const rewards = marathonRewards[state.activeDay][index];
+
+          return `
+            <div class="stage ${done ? "done" : ""}">
+              <div class="stage-top">
+                <div class="stage-title">階段 ${index + 1}</div>
+                <div class="stage-inline-score">${format(stage.score)}</div>
+                <div class="stage-status">${done ? "已達成" : "未達成"}</div>
+              </div>
+              <div class="stage-rewards">${rewards.join("，")}</div>
+            </div>
+          `;
+        }).join("");
+
+        if (state.activeDay === "sun") {
+          els.archaeologyStageGrid.innerHTML = `
+            <div class="stage arch-stage" style="grid-column: 1 / -1;">
+              <div class="stage-top">
+                <div class="stage-title">週日</div>
+                <div class="stage-status">休息日</div>
+              </div>
+              <div class="stage-score">聯合考古不開放</div>
+              <div class="stage-rewards">週一再開始新的每日階段。</div>
+            </div>
+          `;
+        } else {
+          els.archaeologyStageGrid.innerHTML = archaeologyStages.map((stage, index) => {
+            const done = archaeologyScore >= stage.score;
+
+            return `
+              <div class="stage arch-stage ${done ? "done" : ""}">
+                <div class="stage-top">
+                  <div class="stage-title">階段 ${index + 1}</div>
+                  <div class="stage-status">${done ? "✓ 已達成" : "未達成"}</div>
+                </div>
+                <div class="stage-score">${format(stage.score)} 分</div>
+                <div class="stage-rewards">幸運礦鎬 ${stage.pickaxes}</div>
+              </div>
+            `;
+          }).join("");
+        }
+      }
+
+      function renderChestInventory() {
+        els.chestInventoryList.innerHTML = Object.entries(chestConfigs)
+          .map(([key, config]) => {
+            const value = toInt(state.inventory[key]);
+            return `
+              <label class="inventory-row">
+                <span class="inventory-name">${config.name}</span>
+                <input type="number" min="0" step="1" inputmode="numeric"
+                       data-inventory-input="${key}" value="${value}" />
+              </label>
+            `;
+          })
+          .join("");
+      }
+
+      function renderGlobalSettings() {
+        els.monthlyCard.checked = state.settings.monthlyCard;
+        els.weeklyCard.checked = state.settings.weeklyCard;
+        els.lifetimeCard.checked = state.settings.lifetimeCard;
+        els.watchAds.checked = state.settings.watchAds;
+        els.tradeCard.checked = state.settings.tradeCard;
+
+        els.ownedStaminaBox.hidden = false;
+
+        if (document.activeElement !== els.ownedStaminaValue) {
+          els.ownedStaminaValue.value = state.ownedStamina.value;
+        }
+
+        els.ownedStaminaUnit.value =
+          ["", "K", "M"].includes(state.ownedStamina.unit)
+            ? state.ownedStamina.unit
+            : "K";
+
+        updateOwnedStaminaConvertedText();
+        updateAllOwnedResourceDisplays();
+
+        renderChestInventory();
+
+        const dungeon = getRecommendedDungeon();
+        els.recommendedDungeonSidebar.textContent = `${format(dungeon.total)} 次`;
+        els.recommendedDungeonFormula.textContent = dungeon.formula;
+      }
+
+      function renderSummary() {
+        const scores = getActiveScores();
+        const stars = getMarathonStars(scores.marathon);
+        const pickaxes = getArchaeologyPickaxes(scores.archaeology);
+
+        const dayLabels = {
+          mon: {
+            marathon: "馬拉松｜週一裝備寶箱",
+            archaeology: "聯合考古｜週一任務",
+            task: "週一任務",
+            stage: "週一"
+          },
+          tue: {
+            marathon: "馬拉松｜週二寵物培育",
+            archaeology: "聯合考古｜週二寵物培育",
+            task: "週二任務",
+            stage: "週二"
+          },
+          wed: {
+            marathon: "馬拉松｜週三寵物蛋",
+            archaeology: "聯合考古｜週三任務",
+            task: "週三任務",
+            stage: "週三"
+          },
+          thu: {
+            marathon: "馬拉松｜週四寶箱積分",
+            archaeology: "聯合考古｜週四寶箱任務",
+            task: "週四任務",
+            stage: "週四"
+          },
+          fri: {
+            marathon: "馬拉松｜週五寶石寶箱",
+            archaeology: "聯合考古｜週五寶石任務",
+            task: "週五任務",
+            stage: "週五"
+          },
+          sat: {
+            marathon: "馬拉松｜週六坐騎養成",
+            archaeology: "聯合考古｜週六坐騎任務",
+            task: "週六任務",
+            stage: "週六"
+          },
+          sun: {
+            marathon: "馬拉松｜週日集結衝刺",
+            archaeology: "聯合考古｜週日休息",
+            task: "週日任務",
+            stage: "週日"
+          }
+        };
+
+        const labels = dayLabels[state.activeDay];
+        els.marathonTitle.textContent = labels.marathon;
+        els.archaeologyTitle.textContent = labels.archaeology;
+        els.dayTaskTitle.textContent = labels.task;
+        els.marathonStageTitle.textContent =
+          `馬拉松｜${labels.stage}階段獎勵`;
+
+        els.marathonTotalScore.textContent = format(scores.marathon);
+        els.marathonStars.textContent = `${stars} / 6`;
+        els.marathonRemaining.textContent =
+          format(Math.max(0, MARATHON_TARGET - scores.marathon));
+        els.marathonProgress.style.width =
+          `${Math.min(100, scores.marathon / MARATHON_TARGET * 100)}%`;
+
+        if (state.activeDay === "sun") {
+          els.archaeologyTotalScore.textContent = "休息";
+          els.archaeologyPickaxes.textContent = "—";
+          els.archaeologyRemaining.textContent = "—";
+          els.archaeologyProgress.style.width = "0%";
+        } else {
+          els.archaeologyTotalScore.textContent = format(scores.archaeology);
+          els.archaeologyPickaxes.textContent = `${pickaxes} / 56`;
+          els.archaeologyRemaining.textContent =
+            format(Math.max(0, ARCHAEOLOGY_TARGET - scores.archaeology));
+          els.archaeologyProgress.style.width =
+            `${Math.min(100, scores.archaeology / ARCHAEOLOGY_TARGET * 100)}%`;
+        }
+
+        renderStages(scores.marathon, scores.archaeology);
+        renderWeeklyMarathonSummary();
+      }
+
+      const REWARD_SUMMARY_COLLAPSE_KEY =
+        "capybara-reward-summary-collapsed-v25";
+
+      let rewardSummaryCollapsed =
+        localStorage.getItem(REWARD_SUMMARY_COLLAPSE_KEY) !== "0";
+
+      function renderRewardSummaryCollapse() {
+        els.rewardSummaryContent.hidden = rewardSummaryCollapsed;
+        els.rewardSummaryToggle.textContent =
+          rewardSummaryCollapsed ? "顯示獎勵總計" : "收合獎勵總計";
+        els.rewardSummaryToggle.setAttribute(
+          "aria-expanded",
+          String(!rewardSummaryCollapsed)
+        );
+      }
+
+      function renderAll() {
+        els.dayTabs.forEach(tab => {
+          tab.classList.toggle("active", tab.dataset.day === state.activeDay);
+        });
+
+        renderGlobalSettings();
+        renderTaskPanel();
+        renderSummary();
+        renderRewardSummaryCollapse();
+        saveState();
+      }
+
+      function getInputLimits(input) {
+        const min = toInt(input.min || 0);
+        const max = input.max === "" ? Number.POSITIVE_INFINITY : toInt(input.max);
+        return { min, max };
+      }
+
+      function updateTaskValue(key, value, input = null) {
+        const day = activeData();
+        let next = toInt(value);
+
+        if (input) {
+          const limits = getInputLimits(input);
+          next = clamp(next, limits.min, limits.max);
+        }
+
+        const resourceCount = setResourceTaskCount(
+          state.activeDay,
+          key,
+          next
+        );
+
+        if (resourceCount != null) {
+          if (input) input.value = resourceCount;
+          return resourceCount;
+        }
+
+        day[key] = next;
+        return next;
+      }
+
+      function createDefaultDay(dayKey) {
+        if (dayKey === "mon") return defaultMonday(state.settings);
+        if (dayKey === "tue") return defaultTuesday(state.settings);
+        if (dayKey === "wed") return defaultWednesday(state.settings);
+        if (dayKey === "thu") return defaultThursday(state.settings);
+        if (dayKey === "fri") return defaultFriday(state.settings);
+        if (dayKey === "sat") return defaultSaturday(state.settings);
+        return defaultSunday(state.settings);
+      }
+
+      function zeroStructure(value) {
+        if (Array.isArray(value)) return [];
+        if (value && typeof value === "object") {
+          return Object.fromEntries(
+            Object.entries(value).map(([key, item]) => [
+              key,
+              zeroStructure(item)
+            ])
+          );
+        }
+        if (typeof value === "number") return 0;
+        return value;
+      }
+
+      function returnOpenedChestsForDay(dayKey) {
+        if (!["thu", "sun"].includes(dayKey)) return;
+
+        const day = state.days[dayKey];
+
+        for (const key of Object.keys(chestConfigs)) {
+          state.inventory[key] =
+            toInt(state.inventory[key]) + toInt(day[key]);
+          day[key] = 0;
+        }
+
+        day.chestOpenHistory = defaultChestHistory();
+      }
+
+      function returnAllocatedResourcesForDay(dayKey) {
+        if (["mon", "wed", "sat"].includes(dayKey)) {
+          returnAllStaminaForDay(dayKey);
+        }
+
+        if (["tue", "wed", "sun"].includes(dayKey)) {
+          returnAllResourceTasksForDay(dayKey);
+        }
+
+        returnOpenedChestsForDay(dayKey);
+      }
+
+      function resetDayToDefaults(dayKey) {
+        returnAllocatedResourcesForDay(dayKey);
+        state.days[dayKey] = createDefaultDay(dayKey);
+      }
+
+      function resetAllDaysToDefaults() {
+        for (const dayKey of dayOrder) {
+          returnAllocatedResourcesForDay(dayKey);
+        }
+
+        for (const dayKey of dayOrder) {
+          state.days[dayKey] = createDefaultDay(dayKey);
+        }
+      }
+
+      function zeroAllDaysTasks() {
+        for (const dayKey of dayOrder) {
+          returnAllocatedResourcesForDay(dayKey);
+        }
+
+        for (const dayKey of dayOrder) {
+          state.days[dayKey] = zeroStructure(
+            createDefaultDay(dayKey)
+          );
+        }
+      }
+
+      function applyDailyDefaults() {
+        const day = activeData();
+        day.dungeonCount = getRecommendedDungeon().total;
+        day.guildRaid = 2;
+        day.arena = 5;
+
+        if (state.activeDay === "mon" || state.activeDay === "sun") {
+          day.heroSupply = state.settings.watchAds ? 1 : 0;
+          day.adventurerSupply = state.settings.watchAds ? 4 : 1;
+        }
+      }
+
+      function adjustDungeonForSettings(oldSettings) {
+        const oldRecommended = getRecommendedDungeon(oldSettings).total;
+        const newRecommended = getRecommendedDungeon(state.settings).total;
+        const delta = newRecommended - oldRecommended;
+
+        for (const day of Object.values(state.days)) {
+          day.dungeonCount = Math.max(0, toInt(day.dungeonCount) + delta);
+        }
+      }
+
+      function adjustAdRewards(oldWatchAds) {
+        if (oldWatchAds === state.settings.watchAds) return;
+
+        const direction = state.settings.watchAds ? 1 : -1;
+        for (const dayKey of ["mon", "sun"]) {
+          const day = state.days[dayKey];
+          day.heroSupply = Math.max(0, day.heroSupply + direction);
+          day.adventurerSupply = Math.max(
+            0,
+            day.adventurerSupply + direction * 3
+          );
+        }
+      }
+
+
+      els.ownedStaminaValue.addEventListener("input", () => {
+        const input = els.ownedStaminaValue;
+        const cursor = input.selectionStart;
+        const cleaned = sanitizeOwnedStaminaInput(input.value);
+
+        if (cleaned !== input.value) {
+          input.value = cleaned;
+          const nextCursor = Math.min(
+            cleaned.length,
+            cursor == null ? cleaned.length : cursor
+          );
+          input.setSelectionRange(nextCursor, nextCursor);
+        }
+
+        if (cleaned === "" || cleaned === ".") {
+          state.ownedStamina.value = 0;
+        } else {
+          state.ownedStamina.value = toNonNegativeNumber(cleaned);
+        }
+
+        refreshOwnedStaminaScores();
+      });
+
+      els.ownedStaminaValue.addEventListener("change", () => {
+        const input = els.ownedStaminaValue;
+        const cleaned = sanitizeOwnedStaminaInput(input.value);
+
+        state.ownedStamina.value =
+          cleaned === "" || cleaned === "."
+            ? 0
+            : toNonNegativeNumber(cleaned);
+
+        input.value = state.ownedStamina.value;
+        refreshOwnedStaminaScores();
+      });
+
+      els.ownedStaminaUnit.addEventListener("change", () => {
+        const unit = els.ownedStaminaUnit.value;
+        state.ownedStamina.unit =
+          ["", "K", "M"].includes(unit) ? unit : "K";
+
+        refreshOwnedStaminaScores();
+      });
+
+      els.ownedResourceValues.forEach(input => {
+        input.addEventListener("input", () => {
+          const key = input.dataset.ownedResourceValue;
+          const cursor = input.selectionStart;
+          const cleaned = sanitizeOwnedStaminaInput(input.value);
+
+          if (cleaned !== input.value) {
+            input.value = cleaned;
+            const nextCursor = Math.min(
+              cleaned.length,
+              cursor == null ? cleaned.length : cursor
+            );
+            input.setSelectionRange(nextCursor, nextCursor);
+          }
+
+          state.ownedResources[key].value =
+            cleaned === "" || cleaned === "."
+              ? 0
+              : toNonNegativeNumber(cleaned);
+
+          updateOwnedResourceDisplay(key);
+          saveState();
+        });
+
+        input.addEventListener("change", () => {
+          const key = input.dataset.ownedResourceValue;
+          const cleaned = sanitizeOwnedStaminaInput(input.value);
+
+          state.ownedResources[key].value =
+            cleaned === "" || cleaned === "."
+              ? 0
+              : toNonNegativeNumber(cleaned);
+
+          input.value = state.ownedResources[key].value;
+          updateOwnedResourceDisplay(key);
+          saveState();
+        });
+      });
+
+      els.ownedResourceUnits.forEach(select => {
+        select.addEventListener("change", () => {
+          const key = select.dataset.ownedResourceUnit;
+          const unit = select.value;
+
+          state.ownedResources[key].unit =
+            ["", "K", "M"].includes(unit) ? unit : "";
+
+          updateOwnedResourceDisplay(key);
+          saveState();
+        });
+      });
+
+      els.chestInventoryList.addEventListener("input", event => {
+        const input = event.target.closest("input[data-inventory-input]");
+        if (!input) return;
+
+        state.inventory[input.dataset.inventoryInput] = toInt(input.value);
+        saveState();
+
+        if (state.activeDay === "thu") {
+          renderTaskPanel();
+          renderSummary();
+        }
+      });
+
+      els.chestInventoryList.addEventListener("change", event => {
+        const input = event.target.closest("input[data-inventory-input]");
+        if (!input) return;
+
+        state.inventory[input.dataset.inventoryInput] = toInt(input.value);
+        renderAll();
+      });
+
+      els.rewardSummaryToggle.addEventListener("click", () => {
+        rewardSummaryCollapsed = !rewardSummaryCollapsed;
+        localStorage.setItem(
+          REWARD_SUMMARY_COLLAPSE_KEY,
+          rewardSummaryCollapsed ? "1" : "0"
+        );
+        renderRewardSummaryCollapse();
+      });
+
+      els.dayTabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          state.activeDay = tab.dataset.day;
+          renderAll();
+        });
+      });
+
+      for (const [element, key] of [
+        [els.monthlyCard, "monthlyCard"],
+        [els.weeklyCard, "weeklyCard"],
+        [els.lifetimeCard, "lifetimeCard"],
+        [els.watchAds, "watchAds"],
+        [els.tradeCard, "tradeCard"]
+      ]) {
+        element.addEventListener("change", () => {
+          const oldSettings = { ...state.settings };
+          state.settings[key] = element.checked;
+
+          if (key === "monthlyCard" && !state.settings.monthlyCard) {
+            for (const dayKey of ["mon", "wed", "sat"]) {
+              setStaminaCount(dayKey, "travel50", 0);
+            }
+          }
+
+          if (key === "weeklyCard" && !state.settings.weeklyCard) {
+            for (const dayKey of ["mon", "wed", "sat"]) {
+              for (const id of ["hard5", "hard10", "hard20"]) {
+                setStaminaCount(dayKey, id, 0);
+              }
+            }
+          }
+
+          if (key === "watchAds") {
+            adjustAdRewards(oldSettings.watchAds);
+          }
+
+          if (key === "tradeCard" && !state.settings.tradeCard) {
+            state.days.tue.tradeShip = Math.min(
+              toInt(state.days.tue.tradeShip),
+              4
+            );
+            state.days.thu.tradeShip = Math.min(
+              toInt(state.days.thu.tradeShip),
+              4
+            );
+          }
+
+          if (["monthlyCard", "lifetimeCard", "watchAds"].includes(key)) {
+            adjustDungeonForSettings(oldSettings);
+          }
+
+          renderAll();
+        });
+      }
+
+      els.taskPanel.addEventListener("click", event => {
+        const chestButton = event.target.closest("button[data-chest-action]");
+        if (chestButton && ["thu", "sun"].includes(state.activeDay)) {
+          const counter = chestButton.closest("[data-chest-key]");
+          const key = counter.dataset.chestKey;
+          const changed = chestButton.dataset.chestAction === "open"
+            ? openChestBatch(key)
+            : undoChestBatch(key);
+
+          if (changed) {
+            renderAll();
+
+            const nextInput = els.taskPanel.querySelector(
+              `[data-chest-open-input="${key}"]`
+            );
+            if (nextInput) {
+              nextInput.focus({ preventScroll: true });
+              nextInput.select();
+            }
+          }
+          return;
+        }
+
+        const dungeonButton = event.target.closest("[data-apply-dungeon]");
+        if (dungeonButton) {
+          activeData().dungeonCount = getRecommendedDungeon().total;
+          renderAll();
+          return;
+        }
+
+        const taskButton = event.target.closest("button[data-task-change]");
+        if (taskButton && !taskButton.disabled) {
+          const counter = taskButton.closest(".task-counter");
+          const input = counter.querySelector("[data-task-input]");
+          const key = input.dataset.taskInput;
+          const limits = getInputLimits(input);
+
+          const step = toInt(counter.dataset.counterStep || input.step || 1) || 1;
+
+          updateTaskValue(
+            key,
+            clamp(
+              toInt(activeData()[key]) +
+                Number(taskButton.dataset.taskChange) * step,
+              limits.min,
+              limits.max
+            ),
+            input
+          );
+
+          renderAll();
+
+          const nextInput = els.taskPanel.querySelector(`[data-task-input="${key}"]`);
+          if (nextInput) {
+            nextInput.focus({ preventScroll: true });
+            nextInput.select();
+          }
+          return;
+        }
+
+        const staminaButton = event.target.closest("button[data-option]");
+        if (staminaButton && !staminaButton.disabled) {
+          const id = staminaButton.dataset.option;
+          const day = activeData();
+          const requestedCount =
+            toInt(day.staminaCounts[id]) +
+            Number(staminaButton.dataset.staminaChange);
+
+          setStaminaCount(state.activeDay, id, requestedCount);
+          renderAll();
+
+          const nextInput = els.taskPanel.querySelector(`[data-stamina-input="${id}"]`);
+          if (nextInput) {
+            nextInput.focus({ preventScroll: true });
+            nextInput.select();
+          }
+        }
+      });
+
+      els.taskPanel.addEventListener("input", event => {
+        const taskInput = event.target.closest("input[data-task-input]");
+        if (taskInput) {
+          updateTaskValue(taskInput.dataset.taskInput, taskInput.value, taskInput);
+          saveState();
+          renderSummary();
+          return;
+        }
+
+        const staminaInput = event.target.closest("input[data-stamina-input]");
+        if (staminaInput) {
+          const actualCount = setStaminaCount(
+            state.activeDay,
+            staminaInput.dataset.staminaInput,
+            staminaInput.value
+          );
+
+          staminaInput.value = actualCount;
+          saveState();
+          renderSummary();
+        }
+      });
+
+      els.taskPanel.addEventListener("change", event => {
+        const taskInput = event.target.closest("input[data-task-input]");
+        if (taskInput) {
+          updateTaskValue(taskInput.dataset.taskInput, taskInput.value, taskInput);
+          renderAll();
+          return;
+        }
+
+        const staminaInput = event.target.closest("input[data-stamina-input]");
+        if (staminaInput) {
+          setStaminaCount(
+            state.activeDay,
+            staminaInput.dataset.staminaInput,
+            staminaInput.value
+          );
+          renderAll();
+        }
+      });
+
+
+      // 接管所有數字欄位的方向鍵。
+      // 每次修改後完整刷新任務分數、資源摘要與階段進度，
+      // 再把焦點放回同一欄位，避免方向鍵變成頁面捲動。
+      document.addEventListener("keydown", event => {
+        if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+
+        const input = event.target.closest(
+          "input[data-task-input], input[data-stamina-input], " +
+          "input[data-inventory-input], input[data-chest-open-input]"
+        );
+        if (!input || input.disabled) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const direction = event.key === "ArrowUp" ? 1 : -1;
+
+        if (input.matches("[data-inventory-input]")) {
+          const key = input.dataset.inventoryInput;
+          state.inventory[key] = Math.max(
+            0,
+            toInt(state.inventory[key]) + direction
+          );
+          renderAll();
+
+          const nextInput = els.chestInventoryList.querySelector(
+            `[data-inventory-input="${key}"]`
+          );
+          if (nextInput) {
+            nextInput.focus({ preventScroll: true });
+            nextInput.select();
+          }
+          return;
+        }
+
+        if (input.matches("[data-chest-open-input]")) {
+          const key = input.dataset.chestOpenInput;
+          const changed = direction > 0
+            ? openChestBatch(key)
+            : undoChestBatch(key);
+
+          if (changed) {
+            renderAll();
+            const nextInput = els.taskPanel.querySelector(
+              `[data-chest-open-input="${key}"]`
+            );
+            if (nextInput) {
+              nextInput.focus({ preventScroll: true });
+              nextInput.select();
+            }
+          }
+          return;
+        }
+
+        if (input.matches("[data-task-input]")) {
+          const key = input.dataset.taskInput;
+          const limits = getInputLimits(input);
+          const counter = input.closest(".task-counter");
+          const step = toInt(
+            (counter && counter.dataset.counterStep) || input.step || 1
+          ) || 1;
+
+          const nextValue = clamp(
+            toInt(activeData()[key]) + direction * step,
+            limits.min,
+            limits.max
+          );
+
+          updateTaskValue(key, nextValue, input);
+          renderAll();
+
+          const nextInput = els.taskPanel.querySelector(
+            `[data-task-input="${key}"]`
+          );
+          if (nextInput) {
+            nextInput.focus({ preventScroll: true });
+            nextInput.select();
+          }
+          return;
+        }
+
+        const id = input.dataset.staminaInput;
+        const day = activeData();
+        const requestedCount =
+          toInt(day.staminaCounts[id]) + direction;
+
+        setStaminaCount(state.activeDay, id, requestedCount);
+        renderAll();
+
+        const nextInput = els.taskPanel.querySelector(
+          `[data-stamina-input="${id}"]`
+        );
+        if (nextInput) {
+          nextInput.focus({ preventScroll: true });
+          nextInput.select();
+        }
+      }, true);
+
+      document.getElementById("applyDailyDefaults").addEventListener("click", () => {
+        applyDailyDefaults();
+        renderAll();
+      });
+
+      document.getElementById("clearCurrentDay").addEventListener("click", () => {
+        resetDayToDefaults(state.activeDay);
+        renderAll();
+      });
+
+      document.getElementById("resetAllDaysDefaults").addEventListener("click", () => {
+        resetAllDaysToDefaults();
+        renderAll();
+      });
+
+      document.getElementById("zeroAllDays").addEventListener("click", () => {
+        zeroAllDaysTasks();
+        renderAll();
+      });
+
+      renderAll();
+    })();
+  </script>
+</body>
+</html>
