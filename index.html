@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v40</title>
+  <title>水豚每週活動計算機｜週一至週日 v41</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -42,6 +42,16 @@
       border: 0;
       cursor: pointer;
       touch-action: manipulation;
+    }
+
+    .task-counter button,
+    .counter button,
+    .chest-open-counter button {
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .page {
@@ -1202,6 +1212,30 @@
     @media (max-width: 600px) {
       body { padding: 10px 8px 28px; }
 
+      .day-tabs {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 3px;
+        margin: 0 -8px 10px;
+        padding: 6px 8px;
+        background: rgba(244, 247, 251, 0.96);
+        box-shadow: 0 6px 14px rgba(20, 33, 61, 0.08);
+        backdrop-filter: blur(9px);
+        -webkit-backdrop-filter: blur(9px);
+      }
+
+      .day-tab {
+        min-width: 0;
+        min-height: 38px;
+        padding: 6px 1px;
+        border-radius: 10px;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
       .weekly-summary-head-tools {
         align-items: flex-end;
         flex-direction: column;
@@ -1267,7 +1301,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v40</div>
+      <div class="prototype-badge">週一至週日 v41</div>
     </header>
 
     <nav class="day-tabs" aria-label="星期切換">
@@ -1557,8 +1591,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v40";
+      const STORAGE_KEY = "capybara-weekly-full-v41";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v40",
         "capybara-weekly-full-v39",
         "capybara-weekly-full-v38",
         "capybara-weekly-full-v37",
@@ -5499,26 +5534,195 @@
         });
       }
 
+      let counterHoldState = null;
+      let suppressCounterClickUntil = 0;
+
+      function getCounterAdjustDescriptor(button) {
+        if (button.matches("button[data-chest-action]")) {
+          const counter = button.closest("[data-chest-key]");
+          if (!counter) return null;
+
+          return {
+            type: "chest",
+            key: counter.dataset.chestKey,
+            direction: button.dataset.chestAction === "open" ? 1 : -1
+          };
+        }
+
+        if (button.matches("button[data-task-change]")) {
+          const counter = button.closest(".task-counter");
+          const input = counter && counter.querySelector("[data-task-input]");
+          if (!counter || !input) return null;
+
+          const limits = getInputLimits(input);
+
+          return {
+            type: "task",
+            key: input.dataset.taskInput,
+            direction: Number(button.dataset.taskChange),
+            step: toInt(counter.dataset.counterStep || input.step || 1) || 1,
+            min: limits.min,
+            max: limits.max
+          };
+        }
+
+        if (button.matches("button[data-option]")) {
+          return {
+            type: "stamina",
+            key: button.dataset.option,
+            direction: Number(button.dataset.staminaChange)
+          };
+        }
+
+        return null;
+      }
+
+      function focusAdjustedCounter(descriptor) {
+        let selector = "";
+
+        if (descriptor.type === "chest") {
+          selector = `[data-chest-open-input="${descriptor.key}"]`;
+        } else if (descriptor.type === "task") {
+          selector = `[data-task-input="${descriptor.key}"]`;
+        } else if (descriptor.type === "stamina") {
+          selector = `[data-stamina-input="${descriptor.key}"]`;
+        }
+
+        if (!selector) return;
+
+        const input = els.taskPanel.querySelector(selector);
+        if (input) {
+          input.focus({ preventScroll: true });
+          input.select();
+        }
+      }
+
+      function applyCounterAdjust(descriptor, focusAfter = false) {
+        if (!descriptor) return false;
+        let changed = false;
+
+        if (descriptor.type === "chest") {
+          if (!["thu", "sun"].includes(state.activeDay)) return false;
+          changed = descriptor.direction > 0
+            ? openChestBatch(descriptor.key)
+            : undoChestBatch(descriptor.key);
+        } else if (descriptor.type === "task") {
+          const before = toInt(activeData()[descriptor.key]);
+          const requested = clamp(
+            before + descriptor.direction * descriptor.step,
+            descriptor.min,
+            descriptor.max
+          );
+
+          updateTaskValue(descriptor.key, requested);
+          changed = toInt(activeData()[descriptor.key]) !== before;
+        } else if (descriptor.type === "stamina") {
+          const day = activeData();
+          if (!day.staminaCounts) return false;
+
+          const before = toInt(day.staminaCounts[descriptor.key]);
+          setStaminaCount(
+            state.activeDay,
+            descriptor.key,
+            before + descriptor.direction
+          );
+          changed = toInt(day.staminaCounts[descriptor.key]) !== before;
+        }
+
+        if (!changed) return false;
+
+        renderAll();
+        if (focusAfter) focusAdjustedCounter(descriptor);
+        return true;
+      }
+
+      function stopCounterHold() {
+        if (!counterHoldState) return;
+
+        clearTimeout(counterHoldState.delayTimer);
+        clearTimeout(counterHoldState.repeatTimer);
+        counterHoldState = null;
+        suppressCounterClickUntil = Date.now() + 450;
+      }
+
+      els.taskPanel.addEventListener("pointerdown", event => {
+        if (event.button != null && event.button !== 0) return;
+
+        const button = event.target.closest(
+          "button[data-task-change], button[data-option], button[data-chest-action]"
+        );
+        if (!button || button.disabled) return;
+
+        const descriptor = getCounterAdjustDescriptor(button);
+        if (!descriptor) return;
+
+        event.preventDefault();
+        stopCounterHold();
+        suppressCounterClickUntil = Date.now() + 600;
+
+        const startedAt = Date.now();
+        counterHoldState = {
+          descriptor,
+          delayTimer: 0,
+          repeatTimer: 0
+        };
+
+        applyCounterAdjust(descriptor, false);
+
+        const repeat = () => {
+          if (!counterHoldState) return;
+
+          const changed = applyCounterAdjust(descriptor, false);
+          if (!changed) {
+            stopCounterHold();
+            return;
+          }
+
+          const elapsed = Date.now() - startedAt;
+          const interval = elapsed >= 1300
+            ? 45
+            : elapsed >= 750
+              ? 65
+              : 90;
+
+          counterHoldState.repeatTimer = setTimeout(repeat, interval);
+        };
+
+        counterHoldState.delayTimer = setTimeout(repeat, 360);
+      });
+
+      document.addEventListener("pointerup", stopCounterHold);
+      document.addEventListener("pointercancel", stopCounterHold);
+      window.addEventListener("blur", stopCounterHold);
+
+      document.addEventListener("contextmenu", event => {
+        if (event.target.closest(
+          ".task-counter button, .counter button, .chest-open-counter button"
+        )) {
+          event.preventDefault();
+        }
+      });
+
+      document.addEventListener("dblclick", event => {
+        if (event.target.closest(
+          ".task-counter button, .counter button, .chest-open-counter button"
+        )) {
+          event.preventDefault();
+        }
+      });
+
       els.taskPanel.addEventListener("click", event => {
         const chestButton = event.target.closest("button[data-chest-action]");
-        if (chestButton && ["thu", "sun"].includes(state.activeDay)) {
-          const counter = chestButton.closest("[data-chest-key]");
-          const key = counter.dataset.chestKey;
-          const changed = chestButton.dataset.chestAction === "open"
-            ? openChestBatch(key)
-            : undoChestBatch(key);
-
-          if (changed) {
-            renderAll();
-
-            const nextInput = els.taskPanel.querySelector(
-              `[data-chest-open-input="${key}"]`
-            );
-            if (nextInput) {
-              nextInput.focus({ preventScroll: true });
-              nextInput.select();
-            }
+        if (chestButton) {
+          if (Date.now() < suppressCounterClickUntil) {
+            event.preventDefault();
+            return;
           }
+
+          applyCounterAdjust(
+            getCounterAdjustDescriptor(chestButton),
+            true
+          );
           return;
         }
 
@@ -5531,50 +5735,29 @@
 
         const taskButton = event.target.closest("button[data-task-change]");
         if (taskButton && !taskButton.disabled) {
-          const counter = taskButton.closest(".task-counter");
-          const input = counter.querySelector("[data-task-input]");
-          const key = input.dataset.taskInput;
-          const limits = getInputLimits(input);
-
-          const step = toInt(counter.dataset.counterStep || input.step || 1) || 1;
-
-          updateTaskValue(
-            key,
-            clamp(
-              toInt(activeData()[key]) +
-                Number(taskButton.dataset.taskChange) * step,
-              limits.min,
-              limits.max
-            ),
-            input
-          );
-
-          renderAll();
-
-          const nextInput = els.taskPanel.querySelector(`[data-task-input="${key}"]`);
-          if (nextInput) {
-            nextInput.focus({ preventScroll: true });
-            nextInput.select();
+          if (Date.now() < suppressCounterClickUntil) {
+            event.preventDefault();
+            return;
           }
+
+          applyCounterAdjust(
+            getCounterAdjustDescriptor(taskButton),
+            true
+          );
           return;
         }
 
         const staminaButton = event.target.closest("button[data-option]");
         if (staminaButton && !staminaButton.disabled) {
-          const id = staminaButton.dataset.option;
-          const day = activeData();
-          const requestedCount =
-            toInt(day.staminaCounts[id]) +
-            Number(staminaButton.dataset.staminaChange);
-
-          setStaminaCount(state.activeDay, id, requestedCount);
-          renderAll();
-
-          const nextInput = els.taskPanel.querySelector(`[data-stamina-input="${id}"]`);
-          if (nextInput) {
-            nextInput.focus({ preventScroll: true });
-            nextInput.select();
+          if (Date.now() < suppressCounterClickUntil) {
+            event.preventDefault();
+            return;
           }
+
+          applyCounterAdjust(
+            getCounterAdjustDescriptor(staminaButton),
+            true
+          );
         }
       });
 
