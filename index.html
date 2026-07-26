@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v46</title>
+  <title>水豚每週活動計算機｜週一至週日 v47</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -773,6 +773,38 @@
       margin-top: 8px;
     }
 
+    .mobile-bottom-nav {
+      display: none;
+    }
+
+    .mobile-nav-btn {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.2;
+      padding: 10px 4px;
+      min-height: 54px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .mobile-nav-btn.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(47, 106, 230, 0.24);
+    }
+
+    .mobile-only-section-title {
+      display: none;
+      margin: 0 0 10px;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
     .action-btn {
       min-height: 38px;
       padding: 8px 13px;
@@ -1266,7 +1298,7 @@
     }
 
     @media (max-width: 600px) {
-      body { padding: 10px 8px 28px; }
+      body { padding: 10px 8px calc(110px + env(safe-area-inset-bottom)); }
 
       .day-tabs {
         position: sticky;
@@ -1335,6 +1367,36 @@
       .weekly-marathon-card {
         position: static;
       }
+
+      .sidebar,
+      .main {
+        min-width: 0;
+      }
+
+      .sidebar .setting-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .mobile-bottom-nav {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 130;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 6px;
+        padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
+        background: rgba(244, 247, 251, 0.97);
+        border-top: 1px solid var(--line);
+        box-shadow: 0 -8px 22px rgba(20, 33, 61, 0.12);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .mobile-only-section-title {
+        display: block;
+      }
     }
 
     @media (max-width: 390px) {
@@ -1366,7 +1428,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v46</div>
+      <div class="prototype-badge">週一至週日 v47</div>
     </header>
 
     <nav class="day-tabs" aria-label="星期切換">
@@ -1380,9 +1442,11 @@
     </nav>
 
     <div class="app-shell">
-      <aside class="card sidebar" aria-label="全域共用設定">
-        <h2>全域設定</h2>
-        <div class="sidebar-note">設定會共用於週一至週日。</div>
+      <aside class="card sidebar" id="sidebarCard" aria-label="全域共用設定">
+        <h2 id="sidebarHeading">全域設定</h2>
+        <div class="sidebar-note" id="sidebarNote">設定會共用於週一至週日。</div>
+
+        <div id="mobileSettingsPanel">
 
         <div class="setting-list">
           <label class="setting-row">
@@ -1510,7 +1574,11 @@
           <small>持有少於 10 個時每次開 1；10～99 個每次開 10；100 個以上每次開 50。</small>
         </div>
 
-        <div class="actions sidebar-actions" aria-label="任務操作">
+        </div>
+
+        <div id="mobileActionsPanel">
+          <div class="mobile-only-section-title">任務操作</div>
+          <div class="actions sidebar-actions" aria-label="任務操作">
           <button class="action-btn action-confirm" id="confirmGenerateCharts" type="button">確認並產出圖表</button>
           <button class="action-btn action-plan" id="applyThirtyStarPlan" type="button">自動套用 30 星／14 卡皮幣方案</button>
           <button class="action-btn action-primary" id="applyDailyDefaults" type="button">依全域設定套用每日免費次數</button>
@@ -1525,9 +1593,11 @@
           <strong id="recommendedDungeonSidebar">8 次</strong>
           <small id="recommendedDungeonFormula">基本 8 次</small>
         </div>
+        </div>
       </aside>
 
       <div class="main">
+        <div id="mobileTasksPanel">
         <section class="card summary-card" aria-label="今日雙活動進度">
           <div class="activity-summary">
             <div class="activity-card marathon">
@@ -1625,7 +1695,9 @@
           <div id="taskPanel"></div>
 
         </section>
+        </div>
 
+        <div id="mobileWeeklyStagePanel">
         <section class="card section-card weekly-stage-card">
           <div class="section-head">
             <h3>每週階段獎勵</h3>
@@ -1633,7 +1705,9 @@
           </div>
           <div class="stage-grid weekly-grid" id="weeklyStageGrid"></div>
         </section>
+        </div>
 
+        <div id="mobileDailyRewardsPanel">
         <section class="card section-card">
           <div class="section-head">
             <h3 id="marathonStageTitle">馬拉松｜本日階段獎勵</h3>
@@ -1649,9 +1723,18 @@
           </div>
           <div class="stage-grid archaeology-grid" id="archaeologyStageGrid"></div>
         </section>
+        </div>
       </div>
     </div>
   </main>
+
+  <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="手機頁面切換">
+    <button class="mobile-nav-btn active" type="button" data-mobile-panel="tasks">任務</button>
+    <button class="mobile-nav-btn" type="button" data-mobile-panel="settings">設定</button>
+    <button class="mobile-nav-btn" type="button" data-mobile-panel="actions">按鈕</button>
+    <button class="mobile-nav-btn" type="button" data-mobile-panel="weekly">每週獎勵</button>
+    <button class="mobile-nav-btn" type="button" data-mobile-panel="daily">本日獎勵</button>
+  </nav>
 
   <div class="chart-modal" id="chartModal" hidden>
   <div class="chart-modal-backdrop" data-close-chart></div>
@@ -1677,8 +1760,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v46";
+      const STORAGE_KEY = "capybara-weekly-full-v47";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v46",
         "capybara-weekly-full-v45",
         "capybara-weekly-full-v44",
         "capybara-weekly-full-v43",
@@ -2178,6 +2262,15 @@
 
       const els = {
         dayTabs: [...document.querySelectorAll(".day-tab")],
+        sidebarCard: document.getElementById("sidebarCard"),
+        sidebarHeading: document.getElementById("sidebarHeading"),
+        sidebarNote: document.getElementById("sidebarNote"),
+        mobileSettingsPanel: document.getElementById("mobileSettingsPanel"),
+        mobileActionsPanel: document.getElementById("mobileActionsPanel"),
+        mobileTasksPanel: document.getElementById("mobileTasksPanel"),
+        mobileWeeklyStagePanel: document.getElementById("mobileWeeklyStagePanel"),
+        mobileDailyRewardsPanel: document.getElementById("mobileDailyRewardsPanel"),
+        mobileNavButtons: [...document.querySelectorAll(".mobile-nav-btn")],
         monthlyCard: document.getElementById("monthlyCard"),
         weeklyCard: document.getElementById("weeklyCard"),
         lifetimeCard: document.getElementById("lifetimeCard"),
@@ -4834,6 +4927,7 @@
 
       let rewardSummaryCollapsed =
         localStorage.getItem(REWARD_SUMMARY_COLLAPSE_KEY) !== "0";
+      let activeMobilePanel = "tasks";
 
 
 function getDayRewardTotals(dayKey) {
@@ -5155,6 +5249,59 @@ async function downloadChartAsImage() {
         renderRewardSummaryCollapse();
       }
 
+      function isMobileLayout() {
+        return window.matchMedia("(max-width: 600px)").matches;
+      }
+
+      function renderMobilePanels() {
+        const isMobile = isMobileLayout();
+        const show = (element, visible) => {
+          if (!element) return;
+          element.hidden = !visible;
+        };
+
+        els.mobileNavButtons.forEach(button => {
+          button.classList.toggle("active", button.dataset.mobilePanel === activeMobilePanel);
+        });
+
+        if (!isMobile) {
+          show(els.sidebarCard, true);
+          show(els.mobileSettingsPanel, true);
+          show(els.mobileActionsPanel, true);
+          show(els.mobileTasksPanel, true);
+          show(els.mobileWeeklyStagePanel, true);
+          show(els.mobileDailyRewardsPanel, true);
+          if (els.sidebarHeading) els.sidebarHeading.textContent = "全域設定";
+          if (els.sidebarNote) els.sidebarNote.textContent = "設定會共用於週一至週日。";
+          return;
+        }
+
+        const settingsMode = activeMobilePanel === "settings";
+        const actionsMode = activeMobilePanel === "actions";
+
+        show(els.sidebarCard, settingsMode || actionsMode);
+        show(els.mobileSettingsPanel, settingsMode);
+        show(els.mobileActionsPanel, actionsMode);
+        show(els.mobileTasksPanel, activeMobilePanel === "tasks");
+        show(els.mobileWeeklyStagePanel, activeMobilePanel === "weekly");
+        show(els.mobileDailyRewardsPanel, activeMobilePanel === "daily");
+
+        if (els.sidebarHeading) {
+          els.sidebarHeading.textContent = settingsMode ? "全域設定" : "任務操作";
+        }
+        if (els.sidebarNote) {
+          els.sidebarNote.textContent = settingsMode
+            ? "設定會共用於週一至週日。"
+            : "這裡集中放置快速操作與自動套用按鈕。";
+        }
+      }
+
+      function setMobilePanel(panel) {
+        activeMobilePanel = panel;
+        renderMobilePanels();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
       function renderAll() {
         els.dayTabs.forEach(tab => {
           tab.classList.toggle("active", tab.dataset.day === state.activeDay);
@@ -5164,6 +5311,7 @@ async function downloadChartAsImage() {
         renderTaskPanel();
         renderSummary();
         renderRewardSummaryCollapse();
+        renderMobilePanels();
         saveState();
       }
 
@@ -5931,6 +6079,16 @@ async function downloadChartAsImage() {
           state.activeDay = tab.dataset.day;
           renderAll();
         });
+      });
+
+      els.mobileNavButtons.forEach(button => {
+        button.addEventListener("click", () => {
+          setMobilePanel(button.dataset.mobilePanel);
+        });
+      });
+
+      window.addEventListener("resize", () => {
+        renderMobilePanels();
       });
 
       for (const [element, key] of [
