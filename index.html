@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v48</title>
+  <title>水豚每週活動計算機｜週一至週日 v49</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1428,7 +1428,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v48</div>
+      <div class="prototype-badge">週一至週日 v49</div>
     </header>
 
     <nav class="day-tabs" aria-label="星期切換">
@@ -1691,7 +1691,7 @@
         <section class="card section-card">
           <div class="section-head">
             <h2 id="dayTaskTitle">週一任務</h2>
-            <div class="section-note">所有數量欄位皆可用 −／＋ 或鍵盤 ↑／↓</div>
+            <div class="section-note">所有數量欄位皆可用 −／＋（可長按加速）或鍵盤 ↑／↓</div>
           </div>
 
           <div id="taskPanel"></div>
@@ -1763,8 +1763,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v48";
+      const STORAGE_KEY = "capybara-weekly-full-v49";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v48",
         "capybara-weekly-full-v47",
         "capybara-weekly-full-v46",
         "capybara-weekly-full-v45",
@@ -2716,6 +2717,18 @@
           Math.max(0, stamina - 200) * 20;
       }
 
+      function archaeologyDungeonScore(count) {
+        const total = toInt(count);
+        return Math.min(total, 16) * 200 +
+          Math.max(total - 16, 0) * 20;
+      }
+
+      function archaeologyArenaScore(count) {
+        const total = toInt(count);
+        return Math.min(total, 5) * 400 +
+          Math.max(total - 5, 0) * 40;
+      }
+
       function archaeologyGoblinScore(count) {
         return Math.min(count, 200) * 20 + Math.max(0, count - 200) * 2;
       }
@@ -2980,10 +2993,10 @@
           stamina.archaeologyScore +
           day.equipBox * 1000 +
           day.cube * 5000 +
-          day.dungeonCount * 200 +
+          archaeologyDungeonScore(day.dungeonCount) +
           day.guildRaid * 1000 +
           archaeologyGoblinScore(day.goblin) +
-          day.arena * 400 +
+          archaeologyArenaScore(day.arena) +
           day.emeraldPack * 50;
 
         return { marathon, archaeology };
@@ -3006,9 +3019,9 @@
           pet.spiritStones * 5 +
           day.tradeShip * 8000 +
           day.treasureDraw * 1000 +
-          day.dungeonCount * 200 +
+          archaeologyDungeonScore(day.dungeonCount) +
           day.guildRaid * 1000 +
-          day.arena * 400 +
+          archaeologyArenaScore(day.arena) +
           day.emeraldPack * 50;
 
         return { marathon, archaeology };
@@ -3080,10 +3093,10 @@
           stamina.archaeologyScore +
           petEggs.archaeologyScore +
           day.brandDraw * 1000 +
-          day.dungeonCount * 200 +
+          archaeologyDungeonScore(day.dungeonCount) +
           day.guildRaid * 1000 +
           archaeologyGoblinScore(day.goblin) +
-          day.arena * 400 +
+          archaeologyArenaScore(day.arena) +
           day.emeraldPack * 50;
 
         return { marathon, archaeology };
@@ -3151,10 +3164,10 @@
           day.tradeShip * 8000 +
           chests.archaeologyScore +
           day.treasureDraw * 1000 +
-          day.dungeonCount * 200 +
+          archaeologyDungeonScore(day.dungeonCount) +
           day.guildRaid * 1000 +
           archaeologyGoblinScore(day.goblin) +
-          day.arena * 400 +
+          archaeologyArenaScore(day.arena) +
           day.emeraldPack * 50;
 
         return { marathon, archaeology };
@@ -3224,10 +3237,10 @@
           day.guruTicket * 4000 +
           day.gemDraw * 1000 +
           gemRefine.archaeologyScore +
-          day.dungeonCount * 200 +
+          archaeologyDungeonScore(day.dungeonCount) +
           day.guildRaid * 1000 +
           archaeologyGoblinScore(day.goblin) +
-          day.arena * 400 +
+          archaeologyArenaScore(day.arena) +
           day.emeraldPack * 50;
 
         return { marathon, archaeology };
@@ -3244,11 +3257,11 @@
         const archaeology =
           day.horseshoe * 10 +
           day.brandDraw * 1000 +
-          day.dungeonCount * 200 +
+          archaeologyDungeonScore(day.dungeonCount) +
           stamina.archaeologyScore +
           day.guildRaid * 1000 +
           archaeologyGoblinScore(day.goblin) +
-          day.arena * 400 +
+          archaeologyArenaScore(day.arena) +
           day.emeraldPack * 50;
 
         return { marathon, archaeology };
@@ -3436,8 +3449,8 @@
               ${taskRow({
                 key: "dungeonCount",
                 name: "通關任意副本",
-                meta: `聯合考古 200 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
-                scoreHtml: `<span class="archaeology">考古 ${format(day.dungeonCount * 200)} 分</span>`,
+                meta: `聯合考古前 16 次 200 分／次，超過後 20 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
+                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分</span>`,
                 className: "auto",
                 extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
               })}
@@ -3453,9 +3466,9 @@
               ${taskRow({
                 key: "arena",
                 name: "挑戰競技場",
-                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次",
+                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次・聯合考古前 5 次 400 分／次，超過後 40 分／次",
                 scoreHtml: `
-                  <span class="archaeology">考古 ${format(day.arena * 400)} 分</span>
+                  <span class="archaeology">考古 ${format(archaeologyArenaScore(day.arena))} 分</span>
                   <span class="arena-cost">${arenaCost.paidAttempts > 0
                     ? `加購 ${arenaCost.paidAttempts} 次・累計 ${format(arenaCost.gems)} 寶石`
                     : "免費次數內・花費0 紫寶石"}</span>
@@ -3575,8 +3588,8 @@
               ${taskRow({
                 key: "dungeonCount",
                 name: "通關任意副本",
-                meta: `考古 200 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
-                scoreHtml: `<span class="archaeology">考古 ${format(day.dungeonCount * 200)} 分</span>`,
+                meta: `考古前 16 次 200 分／次，超過後 20 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
+                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分</span>`,
                 className: "auto",
                 extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
               })}
@@ -3592,9 +3605,9 @@
               ${taskRow({
                 key: "arena",
                 name: "挑戰競技場",
-                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次",
+                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次・聯合考古前 5 次 400 分／次，超過後 40 分／次",
                 scoreHtml: `
-                  <span class="archaeology">考古 ${format(day.arena * 400)} 分</span>
+                  <span class="archaeology">考古 ${format(archaeologyArenaScore(day.arena))} 分</span>
                   <span class="arena-cost">${arenaCost.paidAttempts > 0
                     ? `加購 ${arenaCost.paidAttempts} 次・累計 ${format(arenaCost.gems)} 寶石`
                     : "免費次數內・花費0 紫寶石"}</span>
@@ -3736,8 +3749,8 @@
               ${taskRow({
                 key: "dungeonCount",
                 name: "通關任意副本",
-                meta: `考古 200 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
-                scoreHtml: `<span class="archaeology">考古 ${format(day.dungeonCount * 200)} 分</span>`,
+                meta: `考古前 16 次 200 分／次，超過後 20 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
+                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分</span>`,
                 className: "auto",
                 extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
               })}
@@ -3756,9 +3769,9 @@
               ${taskRow({
                 key: "arena",
                 name: "挑戰競技場",
-                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次",
+                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次・聯合考古前 5 次 400 分／次，超過後 40 分／次",
                 scoreHtml: `
-                  <span class="archaeology">考古 ${format(day.arena * 400)} 分</span>
+                  <span class="archaeology">考古 ${format(archaeologyArenaScore(day.arena))} 分</span>
                   <span class="arena-cost">${arenaCost.paidAttempts > 0
                     ? `加購 ${arenaCost.paidAttempts} 次・累計 ${format(arenaCost.gems)} 寶石`
                     : "免費次數內・花費0 紫寶石"}</span>
@@ -3963,7 +3976,7 @@
                 meta: `同時計入兩個活動・建議 ${dungeon.total} 次（${dungeon.formula}），可再加入其他管道取得的副本券`,
                 scoreHtml: `
                   <span class="marathon">馬拉松 ${format(day.dungeonCount * 500)} 分（500／次）</span>
-                  <span class="archaeology">考古 ${format(day.dungeonCount * 200)} 分（200／次）</span>
+                  <span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分（前16次200，超過20／次）</span>
                 `,
                 className: "auto",
                 extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
@@ -3980,9 +3993,9 @@
               ${taskRow({
                 key: "arena",
                 name: "挑戰競技場",
-                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次",
+                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次・聯合考古前 5 次 400 分／次，超過後 40 分／次",
                 scoreHtml: `
-                  <span class="archaeology">考古 ${format(day.arena * 400)} 分</span>
+                  <span class="archaeology">考古 ${format(archaeologyArenaScore(day.arena))} 分</span>
                   <span class="arena-cost">${arenaCost.paidAttempts > 0
                     ? `加購 ${arenaCost.paidAttempts} 次・累計 ${format(arenaCost.gems)} 寶石`
                     : "免費次數內・花費0 紫寶石"}</span>
@@ -4082,8 +4095,8 @@
               ${taskRow({
                 key: "dungeonCount",
                 name: "通關任意副本",
-                meta: `考古 200 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
-                scoreHtml: `<span class="archaeology">考古 ${format(day.dungeonCount * 200)} 分</span>`,
+                meta: `考古前 16 次 200 分／次，超過後 20 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
+                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分</span>`,
                 className: "auto",
                 extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
               })}
@@ -4099,9 +4112,9 @@
               ${taskRow({
                 key: "arena",
                 name: "挑戰競技場",
-                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次",
+                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次・聯合考古前 5 次 400 分／次，超過後 40 分／次",
                 scoreHtml: `
-                  <span class="archaeology">考古 ${format(day.arena * 400)} 分</span>
+                  <span class="archaeology">考古 ${format(archaeologyArenaScore(day.arena))} 分</span>
                   <span class="arena-cost">${arenaCost.paidAttempts > 0
                     ? `加購 ${arenaCost.paidAttempts} 次・累計 ${format(arenaCost.gems)} 寶石`
                     : "免費次數內・花費0 紫寶石"}</span>
@@ -4208,8 +4221,8 @@
               ${taskRow({
                 key: "dungeonCount",
                 name: "通關任意副本",
-                meta: `考古 200 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
-                scoreHtml: `<span class="archaeology">考古 ${format(day.dungeonCount * 200)} 分</span>`,
+                meta: `考古前 16 次 200 分／次，超過後 20 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
+                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分</span>`,
                 className: "auto",
                 extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
               })}
@@ -4225,9 +4238,9 @@
               ${taskRow({
                 key: "arena",
                 name: "挑戰競技場",
-                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次",
+                meta: "每日免費 5 次；最多加購 20 張入場券，合計最多 25 次・聯合考古前 5 次 400 分／次，超過後 40 分／次",
                 scoreHtml: `
-                  <span class="archaeology">考古 ${format(day.arena * 400)} 分</span>
+                  <span class="archaeology">考古 ${format(archaeologyArenaScore(day.arena))} 分</span>
                   <span class="arena-cost">${arenaCost.paidAttempts > 0
                     ? `加購 ${arenaCost.paidAttempts} 次・累計 ${format(arenaCost.gems)} 寶石`
                     : "免費次數內・花費0 紫寶石"}</span>
