@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v49</title>
+  <title>水豚每週活動計算機｜週一至週日 v51</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1428,7 +1428,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v49</div>
+      <div class="prototype-badge">週一至週日 v51</div>
     </header>
 
     <nav class="day-tabs" aria-label="星期切換">
@@ -1763,8 +1763,10 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v49";
+      const STORAGE_KEY = "capybara-weekly-full-v51";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v50",
+        "capybara-weekly-full-v49",
         "capybara-weekly-full-v48",
         "capybara-weekly-full-v47",
         "capybara-weekly-full-v46",
@@ -2106,7 +2108,7 @@
           dungeonCount: getRecommendedDungeon(settings).total,
           guildRaid: 2,
           arena: 5,
-          guruTicket: 0,
+          guruTicket: 5,
           gemDraw: 0,
           gemRefineImmortal: 0,
           gemRefineTranscendent: 0,
@@ -4121,6 +4123,16 @@
                 `,
                 max: 25
               })}
+              ${taskRow({
+                key: "guruTicket",
+                name: "消耗咕嚕礦場門票",
+                meta: "每日獲得 1 張，最多持有 10 張；正常不亂花時週五至少會有 5 張",
+                scoreHtml: `
+                  <span class="marathon">馬拉松 ${format(day.guruTicket * 1500)} 分（1,500／張）</span>
+                  <span class="archaeology">考古 ${format(day.guruTicket * 4000)} 分（4,000／張）</span>
+                `,
+                max: 10
+              })}
             </div>
           </div>
 
@@ -4131,17 +4143,6 @@
             </div>
 
             <div class="task-list">
-              ${taskRow({
-                key: "guruTicket",
-                name: "消耗咕嚕礦場門票",
-                meta: "每日最多計算 10 張",
-                scoreHtml: `
-                  <span class="marathon">馬拉松 ${format(day.guruTicket * 1500)} 分（1,500／張）</span>
-                  <span class="archaeology">考古 ${format(day.guruTicket * 4000)} 分（4,000／張）</span>
-                `,
-                max: 10
-              })}
-
               ${taskRow({
                 key: "gemDraw",
                 name: "珍寶商店 抽 1 次寶石",
@@ -5937,6 +5938,10 @@ async function downloadChartAsImage() {
 
         if (["wed", "sun"].includes(state.activeDay)) {
           applyAdPetEggBasicCount(state.activeDay, "exact");
+        }
+
+        if (state.activeDay === "fri") {
+          day.guruTicket = 5;
         }
       }
 
