@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v51</title>
+  <title>水豚每週活動計算機｜週一至週日 v52</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1428,7 +1428,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v51</div>
+      <div class="prototype-badge">週一至週日 v52</div>
     </header>
 
     <nav class="day-tabs" aria-label="星期切換">
@@ -1763,8 +1763,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v51";
+      const STORAGE_KEY = "capybara-weekly-full-v52";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v51",
         "capybara-weekly-full-v50",
         "capybara-weekly-full-v49",
         "capybara-weekly-full-v48",
@@ -2033,6 +2034,7 @@
       function defaultWednesday(settings) {
         return {
           staminaCounts: Object.fromEntries([...optionMap.keys()].map(id => [id, 0])),
+          adPetEgg: settings.watchAds ? 3 : 0,
           petEggBundle1: 0,
           petEggBundle3: 0,
           petEggBundle5: 0,
@@ -2197,6 +2199,7 @@
           heroSupply: settings.watchAds ? 1 : 0,
           adventurerSupply: settings.watchAds ? 4 : 1,
           horseshoe: 0,
+          adPetEgg: settings.watchAds ? 3 : 0,
           petEggBundle1: 0,
           petEggBundle3: 0,
           petEggBundle5: 0,
@@ -2266,6 +2269,38 @@
       }
 
       let state = loadState();
+
+      function migrateLegacyAdPetEggCounts() {
+        if (localStorage.getItem(STORAGE_KEY)) return;
+        if (!localStorage.getItem("capybara-weekly-full-v51")) return;
+        if (!state.settings.watchAds) return;
+
+        let refundEggs = 0;
+        for (const dayKey of ["wed", "sun"]) {
+          const day = state.days[dayKey];
+          if (!day) continue;
+
+          const moved = Math.min(3, toInt(day.petEggBundle1));
+          day.petEggBundle1 = Math.max(0, toInt(day.petEggBundle1) - moved);
+          day.adPetEgg = 3;
+          refundEggs += moved * 30;
+        }
+
+        if (refundEggs > 0) {
+          const resource = state.ownedResources.petEgg;
+          const multiplier = resource.unit === "M"
+            ? 1000000
+            : resource.unit === "K"
+              ? 1000
+              : 1;
+          resource.value = Number(
+            (toNonNegativeNumber(resource.value) + refundEggs / multiplier)
+              .toFixed(multiplier === 1 ? 0 : multiplier === 1000 ? 3 : 6)
+          );
+        }
+      }
+
+      migrateLegacyAdPetEggCounts();
 
       const els = {
         dayTabs: [...document.querySelectorAll(".day-tab")],
@@ -3038,10 +3073,11 @@
           ["petEggBundle10", 10]
         ];
 
-        let actions = 0;
+        const adActions = clamp(toInt(day.adPetEgg), 0, 3);
+        let actions = adActions;
         let consumedEggs = 0;
-        let bonusEggs = 0;
-        let openedEggs = 0;
+        let bonusEggs = adActions * 5;
+        let openedEggs = adActions * 35;
 
         for (const [key, multiplier] of variants) {
           const count = toInt(day[key]);
@@ -3184,10 +3220,11 @@
           ["petEggBundle10", 10]
         ];
 
-        let actions = 0;
+        const adActions = clamp(toInt(day.adPetEgg), 0, 3);
+        let actions = adActions;
         let consumedEggs = 0;
-        let bonusEggs = 0;
-        let openedEggs = 0;
+        let bonusEggs = adActions * 5;
+        let openedEggs = adActions * 35;
 
         for (const [key, multiplier] of variants) {
           const count = toInt(day[key]);
@@ -3779,6 +3816,17 @@
                     : "免費次數內・花費0 紫寶石"}</span>
                 `,
                 max: 25
+              })}
+
+              ${taskRow({
+                key: "adPetEgg",
+                name: "廣告寵物蛋 30 顆送 5 顆 ×1",
+                meta: "觀看廣告後直接開啟 35 顆；不消耗持有寵物蛋・每日上限 3 次",
+                scoreHtml: `
+                  <span class="marathon">馬拉松 ${format(toInt(day.adPetEgg) * 35 * 60)} 分（2,100／次）</span>
+                  <span class="archaeology">考古 ${format(toInt(day.adPetEgg) * 35 * 20)} 分（700／次）</span>
+                `,
+                max: 3
               })}
             </div>
           </div>
@@ -4407,6 +4455,14 @@
                     : "免費次數內・花費0 紫寶石"}</span>
                 `,
                 max: 25
+              })}
+
+              ${taskRow({
+                key: "adPetEgg",
+                name: "廣告寵物蛋 30 顆送 5 顆 ×1",
+                meta: "觀看廣告後直接開啟 35 顆；不消耗持有寵物蛋・每日上限 3 次",
+                scoreHtml: `<span class="marathon">馬拉松 ${format(toInt(day.adPetEgg) * 35 * 60)} 分（2,100／次）</span>`,
+                max: 3
               })}
             </div>
           </div>
@@ -5521,8 +5577,8 @@ async function downloadChartAsImage() {
         setResourceTaskCount("wed", "petEggBundle10", 11);
 
         if (state.settings.watchAds) {
-          // 廣告基本 3 次已先配置，再補 1 次 ×1，總計 114 單位。
-          setResourceTaskCount("wed", "petEggBundle1", 4);
+          // 廣告 3 次獨立計算，再補 1 次一般 ×1，總計 114 單位。
+          setResourceTaskCount("wed", "petEggBundle1", 1);
         } else if (getOwnedResourceAmount("petEgg") >= 150) {
           setResourceTaskCount("wed", "petEggBundle1", 0);
           setResourceTaskCount("wed", "petEggBundle5", 1);
@@ -5911,18 +5967,10 @@ async function downloadChartAsImage() {
         const day = state.days[dayKey];
         if (!day) return;
 
-        const current = toInt(day.petEggBundle1);
-        const basicCount = state.settings.watchAds ? 3 : 0;
-        const requested =
-          mode === "adjust"
-            ? current + (state.settings.watchAds ? 3 : -3)
-            : basicCount;
-
-        setResourceTaskCount(
-          dayKey,
-          "petEggBundle1",
-          Math.max(0, requested)
-        );
+        const current = clamp(toInt(day.adPetEgg), 0, 3);
+        day.adPetEgg = mode === "adjust"
+          ? clamp(current + (state.settings.watchAds ? 3 : -3), 0, 3)
+          : (state.settings.watchAds ? 3 : 0);
       }
 
       function applyDailyDefaults() {
