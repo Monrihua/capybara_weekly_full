@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v38</title>
+  <title>水豚每週活動計算機｜週一至週日 v40</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -737,12 +737,37 @@
       margin-top: 9px;
     }
 
+    .sidebar-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .sidebar-actions .action-btn {
+      width: 100%;
+      min-width: 0;
+      padding-left: 9px;
+      padding-right: 9px;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .sidebar .auto-plan-status {
+      margin-top: 8px;
+    }
+
     .action-btn {
       min-height: 38px;
       padding: 8px 13px;
       border-radius: 11px;
       font-weight: 900;
       font-size: 13px;
+    }
+
+    .action-plan {
+      background: linear-gradient(135deg, #2457d6, #744dd8);
+      color: #fff;
     }
 
     .action-primary {
@@ -763,6 +788,44 @@
     .action-danger {
       background: #feecec;
       color: #b42318;
+    }
+
+    .auto-plan-status {
+      display: none;
+      margin-top: 9px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #f8fafc;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .auto-plan-status.show {
+      display: block;
+    }
+
+    .auto-plan-status.success {
+      border-color: #9ed6b5;
+      background: #edf9f2;
+      color: #176b3a;
+    }
+
+    .auto-plan-status.warning {
+      border-color: #f0c98f;
+      background: var(--orange-soft);
+      color: #8a4b08;
+    }
+
+    .auto-plan-status strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 12px;
+    }
+
+    .auto-plan-status ul {
+      margin: 5px 0 0;
+      padding-left: 18px;
     }
 
     .weekly-marathon-card {
@@ -1204,7 +1267,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v38</div>
+      <div class="prototype-badge">週一至週日 v40</div>
     </header>
 
     <nav class="day-tabs" aria-label="星期切換">
@@ -1348,6 +1411,15 @@
           <small>持有少於 10 個時每次開 1；10～99 個每次開 10；100 個以上每次開 50。</small>
         </div>
 
+        <div class="actions sidebar-actions" aria-label="任務操作">
+          <button class="action-btn action-plan" id="applyThirtyStarPlan" type="button">自動套用 30 星／14 卡皮幣方案</button>
+          <button class="action-btn action-primary" id="applyDailyDefaults" type="button">依全域設定套用每日免費次數</button>
+          <button class="action-btn action-secondary" id="clearCurrentDay" type="button">歸 0＋預設基本任務進度</button>
+          <button class="action-btn action-warning" id="resetAllDaysDefaults" type="button">7 日歸 0＋預設基本任務進度</button>
+          <button class="action-btn action-danger" id="zeroAllDays" type="button">完全將任務設定歸 0</button>
+        </div>
+        <div class="auto-plan-status" id="autoPlanStatus" aria-live="polite"></div>
+
         <div class="auto-box">
           <span>建議任意副本次數</span>
           <strong id="recommendedDungeonSidebar">8 次</strong>
@@ -1452,12 +1524,6 @@
 
           <div id="taskPanel"></div>
 
-          <div class="actions">
-            <button class="action-btn action-primary" id="applyDailyDefaults" type="button">依全域設定套用每日免費次數</button>
-            <button class="action-btn action-secondary" id="clearCurrentDay" type="button">歸 0＋預設基本任務進度</button>
-            <button class="action-btn action-warning" id="resetAllDaysDefaults" type="button">7 日歸 0＋預設基本任務進度</button>
-            <button class="action-btn action-danger" id="zeroAllDays" type="button">完全將任務設定歸 0</button>
-          </div>
         </section>
 
         <section class="card section-card weekly-stage-card">
@@ -1491,8 +1557,10 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v38";
+      const STORAGE_KEY = "capybara-weekly-full-v40";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v39",
+        "capybara-weekly-full-v38",
         "capybara-weekly-full-v37",
         "capybara-weekly-full-v36",
         "capybara-weekly-full-v35",
@@ -2032,7 +2100,8 @@
         dailyRewardTotals: document.getElementById("dailyRewardTotals"),
         weeklyRewardTotals: document.getElementById("weeklyRewardTotals"),
         rewardSummaryContent: document.getElementById("rewardSummaryContent"),
-        rewardSummaryToggle: document.getElementById("rewardSummaryToggle")
+        rewardSummaryToggle: document.getElementById("rewardSummaryToggle"),
+        autoPlanStatus: document.getElementById("autoPlanStatus")
       };
 
       function toNonNegativeNumber(value) {
@@ -4763,6 +4832,455 @@
         }
       }
 
+      const thirtyStarPlanTargets = {
+        mon: 48750,
+        tue: 245000,
+        wed: 245000,
+        thu: 48750,
+        fri: 48750,
+        sat: 48750,
+        sun: 245000
+      };
+
+      function setDayTask(dayKey, key, value) {
+        state.days[dayKey][key] = Math.max(0, toInt(value));
+      }
+
+      function allocateTravelStamina(dayKey, targetStamina) {
+        const available = Math.min(
+          Math.max(0, toInt(targetStamina)),
+          getOwnedStaminaAmount()
+        );
+        let remaining = available - available % 5;
+
+        const preferredIds = [
+          "travel50",
+          "travel20",
+          "travel10",
+          "travel5",
+          "travel3",
+          "travel1"
+        ].filter(id => {
+          const option = optionMap.get(id);
+          return option && isStaminaUnlocked(option);
+        });
+
+        for (const id of preferredIds) {
+          const option = optionMap.get(id);
+          const count = Math.floor(remaining / option.stamina);
+          if (count <= 0) continue;
+
+          setStaminaCount(dayKey, id, count);
+          remaining -= count * option.stamina;
+        }
+
+        return getMondayStaminaSummary().stamina;
+      }
+
+      function applyPetEggUnits(dayKey, totalUnits) {
+        let remaining = Math.max(0, toInt(totalUnits));
+        const variants = [
+          ["petEggBundle10", 10],
+          ["petEggBundle5", 5],
+          ["petEggBundle3", 3],
+          ["petEggBundle1", 1]
+        ];
+
+        for (const [key, units] of variants) {
+          const count = Math.floor(remaining / units);
+          if (count <= 0) continue;
+
+          const actual = setResourceTaskCount(dayKey, key, count);
+          remaining -= toInt(actual) * units;
+        }
+
+        return remaining === 0;
+      }
+
+      function applyWednesdayEggRecommendation() {
+        setResourceTaskCount("wed", "petEggBundle10", 11);
+
+        if (getOwnedResourceAmount("petEgg") >= 150) {
+          setResourceTaskCount("wed", "petEggBundle5", 1);
+        } else {
+          setResourceTaskCount("wed", "petEggBundle1", 4);
+        }
+      }
+
+      function openChestTowardQuantity(dayKey, key, desiredOpened) {
+        const day = state.days[dayKey];
+        const startOpened = toInt(day[key]);
+        const desired = Math.max(0, toInt(desiredOpened));
+
+        while (
+          toInt(day[key]) - startOpened < desired &&
+          getChestBatch(state.inventory[key]) > 0
+        ) {
+          if (!openChestBatch(key, dayKey)) break;
+        }
+
+        return toInt(day[key]) - startOpened;
+      }
+
+      function getChestOptions(key, targetPoints) {
+        const config = chestConfigs[key];
+        let remaining = toInt(state.inventory[key]);
+        let opened = 0;
+        let points = 0;
+        const batches = [];
+        const options = [
+          { opened: 0, points: 0, boxes: 0, batches: [] }
+        ];
+
+        while (remaining > 0) {
+          const batch = getChestBatch(remaining);
+          if (batch <= 0) break;
+
+          remaining -= batch;
+          opened += batch;
+          points += batch * config.pointPerBox;
+          batches.push(batch);
+
+          options.push({
+            opened,
+            points,
+            boxes: opened,
+            batches: [...batches]
+          });
+
+          if (points >= targetPoints) break;
+        }
+
+        return options;
+      }
+
+      function findChestPlanForPoints(targetPoints, maxPoints = Number.POSITIVE_INFINITY) {
+        const target = Math.max(0, toInt(targetPoints));
+        if (target === 0) return { reached: true, points: 0, boxes: 0, plan: {} };
+
+        let states = new Map([
+          [0, { points: 0, boxes: 0, plan: {} }]
+        ]);
+
+        for (const key of Object.keys(chestConfigs)) {
+          const options = getChestOptions(key, target);
+          const nextStates = new Map();
+
+          for (const stateEntry of states.values()) {
+            for (const option of options) {
+              const points = stateEntry.points + option.points;
+              if (points > maxPoints) continue;
+
+              const candidate = {
+                points,
+                boxes: stateEntry.boxes + option.boxes,
+                plan: {
+                  ...stateEntry.plan,
+                  [key]: option.batches
+                }
+              };
+
+              const existing = nextStates.get(points);
+              if (!existing || candidate.boxes < existing.boxes) {
+                nextStates.set(points, candidate);
+              }
+            }
+          }
+
+          states = nextStates;
+        }
+
+        const all = [...states.values()];
+        const reached = all
+          .filter(item => item.points >= target)
+          .sort((a, b) =>
+            a.boxes - b.boxes ||
+            a.points - b.points
+          )[0];
+
+        if (reached) {
+          return { ...reached, reached: true };
+        }
+
+        const partial = all.sort((a, b) =>
+          b.points - a.points ||
+          a.boxes - b.boxes
+        )[0] || { points: 0, boxes: 0, plan: {} };
+
+        return { ...partial, reached: false };
+      }
+
+      function applyChestPlan(dayKey, chestPlan) {
+        if (!chestPlan || !chestPlan.plan) return;
+
+        for (const key of Object.keys(chestConfigs)) {
+          const batches = chestPlan.plan[key] || [];
+
+          for (let index = 0; index < batches.length; index += 1) {
+            if (!openChestBatch(key, dayKey)) break;
+          }
+        }
+      }
+
+      function fillThursdayChests(warnings) {
+        const day = state.days.thu;
+        const bronzeByDungeon = {
+          8: 450,
+          10: 450,
+          12: 400,
+          14: 400,
+          16: 350,
+          18: 350,
+          20: 350,
+          22: 300
+        };
+
+        openChestTowardQuantity("thu", "silverBox", 50);
+        openChestTowardQuantity(
+          "thu",
+          "bronzeBox",
+          bronzeByDungeon[toInt(day.dungeonCount)] ?? 450
+        );
+
+        let score = getThursdayScores().marathon;
+        if (score >= thirtyStarPlanTargets.thu) return;
+
+        const neededScore = thirtyStarPlanTargets.thu - score;
+        const neededPoints = Math.ceil(neededScore / 48);
+        const maxExtraPoints = Math.floor(
+          (116000 - 1 - score) / 48
+        );
+
+        const fallback = findChestPlanForPoints(
+          neededPoints,
+          Math.max(0, maxExtraPoints)
+        );
+        applyChestPlan("thu", fallback);
+
+        score = getThursdayScores().marathon;
+        if (score < thirtyStarPlanTargets.thu) {
+          warnings.push(
+            `週四寶箱庫存或開箱批次不足，距離第 3 階還差 ${format(
+              thirtyStarPlanTargets.thu - score
+            )} 分。`
+          );
+        }
+      }
+
+      function fillSundayRoute(warnings) {
+        const target = thirtyStarPlanTargets.sun;
+        let score = getSundayScores().marathon;
+        if (score >= target) return;
+
+        let deficit = target - score;
+        const requiredEggUnits = Math.ceil(deficit / 2100);
+
+        if (getOwnedResourceAmount("petEgg") >= requiredEggUnits * 30) {
+          applyPetEggUnits("sun", requiredEggUnits);
+          return;
+        }
+
+        const requiredChestPoints = Math.ceil(deficit / 48);
+        const chestPlan = findChestPlanForPoints(requiredChestPoints);
+
+        if (chestPlan.reached) {
+          applyChestPlan("sun", chestPlan);
+          return;
+        }
+
+        const requiredCultivationActions = Math.ceil(deficit / 3000);
+        if (
+          getOwnedResourceAmount("spiritStone") >=
+          requiredCultivationActions * 200
+        ) {
+          setResourceTaskCount(
+            "sun",
+            "petBase",
+            requiredCultivationActions
+          );
+          return;
+        }
+
+        // 沒有單一路線可完成時，依筆記順序使用剩餘資源補分。
+        const availableEggUnits = Math.floor(
+          getOwnedResourceAmount("petEgg") / 30
+        );
+        applyPetEggUnits("sun", availableEggUnits);
+
+        score = getSundayScores().marathon;
+        deficit = Math.max(0, target - score);
+
+        if (deficit > 0) {
+          const partialChestPlan = findChestPlanForPoints(
+            Math.ceil(deficit / 48)
+          );
+          applyChestPlan("sun", partialChestPlan);
+        }
+
+        score = getSundayScores().marathon;
+        deficit = Math.max(0, target - score);
+
+        if (deficit > 0) {
+          const availableActions = Math.floor(
+            getOwnedResourceAmount("spiritStone") / 200
+          );
+          const neededActions = Math.ceil(deficit / 3000);
+
+          setResourceTaskCount(
+            "sun",
+            "petBase",
+            Math.min(availableActions, neededActions)
+          );
+        }
+
+        score = getSundayScores().marathon;
+        if (score < target) {
+          warnings.push(
+            `週日寵物蛋、寶箱與靈石不足，距離第 5 階還差 ${format(
+              target - score
+            )} 分。`
+          );
+        }
+      }
+
+      function renderAutoPlanStatus(warnings) {
+        const dayResults = dayOrder.map(dayKey => {
+          const score = getScoresForDay(dayKey).marathon;
+          return {
+            dayKey,
+            score,
+            stars: getMarathonStars(score)
+          };
+        });
+
+        const totalStars = dayResults.reduce(
+          (sum, item) => sum + item.stars,
+          0
+        );
+
+        const capyCoins = dayResults.reduce((sum, item) => {
+          if (item.score >= 48750) return sum + 2;
+          if (item.score >= 18750) return sum + 1;
+          return sum;
+        }, 0);
+
+        const detail = dayResults
+          .map(item =>
+            `${shortDayLabels[item.dayKey]} ${item.stars}/6`
+          )
+          .join("・");
+
+        const success = totalStars === 30 && capyCoins === 14;
+        els.autoPlanStatus.className =
+          `auto-plan-status show ${success ? "success" : "warning"}`;
+
+        els.autoPlanStatus.innerHTML = `
+          <strong>
+            已套用七日方案：${format(totalStars)}/30 星・${format(capyCoins)}/14 卡皮幣
+          </strong>
+          <div>${detail}</div>
+          ${warnings.length > 0
+            ? `<ul>${warnings.map(item => `<li>${item}</li>`).join("")}</ul>`
+            : `<div>目前全域設定與持有資源足以完成筆記目標。</div>`}
+        `;
+      }
+
+      function applyThirtyStarPlan() {
+        const warnings = [];
+        resetAllDaysToDefaults();
+
+        // 第 1 天：650 體力；不足時依筆記使用裝備抽取補到第 3 階。
+        allocateTravelStamina("mon", 650);
+        let mondayScore = getMondayScores().marathon;
+
+        if (mondayScore < thirtyStarPlanTargets.mon) {
+          const equipDraws = Math.ceil(
+            (thirtyStarPlanTargets.mon - mondayScore) / 3000
+          );
+          setDayTask("mon", "equipBox", equipDraws);
+          warnings.push(
+            `週一持有體力不足 650，已用 ${format(equipDraws)} 次裝備抽取補到第 3 階。`
+          );
+        }
+
+        // 第 2 天：挖礦 200 次＋不鎖詞綴培育 79 次。
+        setDayTask("tue", "goblin", 200);
+        setResourceTaskCount("tue", "petBase", 79);
+
+        if (getTuesdayScores().marathon < thirtyStarPlanTargets.tue) {
+          warnings.push(
+            `週二靈石不足，距離第 5 階還差 ${format(
+              thirtyStarPlanTargets.tue -
+              getTuesdayScores().marathon
+            )} 分。`
+          );
+        }
+
+        // 第 3 天：公會討伐 2 次＋寵物蛋建議方案。
+        setDayTask("wed", "guildRaid", 2);
+        applyWednesdayEggRecommendation();
+
+        if (getWednesdayScores().marathon < thirtyStarPlanTargets.wed) {
+          warnings.push(
+            `週三寵物蛋不足，距離第 5 階還差 ${format(
+              thirtyStarPlanTargets.wed -
+              getWednesdayScores().marathon
+            )} 分。`
+          );
+        }
+
+        // 第 4 天：依卡片與廣告副本次數，使用筆記中的銀箱＋青銅箱方案。
+        setDayTask(
+          "thu",
+          "dungeonCount",
+          getRecommendedDungeon().total
+        );
+        fillThursdayChests(warnings);
+
+        // 第 5 天：咕嚕票 5 張＋寶石抽取 14 次。
+        setDayTask("fri", "guruTicket", 5);
+        setDayTask("fri", "gemDraw", 14);
+
+        // 第 6 天：地牢券 5 張＋金蹄鐵 938。
+        setDayTask("sat", "dungeonTicket", 5);
+        setDayTask("sat", "horseshoe", 938);
+
+        // 第 7 天：競技場與廣告基本進度、蹄鐵 800、寶石抽取 28，
+        // 再依剩餘寵物蛋／寶箱／靈石選擇可完成的路線。
+        setDayTask("sun", "arena", 5);
+        setDayTask(
+          "sun",
+          "heroSupply",
+          state.settings.watchAds ? 1 : 0
+        );
+        setDayTask(
+          "sun",
+          "adventurerSupply",
+          state.settings.watchAds ? 4 : 1
+        );
+        setDayTask("sun", "horseshoe", 800);
+        setDayTask("sun", "gemDraw", 28);
+        fillSundayRoute(warnings);
+
+        for (const dayKey of dayOrder) {
+          const score = getScoresForDay(dayKey).marathon;
+          const target = thirtyStarPlanTargets[dayKey];
+
+          if (score < target && !warnings.some(
+            warning => warning.includes(shortDayLabels[dayKey])
+          )) {
+            warnings.push(
+              `${shortDayLabels[dayKey]}距離筆記目標還差 ${format(
+                target - score
+              )} 分。`
+            );
+          }
+        }
+
+        renderAll();
+        renderAutoPlanStatus(warnings);
+      }
+
       function applyDailyDefaults() {
         const day = activeData();
         day.dungeonCount = getRecommendedDungeon().total;
@@ -5201,22 +5719,32 @@
         }
       }, true);
 
+      document.getElementById("applyThirtyStarPlan").addEventListener("click", () => {
+        applyThirtyStarPlan();
+      });
+
       document.getElementById("applyDailyDefaults").addEventListener("click", () => {
         applyDailyDefaults();
         renderAll();
       });
 
       document.getElementById("clearCurrentDay").addEventListener("click", () => {
+        els.autoPlanStatus.className = "auto-plan-status";
+        els.autoPlanStatus.innerHTML = "";
         resetDayToDefaults(state.activeDay);
         renderAll();
       });
 
       document.getElementById("resetAllDaysDefaults").addEventListener("click", () => {
+        els.autoPlanStatus.className = "auto-plan-status";
+        els.autoPlanStatus.innerHTML = "";
         resetAllDaysToDefaults();
         renderAll();
       });
 
       document.getElementById("zeroAllDays").addEventListener("click", () => {
+        els.autoPlanStatus.className = "auto-plan-status";
+        els.autoPlanStatus.innerHTML = "";
         zeroAllDaysTasks();
         renderAll();
       });
