@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v59</title>
+  <title>水豚每週活動計算機｜週一至週日 v60</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1468,7 +1468,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v59</div>
+      <div class="prototype-badge">週一至週日 v60</div>
     </header>
 
     <nav class="day-tabs" aria-label="星期切換">
@@ -1537,16 +1537,6 @@
               <option value="8">8 星</option>
               <option value="9">9 星</option>
               <option value="10">10 星</option>
-            </select>
-          </label>
-
-          <label class="collection-setting-row">
-            <span>每日挖礦習慣</span>
-            <select id="miningHabit" aria-label="每日挖礦習慣">
-              <option value="ultra">我超認真挖礦｜套用 100%（完全沒溢出）</option>
-              <option value="serious">我會認真挖礦｜套用 90%（認真挖但保守點）</option>
-              <option value="rare">我很少會挖礦｜早晚各清一次</option>
-              <option value="lazy">我超懶得挖礦｜一天只清空一次</option>
             </select>
           </label>
 
@@ -1841,8 +1831,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v59";
+      const STORAGE_KEY = "capybara-weekly-full-v60";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v59",
         "capybara-weekly-full-v58",
         "capybara-weekly-full-v57",
         "capybara-weekly-full-v56",
@@ -2083,7 +2074,6 @@
         watchAds: false,
         tradeCard: false,
         mineCard: false,
-        miningHabit: "serious",
         sacredAnvilStars: 0
       });
 
@@ -2098,39 +2088,8 @@
         const adClaimsPerDay = 2;
         const maxAdDailyReward = adRewardPerClaim * adClaimsPerDay;
         const recoveriesPerDay = Math.floor(1440 / intervalMinutes);
-        const recoveriesPerHalfDay = Math.floor(720 / intervalMinutes);
-        const twiceDailyNaturalCount =
-          Math.min(storageCap, recoveriesPerHalfDay) * 2;
-        const twiceDailyPercent = recoveriesPerDay > 0
-          ? Math.floor(twiceDailyNaturalCount / recoveriesPerDay * 100)
-          : 0;
-        const ultraDailyNaturalCount = recoveriesPerDay;
-        const seriousDailyNaturalCount = Math.floor(recoveriesPerDay * 0.9);
-        const lazyDailyNaturalCount = storageCap;
-        const habit = ["ultra", "serious", "rare", "lazy"].includes(settings.miningHabit)
-          ? settings.miningHabit
-          : "serious";
-
-        let naturalDailyCount = seriousDailyNaturalCount;
-        let habitLabel = "我會認真挖礦｜套用 90%";
-
-        if (habit === "ultra") {
-          naturalDailyCount = ultraDailyNaturalCount;
-          habitLabel = "我超認真挖礦｜套用 100%";
-        } else if (habit === "rare") {
-          naturalDailyCount = twiceDailyNaturalCount;
-          habitLabel = `我很少會挖礦｜早晚各清一次，約 ${twiceDailyPercent}%`;
-        } else if (habit === "lazy") {
-          naturalDailyCount = lazyDailyNaturalCount;
-          habitLabel = `我超懶得挖礦｜一天清一次，取得 ${storageCap} 次`;
-        }
-
-        const canClaimMiningAds = naturalDailyCount > 0;
-        const estimatedAdDailyReward = canClaimMiningAds
-          ? maxAdDailyReward
-          : 0;
-        const estimatedDailyCount =
-          naturalDailyCount + mineCardDailyClaim + estimatedAdDailyReward;
+        const theoreticalDailyMax =
+          recoveriesPerDay + mineCardDailyClaim + maxAdDailyReward;
         const minutesToCap = storageCap * intervalMinutes;
 
         return {
@@ -2143,19 +2102,8 @@
           adRewardPerClaim,
           adClaimsPerDay,
           maxAdDailyReward,
-          canClaimMiningAds,
-          estimatedAdDailyReward,
           recoveriesPerDay,
-          recoveriesPerHalfDay,
-          twiceDailyNaturalCount,
-          twiceDailyPercent,
-          ultraDailyNaturalCount,
-          seriousDailyNaturalCount,
-          lazyDailyNaturalCount,
-          naturalDailyCount,
-          habit,
-          habitLabel,
-          estimatedDailyCount,
+          theoreticalDailyMax,
           minutesToCap
         };
       }
@@ -2479,12 +2427,6 @@
 
       migrateLegacyAdPetEggCounts();
       state.settings.mineCard = Boolean(state.settings.mineCard);
-      if (!["ultra", "serious", "rare", "lazy"].includes(state.settings.miningHabit)) {
-        state.settings.miningHabit = state.settings.seriousMining === false
-          ? "rare"
-          : "serious";
-      }
-      delete state.settings.seriousMining;
       state.settings.sacredAnvilStars = clamp(
         toInt(state.settings.sacredAnvilStars),
         0,
@@ -2509,7 +2451,6 @@
         watchAds: document.getElementById("watchAds"),
         tradeCard: document.getElementById("tradeCard"),
         mineCard: document.getElementById("mineCard"),
-        miningHabit: document.getElementById("miningHabit"),
         sacredAnvilStars: document.getElementById("sacredAnvilStars"),
         miningSettingHelp: document.getElementById("miningSettingHelp"),
         ownedStaminaBox: document.getElementById("ownedStaminaBox"),
@@ -3650,7 +3591,7 @@
         return taskRow({
           key: "goblin",
           name: "哥布林礦工挖礦",
-          meta: `依目前設定估計每日約可挖 ${format(mining.estimatedDailyCount)} 次・礦卡每日 50 次可直接領取・廣告需先清出空位才會出現・請手動填入實際次數・存儲上限 ${mining.storageCap} 次・考古前 200 次每次 20 分，超過後每次 2 分`,
+          meta: `理論每日最多約 ${format(mining.theoreticalDailyMax)} 次・自然恢復 ${format(mining.recoveriesPerDay)}＋礦卡 ${format(mining.mineCardDailyClaim)}＋廣告 ${format(mining.maxAdDailyReward)}・請手動填入實際次數・存儲上限 ${mining.storageCap} 次・考古前 200 次每次 20 分，超過後每次 2 分`,
           scoreHtml: includeMarathon
             ? `
               <span class="marathon">馬拉松 ${format(day.goblin * 40)} 分</span>
@@ -5064,45 +5005,28 @@
         els.watchAds.checked = state.settings.watchAds;
         els.tradeCard.checked = state.settings.tradeCard;
         els.mineCard.checked = state.settings.mineCard;
-        els.miningHabit.value = state.settings.miningHabit;
         els.sacredAnvilStars.value = String(
           clamp(toInt(state.settings.sacredAnvilStars), 0, 10)
         );
 
         const mining = getMiningConfig();
-        const rareOption = els.miningHabit.querySelector('option[value="rare"]');
-        const lazyOption = els.miningHabit.querySelector('option[value="lazy"]');
-        if (rareOption) {
-          rareOption.textContent =
-            `我很少會挖礦｜早晚各清一次（約 ${mining.twiceDailyPercent}%）`;
-        }
-        if (lazyOption) {
-          lazyOption.textContent =
-            `我超懶得挖礦｜一天只清空一次（${mining.storageCap} 次）`;
-        }
-
         els.miningSettingHelp.innerHTML = `
           目前恢復速度 +${Math.round(mining.speedBonusRate * 100)}%，
           約每 ${mining.intervalMinutes.toFixed(2)} 分鐘恢復 1 次。<br>
+          24 小時理論自然恢復
+          <strong>${format(mining.recoveriesPerDay)} 次</strong>。<br>
           存儲上限 ${mining.storageCap} 次，從 0 堆滿約需
-          <strong>${formatDurationFromMinutes(mining.minutesToCap)}</strong>。<br>
-          24 小時理論自然恢復 ${format(mining.recoveriesPerDay)} 次；
-          ${mining.habitLabel}，自然取得
-          <strong>${format(mining.naturalDailyCount)} 次</strong>。<br>
+          <strong>${formatDurationFromMinutes(mining.minutesToCap)}</strong>；
+          堆滿後只會停止自然恢復。<br>
           礦卡每日可直接領取
-          <strong>${format(mining.mineCardDailyClaim)} 次</strong>，
-          只要有進去點領取即可，不需要先清空。<br>
-          每日最多可看 ${mining.adClaimsPerDay} 次挖礦廣告，
-          每次獲得 ${mining.adRewardPerClaim} 次，最多
-          <strong>${format(mining.maxAdDailyReward)} 次</strong>；
-          但必須先挖礦清出空位，廣告才會出現。<br>
-          依目前習慣估計可取得廣告次數
-          <strong>${format(mining.estimatedAdDailyReward)} 次</strong>，
-          每日合計約可挖
-          <strong>${format(mining.estimatedDailyCount)} 次</strong>。<br>
-          此數字僅供參考，不會自動填入任務；若次數堆到存儲上限，
-          只會停止自然恢復。礦卡 50 次仍可領取，但沒有清空、沒有實際挖礦時，
-          廣告次數可能完全領不到。
+          <strong>+${format(mining.mineCardDailyClaim)} 次</strong>；
+          每日 2 次廣告最多
+          <strong>+${format(mining.maxAdDailyReward)} 次</strong>，
+          但廣告必須先挖礦清出空位才會出現。<br>
+          若自然恢復完全不溢出、礦卡有領、兩次廣告都有拿到，
+          一天理論最多約
+          <strong>${format(mining.theoreticalDailyMax)} 次</strong>。<br>
+          此資訊不會自動填入任務，請依自己的清空頻率手動輸入實際挖礦次數。
         `;
 
         els.ownedStaminaBox.hidden = false;
@@ -6423,11 +6347,6 @@ async function downloadChartAsImage() {
           renderAll();
         });
       }
-
-      els.miningHabit.addEventListener("change", () => {
-        state.settings.miningHabit = els.miningHabit.value;
-        renderAll();
-      });
 
       els.sacredAnvilStars.addEventListener("change", () => {
         state.settings.sacredAnvilStars = clamp(
