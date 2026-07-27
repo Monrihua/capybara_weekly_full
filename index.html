@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v77</title>
+  <title>水豚每週活動計算機｜週一至週日 v78</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -103,9 +103,10 @@
 
     .week-mode-tabs {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 180px));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
       margin: 0 0 8px;
+      width: 100%;
     }
 
     .week-mode-tab,
@@ -131,17 +132,19 @@
     }
 
     .day-tabs {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
       gap: 8px;
       margin: 0;
       padding: 0;
       background: transparent;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
+      width: 100%;
     }
 
     .day-tab {
-      min-width: 104px;
+      min-width: 0;
     }
 
     .app-shell {
@@ -1773,7 +1776,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v77</div>
+      <div class="prototype-badge">週一至週日 v78</div>
     </header>
 
     <div class="top-tabs-stack">
@@ -1994,8 +1997,8 @@
               <div class="activity-name"><span class="activity-dot"></span><span id="archaeologyTitle">聯合考古｜週一任務</span></div>
               <div class="activity-score" id="archaeologyTotalScore">0</div>
               <div class="activity-extra">
-                <span>幸運礦鎬：<strong id="archaeologyPickaxes">0 / 56</strong></span>
-                <span>距離滿階：<strong id="archaeologyRemaining">320,000</strong></span>
+                <span><span id="archaeologyMetricLabel">幸運礦鎬</span>：<strong id="archaeologyPickaxes">0 / 56</strong></span>
+                <span><span id="archaeologyRemainingLabel">距離滿階</span>：<strong id="archaeologyRemaining">320,000</strong></span>
               </div>
               <div class="progress"><div class="progress-bar" id="archaeologyProgress"></div></div>
             </div>
@@ -2143,8 +2146,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v77";
+      const STORAGE_KEY = "capybara-weekly-full-v78";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v77",
         "capybara-weekly-full-v76",
         "capybara-weekly-full-v75",
         "capybara-weekly-full-v74",
@@ -2829,7 +2833,9 @@
         marathonRemaining: document.getElementById("marathonRemaining"),
         marathonProgress: document.getElementById("marathonProgress"),
         archaeologyTotalScore: document.getElementById("archaeologyTotalScore"),
+        archaeologyMetricLabel: document.getElementById("archaeologyMetricLabel"),
         archaeologyPickaxes: document.getElementById("archaeologyPickaxes"),
+        archaeologyRemainingLabel: document.getElementById("archaeologyRemainingLabel"),
         archaeologyRemaining: document.getElementById("archaeologyRemaining"),
         archaeologyProgress: document.getElementById("archaeologyProgress"),
 
@@ -5795,6 +5801,10 @@
         const scores = getActiveScores();
         const stars = getMarathonStars(scores.marathon);
         const pickaxes = getArchaeologyPickaxes(scores.archaeology);
+        const bountySummary = getMondayGuildBountySummary();
+        const bountyStageCount = guildBountyStages.filter(
+          stage => bountySummary.totalScore >= stage.score
+        ).length;
 
         const dayLabels = {
           mon: {
@@ -5844,6 +5854,8 @@
         const labels = dayLabels[state.activeDay];
         els.marathonTitle.textContent = labels.marathon;
         els.archaeologyTitle.textContent = labels.archaeology;
+        els.archaeologyMetricLabel.textContent = "幸運礦鎬";
+        els.archaeologyRemainingLabel.textContent = "距離滿階";
         els.dayTaskTitle.textContent = labels.task;
         els.marathonStageTitle.textContent =
           `馬拉松｜${labels.stage}階段獎勵`;
@@ -5855,7 +5867,17 @@
         els.marathonProgress.style.width =
           `${Math.min(100, scores.marathon / MARATHON_TARGET * 100)}%`;
 
-        if (state.activeDay === "sun") {
+        if (state.weekMode === "bounty" && state.activeDay === "mon") {
+          els.archaeologyTitle.textContent = "公會懸賞｜週一公會對決";
+          els.archaeologyMetricLabel.textContent = "已達階段";
+          els.archaeologyRemainingLabel.textContent = "距離滿階";
+          els.archaeologyTotalScore.textContent = format(bountySummary.totalScore);
+          els.archaeologyPickaxes.textContent = `${bountyStageCount} / 9`;
+          els.archaeologyRemaining.textContent =
+            format(Math.max(0, 3200 - bountySummary.totalScore));
+          els.archaeologyProgress.style.width =
+            `${Math.min(100, bountySummary.totalScore / 3200 * 100)}%`;
+        } else if (state.activeDay === "sun") {
           els.archaeologyTotalScore.textContent = "休息";
           els.archaeologyPickaxes.textContent = "—";
           els.archaeologyRemaining.textContent = "—";
@@ -6208,7 +6230,9 @@ async function downloadChartAsImage() {
         });
 
         if (els.archaeologyActivityCard) {
-          els.archaeologyActivityCard.hidden = isBountyWeek;
+          els.archaeologyActivityCard.hidden = isBountyWeek
+            ? state.activeDay !== "mon"
+            : false;
         }
 
         if (els.weeklySummarySection) {
