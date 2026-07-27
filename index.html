@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v55</title>
+  <title>水豚每週活動計算機｜週一至週日 v56</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -196,7 +196,7 @@
 
     .collection-setting-row {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 86px;
+      grid-template-columns: minmax(0, 1fr) minmax(86px, 190px);
       gap: 8px;
       align-items: center;
     }
@@ -1468,7 +1468,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v55</div>
+      <div class="prototype-badge">週一至週日 v56</div>
     </header>
 
     <nav class="day-tabs" aria-label="星期切換">
@@ -1519,10 +1519,6 @@
             我有礦卡
           </label>
 
-          <label class="setting-row">
-            <input type="checkbox" id="seriousMining" />
-            我會認真挖礦
-          </label>
         </div>
 
         <div class="collection-setting">
@@ -1543,11 +1539,22 @@
               <option value="10">10 星</option>
             </select>
           </label>
+
+          <label class="collection-setting-row">
+            <span>每日挖礦習慣</span>
+            <select id="miningHabit" aria-label="每日挖礦習慣">
+              <option value="ultra">我超認真挖礦｜套用 100%（完全沒溢出）</option>
+              <option value="serious">我會認真挖礦｜套用 90%（認真挖但保守點）</option>
+              <option value="rare">我很少會挖礦｜早晚各清一次</option>
+              <option value="lazy">我超懶得挖礦｜一天只清空一次</option>
+            </select>
+          </label>
+
           <div class="mining-setting-help" id="miningSettingHelp"></div>
         </div>
 
         <div class="setting-help">
-          月卡解鎖遊歷 ×50，週卡解鎖困難 ×5／×10／×20。貿易卡會把每日 UR／閃金商船上限由 4 艘提高至 6 艘。礦卡會把哥布林礦工次數存儲上限由 60 提高至 100。
+          月卡解鎖遊歷 ×50，週卡解鎖困難 ×5／×10／×20。貿易卡會把每日 UR／閃金商船上限由 4 艘提高至 6 艘。礦卡會把哥布林礦工次數存儲上限由 60 提高至 100，並且每日可額外領取 50 次。
         </div>
 
         <div class="owned-stamina-box" id="ownedStaminaBox">
@@ -1834,8 +1841,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v55";
+      const STORAGE_KEY = "capybara-weekly-full-v56";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v55",
         "capybara-weekly-full-v54",
         "capybara-weekly-full-v53",
         "capybara-weekly-full-v52",
@@ -2072,7 +2080,7 @@
         watchAds: false,
         tradeCard: false,
         mineCard: false,
-        seriousMining: false,
+        miningHabit: "serious",
         sacredAnvilStars: 0
       });
 
@@ -2082,11 +2090,37 @@
         const speedMultiplier = 1 + speedBonusRate;
         const intervalMinutes = 12 / speedMultiplier;
         const storageCap = settings.mineCard ? 100 : 60;
+        const mineCardDailyBonus = settings.mineCard ? 50 : 0;
         const recoveriesPerDay = Math.floor(1440 / intervalMinutes);
-        const seriousDailyCount = Math.floor(recoveriesPerDay * 0.9);
-        const recommendedDailyCount = settings.seriousMining
-          ? seriousDailyCount
-          : Math.floor(seriousDailyCount * 0.5);
+        const recoveriesPerHalfDay = Math.floor(720 / intervalMinutes);
+        const twiceDailyNaturalCount =
+          Math.min(storageCap, recoveriesPerHalfDay) * 2;
+        const twiceDailyPercent = recoveriesPerDay > 0
+          ? Math.floor(twiceDailyNaturalCount / recoveriesPerDay * 100)
+          : 0;
+        const ultraDailyNaturalCount = recoveriesPerDay;
+        const seriousDailyNaturalCount = Math.floor(recoveriesPerDay * 0.9);
+        const lazyDailyNaturalCount = storageCap;
+        const habit = ["ultra", "serious", "rare", "lazy"].includes(settings.miningHabit)
+          ? settings.miningHabit
+          : "serious";
+
+        let naturalDailyCount = seriousDailyNaturalCount;
+        let habitLabel = "我會認真挖礦｜套用 90%";
+
+        if (habit === "ultra") {
+          naturalDailyCount = ultraDailyNaturalCount;
+          habitLabel = "我超認真挖礦｜套用 100%";
+        } else if (habit === "rare") {
+          naturalDailyCount = twiceDailyNaturalCount;
+          habitLabel = `我很少會挖礦｜早晚各清一次，約 ${twiceDailyPercent}%`;
+        } else if (habit === "lazy") {
+          naturalDailyCount = lazyDailyNaturalCount;
+          habitLabel = `我超懶得挖礦｜一天清一次，取得 ${storageCap} 次`;
+        }
+
+        const recommendedDailyCount =
+          naturalDailyCount + mineCardDailyBonus;
         const minutesToCap = storageCap * intervalMinutes;
 
         return {
@@ -2095,8 +2129,17 @@
           speedMultiplier,
           intervalMinutes,
           storageCap,
+          mineCardDailyBonus,
           recoveriesPerDay,
-          seriousDailyCount,
+          recoveriesPerHalfDay,
+          twiceDailyNaturalCount,
+          twiceDailyPercent,
+          ultraDailyNaturalCount,
+          seriousDailyNaturalCount,
+          lazyDailyNaturalCount,
+          naturalDailyCount,
+          habit,
+          habitLabel,
           recommendedDailyCount,
           minutesToCap
         };
@@ -2421,7 +2464,12 @@
 
       migrateLegacyAdPetEggCounts();
       state.settings.mineCard = Boolean(state.settings.mineCard);
-      state.settings.seriousMining = Boolean(state.settings.seriousMining);
+      if (!["ultra", "serious", "rare", "lazy"].includes(state.settings.miningHabit)) {
+        state.settings.miningHabit = state.settings.seriousMining === false
+          ? "rare"
+          : "serious";
+      }
+      delete state.settings.seriousMining;
       state.settings.sacredAnvilStars = clamp(
         toInt(state.settings.sacredAnvilStars),
         0,
@@ -2446,7 +2494,7 @@
         watchAds: document.getElementById("watchAds"),
         tradeCard: document.getElementById("tradeCard"),
         mineCard: document.getElementById("mineCard"),
-        seriousMining: document.getElementById("seriousMining"),
+        miningHabit: document.getElementById("miningHabit"),
         sacredAnvilStars: document.getElementById("sacredAnvilStars"),
         miningSettingHelp: document.getElementById("miningSettingHelp"),
         ownedStaminaBox: document.getElementById("ownedStaminaBox"),
@@ -5001,20 +5049,35 @@
         els.watchAds.checked = state.settings.watchAds;
         els.tradeCard.checked = state.settings.tradeCard;
         els.mineCard.checked = state.settings.mineCard;
-        els.seriousMining.checked = state.settings.seriousMining;
+        els.miningHabit.value = state.settings.miningHabit;
         els.sacredAnvilStars.value = String(
           clamp(toInt(state.settings.sacredAnvilStars), 0, 10)
         );
 
         const mining = getMiningConfig();
+        const rareOption = els.miningHabit.querySelector('option[value="rare"]');
+        const lazyOption = els.miningHabit.querySelector('option[value="lazy"]');
+        if (rareOption) {
+          rareOption.textContent =
+            `我很少會挖礦｜早晚各清一次（約 ${mining.twiceDailyPercent}%）`;
+        }
+        if (lazyOption) {
+          lazyOption.textContent =
+            `我超懶得挖礦｜一天只清空一次（${mining.storageCap} 次）`;
+        }
+
         els.miningSettingHelp.innerHTML = `
           目前恢復速度 +${Math.round(mining.speedBonusRate * 100)}%，
           約每 ${mining.intervalMinutes.toFixed(2)} 分鐘恢復 1 次。<br>
           存儲上限 ${mining.storageCap} 次，從 0 堆滿約需
           <strong>${formatDurationFromMinutes(mining.minutesToCap)}</strong>。<br>
-          24 小時理論恢復 ${format(mining.recoveriesPerDay)} 次；
-          每日基本任務套用 <strong>${format(mining.recommendedDailyCount)} 次</strong>
-          （${state.settings.seriousMining ? "認真挖礦：扣除 10% 緩衝" : "一般挖礦：認真挖礦值的 50%"}）。
+          24 小時理論自然恢復 ${format(mining.recoveriesPerDay)} 次；
+          ${mining.habitLabel}，自然取得
+          <strong>${format(mining.naturalDailyCount)} 次</strong>。<br>
+          礦卡每日額外領取
+          <strong>${format(mining.mineCardDailyBonus)} 次</strong>；
+          每日基本任務合計套用
+          <strong>${format(mining.recommendedDailyCount)} 次</strong>。
         `;
 
         els.ownedStaminaBox.hidden = false;
@@ -6308,8 +6371,7 @@ async function downloadChartAsImage() {
         [els.lifetimeCard, "lifetimeCard"],
         [els.watchAds, "watchAds"],
         [els.tradeCard, "tradeCard"],
-        [els.mineCard, "mineCard"],
-        [els.seriousMining, "seriousMining"]
+        [els.mineCard, "mineCard"]
       ]) {
         element.addEventListener("change", () => {
           const oldSettings = { ...state.settings };
@@ -6348,13 +6410,20 @@ async function downloadChartAsImage() {
             adjustDungeonForSettings(oldSettings);
           }
 
-          if (key === "seriousMining") {
+          if (key === "mineCard") {
             adjustGoblinForSettings(oldSettings);
           }
 
           renderAll();
         });
       }
+
+      els.miningHabit.addEventListener("change", () => {
+        const oldSettings = { ...state.settings };
+        state.settings.miningHabit = els.miningHabit.value;
+        adjustGoblinForSettings(oldSettings);
+        renderAll();
+      });
 
       els.sacredAnvilStars.addEventListener("change", () => {
         const oldSettings = { ...state.settings };
