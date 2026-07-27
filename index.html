@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v61</title>
+  <title>水豚每週活動計算機｜週一至週日 v77</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -90,12 +90,10 @@
       font-size: 13px;
     }
 
-    .day-tabs {
+    .top-tabs-stack {
       position: sticky;
       top: 8px;
       z-index: 70;
-      display: flex;
-      gap: 8px;
       margin: 0 0 10px 222px;
       padding: 6px 0 10px;
       background: rgba(244, 247, 251, 0.96);
@@ -103,8 +101,15 @@
       -webkit-backdrop-filter: blur(9px);
     }
 
+    .week-mode-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 180px));
+      gap: 8px;
+      margin: 0 0 8px;
+    }
+
+    .week-mode-tab,
     .day-tab {
-      min-width: 104px;
       min-height: 40px;
       padding: 8px 16px;
       border: 1px solid var(--line);
@@ -114,10 +119,29 @@
       font-weight: 900;
     }
 
+    .week-mode-tab {
+      min-width: 0;
+    }
+
+    .week-mode-tab.active,
     .day-tab.active {
       color: #fff;
       border-color: var(--blue);
       background: var(--blue);
+    }
+
+    .day-tabs {
+      display: flex;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    .day-tab {
+      min-width: 104px;
     }
 
     .app-shell {
@@ -218,6 +242,43 @@
       line-height: 1.55;
     }
 
+    .guild-bounty-merged-summary {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0;
+      margin: 10px 0 12px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .guild-bounty-merged-item {
+      min-width: 0;
+      padding: 11px 12px;
+      border-right: 1px solid var(--line);
+    }
+
+    .guild-bounty-merged-item:last-child {
+      border-right: 0;
+    }
+
+    .guild-bounty-merged-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    .guild-bounty-merged-item strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 18px;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
     .guild-bounty-summary {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -243,6 +304,106 @@
       display: block;
       margin-top: 4px;
       font-size: 18px;
+    }
+
+    .guild-bounty-common-count {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #f7f8fa;
+    }
+
+    .guild-bounty-common-item {
+      min-width: 0;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #fff;
+    }
+
+    .guild-bounty-common-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .guild-bounty-common-item strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 17px;
+    }
+
+    .guild-bounty-common-count.limit {
+      border-color: #d7a400;
+      background: #fff8d8;
+    }
+
+    .guild-bounty-color-group {
+      margin-top: 12px;
+    }
+
+    .guild-bounty-color-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .guild-bounty-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .guild-bounty-counter {
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .guild-bounty-counter.white {
+      background: #f5f5f5;
+      border: 1px solid #c9c9c9;
+    }
+
+    .guild-bounty-counter.purple {
+      background: #f1e8ff;
+      border: 1px solid #b995e8;
+    }
+
+    .guild-bounty-counter.gold {
+      background: #fff1bd;
+      border: 1px solid #d4ab2e;
+    }
+
+    .guild-bounty-counter .task-row {
+      background: transparent;
+      border: 0;
+      margin: 0;
+    }
+
+    .guild-bounty-counter .task-name {
+      font-size: 13px;
+    }
+
+    .guild-bounty-counter.white .task-name { color: #333; }
+    .guild-bounty-counter.purple .task-name { color: #6929a8; }
+    .guild-bounty-counter.gold .task-name { color: #7d5900; }
+
+    .bounty-board-note {
+      padding: 10px;
+      border-radius: 12px;
+      background: #f7f8fa;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.65;
     }
 
     .guild-bounty-table {
@@ -284,21 +445,9 @@
     .bounty-purple { background: #efe4ff; color: #6f2dbd; border: 1px solid #c7a8ef; }
     .bounty-gold { background: #fff1bd; color: #8b6200; border: 1px solid #e4bf4e; }
 
-    .bounty-recommend {
-      margin-top: 10px;
-      padding: 11px;
-      border: 1px solid #d9c37a;
-      border-radius: 12px;
-      background: #fff8dc;
-      line-height: 1.65;
-      font-size: 12px;
-    }
-
-    .bounty-recommend strong { font-size: 13px; }
-
     .personal-task-status {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 6px;
       margin-top: 8px;
     }
@@ -316,12 +465,42 @@
       color: #24743a;
     }
 
+    @media (min-width: 721px) and (max-width: 1100px) {
+      .guild-bounty-grid,
+      .personal-task-status {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
     @media (max-width: 720px) {
       .guild-bounty-summary {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
       .personal-task-status {
         grid-template-columns: 1fr;
+      }
+      .guild-bounty-grid,
+      .guild-bounty-common-count {
+        grid-template-columns: 1fr;
+      }
+
+      .guild-bounty-merged-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .guild-bounty-merged-item {
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .guild-bounty-merged-item:nth-child(2n) {
+        border-right: 0;
+      }
+
+      .guild-bounty-merged-item:last-child {
+        grid-column: 1 / -1;
+        border-right: 0;
+        border-bottom: 0;
       }
       .guild-bounty-table {
         font-size: 11px;
@@ -1450,13 +1629,10 @@
     @media (max-width: 600px) {
       body { padding: 10px 8px calc(110px + env(safe-area-inset-bottom)); }
 
-      .day-tabs {
+      .top-tabs-stack {
         position: sticky;
         top: 0;
         z-index: 100;
-        display: grid;
-        grid-template-columns: repeat(7, minmax(0, 1fr));
-        gap: 3px;
         margin: 0 -8px 10px;
         padding: 6px 8px;
         background: rgba(244, 247, 251, 0.96);
@@ -1465,6 +1641,25 @@
         -webkit-backdrop-filter: blur(9px);
       }
 
+      .week-mode-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+
+      .day-tabs {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 3px;
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+
+      .week-mode-tab,
       .day-tab {
         min-width: 0;
         min-height: 38px;
@@ -1578,18 +1773,25 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v61</div>
+      <div class="prototype-badge">週一至週日 v77</div>
     </header>
 
-    <nav class="day-tabs" aria-label="星期切換">
-      <button class="day-tab active" type="button" data-day="mon">週一</button>
-      <button class="day-tab" type="button" data-day="tue">週二</button>
-      <button class="day-tab" type="button" data-day="wed">週三</button>
-      <button class="day-tab" type="button" data-day="thu">週四</button>
-      <button class="day-tab" type="button" data-day="fri">週五</button>
-      <button class="day-tab" type="button" data-day="sat">週六</button>
-      <button class="day-tab" type="button" data-day="sun">週日</button>
-    </nav>
+    <div class="top-tabs-stack">
+      <nav class="week-mode-tabs" aria-label="活動週切換">
+        <button class="week-mode-tab active" type="button" data-week-mode="archaeology">考古周</button>
+        <button class="week-mode-tab" type="button" data-week-mode="bounty">懸賞周</button>
+      </nav>
+
+      <nav class="day-tabs" aria-label="星期切換">
+        <button class="day-tab active" type="button" data-day="mon">週一</button>
+        <button class="day-tab" type="button" data-day="tue">週二</button>
+        <button class="day-tab" type="button" data-day="wed">週三</button>
+        <button class="day-tab" type="button" data-day="thu">週四</button>
+        <button class="day-tab" type="button" data-day="fri">週五</button>
+        <button class="day-tab" type="button" data-day="sat">週六</button>
+        <button class="day-tab" type="button" data-day="sun">週日</button>
+      </nav>
+    </div>
 
     <div class="app-shell">
       <aside class="card sidebar" id="sidebarCard" aria-label="全域共用設定">
@@ -1788,7 +1990,7 @@
               <div class="progress"><div class="progress-bar" id="marathonProgress"></div></div>
             </div>
 
-            <div class="activity-card archaeology">
+            <div class="activity-card archaeology" id="archaeologyActivityCard">
               <div class="activity-name"><span class="activity-dot"></span><span id="archaeologyTitle">聯合考古｜週一任務</span></div>
               <div class="activity-score" id="archaeologyTotalScore">0</div>
               <div class="activity-extra">
@@ -1896,10 +2098,10 @@
           <div class="stage-grid marathon-grid" id="marathonStageGrid"></div>
         </section>
 
-        <section class="card section-card">
+        <section class="card section-card" id="archaeologyDailyStageSection">
           <div class="section-head">
             <h3>聯合考古｜本日階段獎勵</h3>
-            <div class="section-note">共 9 階，最多取得 56 個幸運礦鎬</div>
+            <div class="section-note">共 9 階，達成後自動標示</div>
           </div>
           <div class="stage-grid archaeology-grid" id="archaeologyStageGrid"></div>
         </section>
@@ -1941,8 +2143,24 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v61";
+      const STORAGE_KEY = "capybara-weekly-full-v77";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v76",
+        "capybara-weekly-full-v75",
+        "capybara-weekly-full-v74",
+        "capybara-weekly-full-v73",
+        "capybara-weekly-full-v72",
+        "capybara-weekly-full-v71",
+        "capybara-weekly-full-v70",
+        "capybara-weekly-full-v69",
+        "capybara-weekly-full-v68",
+        "capybara-weekly-full-v67",
+        "capybara-weekly-full-v66",
+        "capybara-weekly-full-v65",
+        "capybara-weekly-full-v64",
+        "capybara-weekly-full-v63",
+        "capybara-weekly-full-v62",
+        "capybara-weekly-full-v61",
         "capybara-weekly-full-v60",
         "capybara-weekly-full-v59",
         "capybara-weekly-full-v58",
@@ -2247,8 +2465,8 @@
           cube: 0,
           goblin: 0,
           emeraldPack: 0,
-          guildBountyTradeShip: 0,
-          guildBountyGuruTicket: 0,
+          tradeShip: 0,
+          guruTicket: 0,
           gbArenaWhite: 0,
           gbDungeonWhite: 0,
           gbDungeonPurple: 0,
@@ -2491,6 +2709,7 @@
         const settings = defaultSettings();
         return {
           activeDay: "mon",
+          weekMode: "archaeology",
           settings,
           ownedStamina: {
             value: 0,
@@ -2564,6 +2783,7 @@
       );
 
       const els = {
+        weekModeTabs: [...document.querySelectorAll(".week-mode-tab")],
         dayTabs: [...document.querySelectorAll(".day-tab")],
         sidebarCard: document.getElementById("sidebarCard"),
         sidebarHeading: document.getElementById("sidebarHeading"),
@@ -2574,6 +2794,8 @@
         mobileStatsPanel: document.getElementById("mobileStatsPanel"),
         mobileWeeklyStagePanel: document.getElementById("mobileWeeklyStagePanel"),
         mobileDailyRewardsPanel: document.getElementById("mobileDailyRewardsPanel"),
+        archaeologyActivityCard: document.getElementById("archaeologyActivityCard"),
+        archaeologyDailyStageSection: document.getElementById("archaeologyDailyStageSection"),
         mobileNavButtons: [...document.querySelectorAll(".mobile-nav-btn")],
         monthlyCard: document.getElementById("monthlyCard"),
         weeklyCard: document.getElementById("weeklyCard"),
@@ -3043,6 +3265,7 @@
             const settings = { ...base.settings, ...current.settings };
             return {
               activeDay: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"].includes(current.activeDay) ? current.activeDay : "mon",
+              weekMode: current.weekMode === "bounty" ? "bounty" : "archaeology",
               settings,
               ownedStamina: {
                 ...base.ownedStamina,
@@ -3100,6 +3323,7 @@
                 activeDay: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"].includes(legacy.activeDay)
                   ? legacy.activeDay
                   : "mon",
+                weekMode: legacy.weekMode === "bounty" ? "bounty" : "archaeology",
                 settings,
                 ownedStamina: {
                   ...base.ownedStamina,
@@ -3156,6 +3380,7 @@
 
             return {
               activeDay: "mon",
+              weekMode: "archaeology",
               settings,
               ownedStamina: {
                 value: 0,
@@ -3633,6 +3858,10 @@
           options.max != null && value >= options.max;
         const resourceBlocked =
           !canAffordTaskIncrease(state.activeDay, key, step);
+        const guildBountyLocked =
+          state.activeDay === "mon" &&
+          isGuildBountyKey(key) &&
+          getGuildBountyCompletedCount() >= 15;
 
         return `
           <div class="task-counter" data-counter-key="${key}" data-counter-step="${step}">
@@ -3640,7 +3869,7 @@
             <input type="number" min="0"${maxAttr} step="${step}" inputmode="numeric"
                    data-task-input="${key}" value="${value}" />
             <button type="button" data-task-change="1"
-                    ${maxReached || resourceBlocked ? "disabled" : ""}>＋</button>
+                    ${maxReached || resourceBlocked || guildBountyLocked ? "disabled" : ""}>＋</button>
           </div>
         `;
       }
@@ -3743,37 +3972,82 @@
         { score: 3200, token: 360, merit: 300 }
       ];
 
-      const guildBountyCompletionFields = [
-        ["gbArenaWhite", "競技場", "white", 50],
-        ["gbDungeonWhite", "任意副本", "white", 50],
-        ["gbDungeonPurple", "任意副本", "purple", 100],
-        ["gbTradeWhite", "UR 船", "white", 50],
-        ["gbTradePurple", "UR 船", "purple", 100],
-        ["gbGoblinWhite", "哥布林挖礦", "white", 50],
-        ["gbGoblinPurple", "哥布林挖礦", "purple", 100],
-        ["gbStaminaWhite", "消耗體力", "white", 50],
-        ["gbStaminaPurple", "消耗體力", "purple", 100],
-        ["gbGuruWhite", "咕嚕礦場票", "white", 50],
-        ["gbGuruPurple", "咕嚕礦場票", "purple", 100],
-        ["gbEquipWhite", "裝備抽取", "white", 50],
-        ["gbEquipPurple", "裝備抽取", "purple", 100],
-        ["gbEquipGold", "裝備抽取", "gold", 300],
-        ["gbCubeWhite", "神兵魔方", "white", 50],
-        ["gbCubePurple", "神兵魔方", "purple", 100],
-        ["gbCubeGold", "神兵魔方", "gold", 300]
+      const guildBountyDefinitions = [
+        { key: "gbArenaWhite", type: "arena", name: "挑戰競技場", action: "挑戰", color: "white", need: 3, unit: "次", score: 50 },
+        { key: "gbDungeonWhite", type: "dungeon", name: "通關任意副本", action: "通關", color: "white", need: 5, unit: "次", score: 50 },
+        { key: "gbDungeonPurple", type: "dungeon", name: "通關任意副本", action: "通關", color: "purple", need: 10, unit: "次", score: 100 },
+        { key: "gbTradeWhite", type: "trade", name: "卡皮貿易 發 UR／閃金商船", action: "發送", color: "white", need: 1, unit: "艘", score: 50 },
+        { key: "gbTradePurple", type: "trade", name: "卡皮貿易 發 UR／閃金商船", action: "發送", color: "purple", need: 2, unit: "艘", score: 100 },
+        { key: "gbGoblinWhite", type: "goblin", name: "哥布林礦工挖礦", action: "挖礦", color: "white", need: 50, unit: "次", score: 50 },
+        { key: "gbGoblinPurple", type: "goblin", name: "哥布林礦工挖礦", action: "挖礦", color: "purple", need: 100, unit: "次", score: 100 },
+        { key: "gbStaminaWhite", type: "stamina", name: "消耗體力", action: "消耗", color: "white", need: 50, unit: "點", score: 50 },
+        { key: "gbStaminaPurple", type: "stamina", name: "消耗體力", action: "消耗", color: "purple", need: 100, unit: "點", score: 100 },
+        { key: "gbGuruWhite", type: "guru", name: "消耗咕嚕礦場門票", action: "消耗", color: "white", need: 1, unit: "張", score: 50 },
+        { key: "gbGuruPurple", type: "guru", name: "消耗咕嚕礦場門票", action: "消耗", color: "purple", need: 2, unit: "張", score: 100 },
+        { key: "gbEquipWhite", type: "equip", name: "限定秘藏箱／傳說秘寶箱 抽 1 次裝備", action: "抽取", color: "white", need: 5, unit: "次", score: 50 },
+        { key: "gbEquipPurple", type: "equip", name: "限定秘藏箱／傳說秘寶箱 抽 1 次裝備", action: "抽取", color: "purple", need: 10, unit: "次", score: 100 },
+        { key: "gbEquipGold", type: "equip", name: "限定秘藏箱／傳說秘寶箱 抽 1 次裝備", action: "抽取", color: "gold", need: 30, unit: "次", score: 300 },
+        { key: "gbCubeWhite", type: "cube", name: "靈能洗練 消耗神兵魔方", action: "消耗", color: "white", need: 1, unit: "個", score: 50 },
+        { key: "gbCubePurple", type: "cube", name: "靈能洗練 消耗神兵魔方", action: "消耗", color: "purple", need: 2, unit: "個", score: 100 },
+        { key: "gbCubeGold", type: "cube", name: "靈能洗練 消耗神兵魔方", action: "消耗", color: "gold", need: 6, unit: "個", score: 300 }
       ];
+
+      const guildBountyKeys = new Set(
+        guildBountyDefinitions.map(item => item.key)
+      );
+
+      const guildBountyExtraCostByCount = [0, 50, 125, 225, 375, 575];
+
+      function isGuildBountyKey(key) {
+        return guildBountyKeys.has(key);
+      }
+
+      function getGuildBountyCompletedCount(day = state.days.mon) {
+        return guildBountyDefinitions.reduce(
+          (sum, item) => sum + toInt(day[item.key]),
+          0
+        );
+      }
+
+      function getGuildBountyExtraGemCost(completedCount) {
+        const extraCount = clamp(toInt(completedCount) - 10, 0, 5);
+        return guildBountyExtraCostByCount[extraCount];
+      }
+
+
+      function getMondayGuildBountyActivity() {
+        const day = state.days.mon;
+        const dungeonDailyCap = getRecommendedDungeon().total;
+        const tradeDailyCap = state.settings.tradeCard ? 6 : 4;
+
+        return {
+          arena: Math.min(toInt(day.arena), 25),
+          dungeon: Math.min(toInt(day.dungeonCount), dungeonDailyCap),
+          trade: tradeDailyCap,
+          goblin: toInt(day.goblin),
+          stamina: getMondayStaminaSummary().stamina,
+          guru: 0,
+          equip: toInt(day.equipBox),
+          cube: toInt(day.cube),
+          limits: {
+            arena: 25,
+            dungeon: dungeonDailyCap,
+            trade: tradeDailyCap
+          }
+        };
+      }
 
       function getMondayGuildBountySummary() {
         const day = state.days.mon;
-        const stamina = getMondayStaminaSummary().stamina;
+        const activity = getMondayGuildBountyActivity();
 
         const personal = [
           { name: "挑戰 2 次公會討伐", current: day.guildRaid, need: 2, score: 50 },
-          { name: "參與 3 次競技場", current: day.arena, need: 3, score: 50 },
-          { name: "挑戰 10 次任意副本", current: day.dungeonCount, need: 10, score: 100 },
-          { name: "哥布林礦工挖礦 100 次", current: day.goblin, need: 100, score: 100 },
-          { name: "消耗 100 點體力", current: stamina, need: 100, score: 100 },
-          { name: "限定／傳說秘寶箱抽裝備 10 次", current: day.equipBox, need: 10, score: 100 }
+          { name: "參與 3 次競技場", current: activity.arena, need: 3, score: 50 },
+          { name: "挑戰 10 次任意副本", current: activity.dungeon, need: 10, score: 100 },
+          { name: "哥布林礦工挖礦 100 次", current: activity.goblin, need: 100, score: 100 },
+          { name: "消耗 100 點體力", current: activity.stamina, need: 100, score: 100 },
+          { name: "限定／傳說秘寶箱抽裝備 10 次", current: activity.equip, need: 10, score: 100 }
         ].map(item => ({
           ...item,
           done: item.current >= item.need,
@@ -3785,10 +4059,15 @@
           0
         );
 
-        const guildScore = guildBountyCompletionFields.reduce(
-          (sum, [key, , , score]) => sum + toInt(day[key]) * score,
+        const guildScore = guildBountyDefinitions.reduce(
+          (sum, item) => sum + toInt(day[item.key]) * item.score,
           0
         );
+
+        const completedGuildCount = getGuildBountyCompletedCount(day);
+
+        const acceptLimit = 15;
+        const acceptsRemaining = Math.max(0, acceptLimit - completedGuildCount);
 
         const totalScore = personalScore + guildScore;
         const nextStage = guildBountyStages.find(stage => totalScore < stage.score) || null;
@@ -3798,118 +4077,188 @@
           personalScore,
           guildScore,
           totalScore,
+          completedGuildCount,
+          acceptLimit,
+          acceptsRemaining,
           nextStage,
           toNext: nextStage ? nextStage.score - totalScore : 0,
           toFinal: Math.max(0, 3200 - totalScore),
-          stamina
+          activity
         };
       }
 
-      function getGuildBountyReadyTypes() {
-        const day = state.days.mon;
-        const stamina = getMondayStaminaSummary().stamina;
-        const activity = {
-          arena: day.arena,
-          dungeon: day.dungeonCount,
-          trade: day.guildBountyTradeShip,
-          goblin: day.goblin,
-          stamina,
-          guru: day.guildBountyGuruTicket,
-          equip: day.equipBox,
-          cube: day.cube
+      function getAvailableGuildBounties(summary) {
+        return guildBountyDefinitions
+          .map(item => ({
+            ...item,
+            current: summary.activity[item.type],
+            ready: summary.activity[item.type] >= item.need
+          }))
+          .filter(item => item.ready);
+      }
+
+      function getGuildBountyRepresentativeTask(color) {
+        const candidates = guildBountyDefinitions.filter(item => item.color === color);
+        if (!candidates.length) return null;
+
+        return [...candidates].sort((a, b) => {
+          if (a.need !== b.need) return a.need - b.need;
+          return a.name.localeCompare(b.name, "zh-Hant");
+        })[0];
+      }
+
+      function findGuildBountyRecommendationForTarget(summary, target) {
+        const remaining = Math.max(0, target - summary.totalScore);
+        const slots = summary.acceptsRemaining;
+
+        if (remaining <= 0) {
+          return {
+            message: `目前 ${format(summary.totalScore)} 分，已達成`
+          };
+        }
+
+        if (slots <= 0) {
+          return {
+            message:
+              `目前 ${format(summary.totalScore)} 分，還差 ${format(remaining)} 分；` +
+              `已用完 ${format(summary.acceptLimit)} 次接取額度`
+          };
+        }
+
+        let best = null;
+
+        for (let gold = 0; gold <= slots; gold++) {
+          for (let purple = 0; purple <= slots - gold; purple++) {
+            for (let white = 0; white <= slots - gold - purple; white++) {
+              const count = gold + purple + white;
+              if (!count) continue;
+
+              const score = gold * 300 + purple * 100 + white * 50;
+              if (score < remaining) continue;
+
+              const candidate = {
+                gold,
+                purple,
+                white,
+                count,
+                score,
+                excess: score - remaining
+              };
+
+              if (
+                !best ||
+                candidate.excess < best.excess ||
+                (candidate.excess === best.excess && candidate.gold > best.gold) ||
+                (candidate.excess === best.excess &&
+                  candidate.gold === best.gold &&
+                  candidate.purple > best.purple) ||
+                (candidate.excess === best.excess &&
+                  candidate.gold === best.gold &&
+                  candidate.purple === best.purple &&
+                  candidate.count < best.count)
+              ) {
+                best = candidate;
+              }
+            }
+          }
+        }
+
+        if (!best) {
+          return {
+            message:
+              `目前 ${format(summary.totalScore)} 分，還差 ${format(remaining)} 分；` +
+              `剩餘 ${format(slots)} 次接取額度最多可補 ${format(slots * 300)} 分，仍無法達標`
+          };
+        }
+
+        const colorParts = [];
+        const workParts = [];
+
+        const goldTask = getGuildBountyRepresentativeTask("gold");
+        const purpleTask = getGuildBountyRepresentativeTask("purple");
+        const whiteTask = getGuildBountyRepresentativeTask("white");
+
+        if (best.gold) {
+          colorParts.push(`金色 ×${best.gold}`);
+          if (goldTask) {
+            workParts.push(
+              `金色可選 ${goldTask.name}：共需${goldTask.action}${format(goldTask.need * best.gold)}${goldTask.unit}`
+            );
+          }
+        }
+
+        if (best.purple) {
+          colorParts.push(`紫色 ×${best.purple}`);
+          if (purpleTask) {
+            workParts.push(
+              `紫色可選 ${purpleTask.name}：共需${purpleTask.action}${format(purpleTask.need * best.purple)}${purpleTask.unit}`
+            );
+          }
+        }
+
+        if (best.white) {
+          colorParts.push(`白色 ×${best.white}`);
+          if (whiteTask) {
+            workParts.push(
+              `白色可選 ${whiteTask.name}：共需${whiteTask.action}${format(whiteTask.need * best.white)}${whiteTask.unit}`
+            );
+          }
+        }
+
+        const excess = best.score - remaining;
+
+        return {
+          message:
+            `目前 ${format(summary.totalScore)} 分，還差 ${format(remaining)} 分；` +
+            `${colorParts.join("＋")}＝${format(best.score)} 分，共 ${format(best.count)} 件，` +
+            `${excess === 0 ? "剛好達標" : `超過 ${format(excess)} 分`}；` +
+            `${workParts.join("；")}`
         };
-
-        const defs = [
-          { type: "arena", name: "競技場", color: "white", need: 3, score: 50 },
-          { type: "dungeon", name: "任意副本", color: "white", need: 5, score: 50 },
-          { type: "dungeon", name: "任意副本", color: "purple", need: 10, score: 100 },
-          { type: "trade", name: "UR 船", color: "white", need: 1, score: 50 },
-          { type: "trade", name: "UR 船", color: "purple", need: 2, score: 100 },
-          { type: "goblin", name: "哥布林挖礦", color: "white", need: 50, score: 50 },
-          { type: "goblin", name: "哥布林挖礦", color: "purple", need: 100, score: 100 },
-          { type: "stamina", name: "消耗體力", color: "white", need: 50, score: 50 },
-          { type: "stamina", name: "消耗體力", color: "purple", need: 100, score: 100 },
-          { type: "guru", name: "咕嚕礦場票", color: "white", need: 1, score: 50 },
-          { type: "guru", name: "咕嚕礦場票", color: "purple", need: 2, score: 100 },
-          { type: "equip", name: "裝備抽取", color: "white", need: 5, score: 50 },
-          { type: "equip", name: "裝備抽取", color: "purple", need: 10, score: 100 },
-          { type: "equip", name: "裝備抽取", color: "gold", need: 30, score: 300 },
-          { type: "cube", name: "神兵魔方", color: "white", need: 1, score: 50 },
-          { type: "cube", name: "神兵魔方", color: "purple", need: 2, score: 100 },
-          { type: "cube", name: "神兵魔方", color: "gold", need: 6, score: 300 }
-        ];
-
-        return defs.map(item => ({
-          ...item,
-          current: activity[item.type],
-          ready: activity[item.type] >= item.need
-        }));
       }
 
-      function getGuildBountyRecommendation(remaining) {
-        if (remaining <= 0) return "目前已達成目標，不需要再接懸賞。";
-
-        const ready = getGuildBountyReadyTypes().filter(item => item.ready);
-        const gold = ready.filter(item => item.color === "gold");
-        const purple = ready.filter(item => item.color === "purple");
-        const white = ready.filter(item => item.color === "white");
-
-        let left = remaining;
-        const parts = [];
-
-        if (gold.length && left >= 250) {
-          const count = Math.floor(left / 300);
-          if (count > 0) {
-            parts.push(`金色 ×${count}（優先：${gold.map(x => x.name).join("／")}）`);
-            left -= count * 300;
-          }
-        }
-
-        if (purple.length && left >= 75) {
-          const count = Math.floor(left / 100);
-          if (count > 0) {
-            parts.push(`紫色 ×${count}（可選：${purple.map(x => x.name).join("／")}）`);
-            left -= count * 100;
-          }
-        }
-
-        if (left > 0 && white.length) {
-          const count = Math.ceil(left / 50);
-          parts.push(`白色 ×${count}（可選：${white.map(x => x.name).join("／")}）`);
-          left = 0;
-        }
-
-        if (!parts.length) {
-          const pending = getGuildBountyReadyTypes()
-            .filter(item => !item.ready)
-            .sort((a, b) => (a.need - a.current) - (b.need - b.current))
-            .slice(0, 4)
-            .map(item => `${item.name}${item.color === "gold" ? "金" : item.color === "purple" ? "紫" : "白"}還差 ${item.need - item.current}`)
-            .join("、");
-
-          return pending
-            ? `目前規劃次數還沒有可直接完成的懸賞；最接近的是：${pending}。`
-            : "請先輸入預計完成的副本、挖礦、體力、抽裝備等次數。";
-        }
-
-        return parts.join("＋") + "。公會任務必須先接取才開始計數。";
+      function renderGuildBountyStageRecommendations(summary) {
+        return guildBountyStages.map(stage => {
+          const result = findGuildBountyRecommendationForTarget(summary, stage.score);
+          return `
+            <tr class="${summary.totalScore >= stage.score ? "done" : ""}">
+              <td>${format(stage.score)}</td>
+              <td>${result.message}</td>
+            </tr>
+          `;
+        }).join("");
       }
 
-      function renderGuildBountyCounter(key, label, color, score) {
-        const colorName = color === "gold" ? "金色" : color === "purple" ? "紫色" : "白色";
-        return taskRow({
-          key,
-          name: `${label}｜${colorName}懸賞`,
-          meta: `${score} 分／件・輸入已完成件數`,
-          scoreHtml: `<span>${format(toInt(state.days.mon[key]) * score)} 公會懸賞積分</span>`
-        });
+      function renderGuildBountyCounter(item) {
+        const colorName = item.color === "gold" ? "金色" : item.color === "purple" ? "紫色" : "白色";
+        return `
+          <div class="guild-bounty-counter ${item.color}">
+            ${taskRow({
+              key: item.key,
+              name: item.name,
+              meta: `${item.action} ${item.need} ${item.unit}／${item.score} 分・輸入已完成件數`,
+              scoreHtml: `<span>${colorName}・目前 ${format(toInt(state.days.mon[item.key]))} 件・${format(toInt(state.days.mon[item.key]) * item.score)} 分</span>`
+            })}
+          </div>
+        `;
+      }
+
+      function renderGuildBountyColorGroup(color, title) {
+        const items = guildBountyDefinitions.filter(item => item.color === color);
+        return `
+          <div class="guild-bounty-color-group">
+            <div class="guild-bounty-color-title">
+              <span class="bounty-color bounty-${color}">${title}</span>
+              <span>${items.length} 種任務</span>
+            </div>
+            <div class="guild-bounty-grid">
+              ${items.map(renderGuildBountyCounter).join("")}
+            </div>
+          </div>
+        `;
       }
 
       function renderMondayGuildBounty() {
         const summary = getMondayGuildBountySummary();
-        const nextTarget = summary.nextStage ? summary.nextStage.score : 3200;
-        const recommendation = getGuildBountyRecommendation(summary.toNext);
-        const finalRecommendation = getGuildBountyRecommendation(summary.toFinal);
 
         return `
           <div class="task-block">
@@ -3918,22 +4267,32 @@
               <span class="type-badge type-free">週一公會對決｜獨立積分</span>
             </div>
 
-            <div class="task-meta">
-              個人任務不用接取；公會任務必須先主動接取才開始計數。
-              白色 50 分、紫色 100 分、金色 300 分。白色難度為紫色一半，
-              金色難度為紫色 3 倍；競技場只有白色，只有裝備抽取與神兵魔方會出現金色。
+            <div class="guild-bounty-merged-summary">
+              <div class="guild-bounty-merged-item">
+                <span>個人積分</span>
+                <strong>${format(summary.personalScore)} / 500</strong>
+              </div>
+              <div class="guild-bounty-merged-item">
+                <span>公會任務積分</span>
+                <strong>${format(summary.guildScore)}</strong>
+              </div>
+              <div class="guild-bounty-merged-item">
+                <span>總積分</span>
+                <strong>${format(summary.totalScore)} / 3200</strong>
+              </div>
+              <div class="guild-bounty-merged-item">
+                <span>免費／加購</span>
+                <strong>${format(Math.min(summary.completedGuildCount, 10))}／${format(Math.max(0, summary.completedGuildCount - 10))}</strong>
+              </div>
+              <div class="guild-bounty-merged-item">
+                <span>累計額外花費</span>
+                <strong>${format(getGuildBountyExtraGemCost(summary.completedGuildCount))} 紫寶石</strong>
+              </div>
             </div>
 
-            <div class="guild-bounty-summary">
-              <div class="guild-bounty-stat"><span>個人任務積分</span><strong>${format(summary.personalScore)} / 500</strong></div>
-              <div class="guild-bounty-stat"><span>公會任務積分</span><strong>${format(summary.guildScore)}</strong></div>
-              <div class="guild-bounty-stat"><span>目前總積分</span><strong>${format(summary.totalScore)} / 3200</strong></div>
-              <div class="guild-bounty-stat"><span>下一階段</span><strong>${summary.nextStage ? `${format(nextTarget)}（差 ${format(summary.toNext)}）` : "全部完成"}</strong></div>
-            </div>
-
-            <div class="task-block-title">
+            <div class="task-block-title" style="margin-top:12px;">
               <strong>個人任務自動判斷</strong>
-              <span>同類型任務直接讀取週一任務進度</span>
+              <span>同類型任務讀取週一既有進度</span>
             </div>
             <div class="personal-task-status">
               ${summary.personal.map(item => `
@@ -3946,60 +4305,37 @@
             </div>
 
             <div class="task-block-title" style="margin-top:12px;">
-              <strong>公會懸賞規劃用任務次數</strong>
-              <span>不計入馬拉松／考古，只用於推薦接取</span>
-            </div>
-            <div class="task-list">
-              ${taskRow({
-                key: "guildBountyTradeShip",
-                name: "個人貿易發送 UR 船",
-                meta: "紫色 2 艘／白色 1 艘",
-                scoreHtml: `<span>目前規劃 ${format(state.days.mon.guildBountyTradeShip)} 艘</span>`
-              })}
-              ${taskRow({
-                key: "guildBountyGuruTicket",
-                name: "消耗咕嚕礦場門票",
-                meta: "紫色 2 張／白色 1 張",
-                scoreHtml: `<span>目前規劃 ${format(state.days.mon.guildBountyGuruTicket)} 張</span>`
-              })}
-            </div>
-
-            <div class="bounty-recommend">
-              <strong>補到下一階段（${format(nextTarget)} 分）</strong><br>
-              ${recommendation}<br>
-              <strong>補滿 3200 分</strong><br>
-              ${finalRecommendation}
-            </div>
-
-            <div class="task-block-title" style="margin-top:12px;">
               <strong>已完成的公會懸賞</strong>
-              <span>依顏色輸入完成件數</span>
+              <span>白／紫／金共同計數，最多 15 件</span>
             </div>
-            <div class="task-list">
-              ${guildBountyCompletionFields.map(([key, label, color, score]) =>
-                renderGuildBountyCounter(key, label, color, score)
-              ).join("")}
-            </div>
+            ${renderGuildBountyColorGroup("gold", "金色")}
+            ${renderGuildBountyColorGroup("purple", "紫色")}
+            ${renderGuildBountyColorGroup("white", "白色")}
 
             <div class="task-block-title" style="margin-top:12px;">
-              <strong>每日積分階段與獎勵</strong>
-              <span>寵物武裝令牌／功勳幣</span>
+              <strong>公會懸賞｜本日階段獎勵</strong>
+              <span>共 9 階，達成後自動標示</span>
             </div>
-            <table class="guild-bounty-table">
-              <thead>
-                <tr><th>積分</th><th>寵物武裝令牌</th><th>功勳幣</th><th>狀態</th></tr>
-              </thead>
-              <tbody>
-                ${guildBountyStages.map(stage => `
-                  <tr class="${summary.totalScore >= stage.score ? "done" : ""}">
-                    <td>${format(stage.score)}</td>
-                    <td>${format(stage.token)}</td>
-                    <td>${stage.merit ? format(stage.merit) : "—"}</td>
-                    <td>${summary.totalScore >= stage.score ? "已達成" : `差 ${format(stage.score - summary.totalScore)}`}</td>
-                  </tr>
-                `).join("")}
-              </tbody>
-            </table>
+            <div class="stage-grid archaeology-grid">
+              ${guildBountyStages.map((stage, index) => {
+                const done = summary.totalScore >= stage.score;
+                const rewards = [
+                  `寵物武裝令牌 ${format(stage.token)}`,
+                  stage.merit ? `功勳幣 ${format(stage.merit)}` : ""
+                ].filter(Boolean).join("，");
+
+                return `
+                  <div class="stage arch-stage ${done ? "done" : ""}">
+                    <div class="stage-top">
+                      <div class="stage-title">階段 ${index + 1}</div>
+                      <div class="stage-status">${done ? "✓ 已達成" : "未達成"}</div>
+                    </div>
+                    <div class="stage-score">${format(stage.score)} 分</div>
+                    <div class="stage-rewards">${rewards}</div>
+                  </div>
+                `;
+              }).join("")}
+            </div>
           </div>
         `;
       }
@@ -4134,7 +4470,7 @@
             </div>
           </div>
 
-          ${renderMondayGuildBounty()}
+          ${state.weekMode === "bounty" ? renderMondayGuildBounty() : ""}
         `;
       }
 
@@ -5864,6 +6200,43 @@ async function downloadChartAsImage() {
         renderRewardSummaryCollapse();
       }
 
+      function updateWeekModeVisibility() {
+        const isBountyWeek = state.weekMode === "bounty";
+
+        els.weekModeTabs.forEach(tab => {
+          tab.classList.toggle("active", tab.dataset.weekMode === state.weekMode);
+        });
+
+        if (els.archaeologyActivityCard) {
+          els.archaeologyActivityCard.hidden = isBountyWeek;
+        }
+
+        if (els.weeklySummarySection) {
+          els.weeklySummarySection.hidden = isBountyWeek;
+        }
+
+        if (els.archaeologyDailyStageSection) {
+          els.archaeologyDailyStageSection.hidden = isBountyWeek;
+        }
+
+        if (els.taskPanel) {
+          [...els.taskPanel.querySelectorAll(".task-block")].forEach(block => {
+            const titleStrong = block.querySelector(".task-block-title strong");
+            const archBadge = block.querySelector(".type-badge.type-arch");
+            const isBountyBlock = titleStrong && titleStrong.textContent.trim() === "公會懸賞";
+            const isArchaeologyOnlyBlock = Boolean(archBadge);
+
+            if (isBountyBlock) {
+              block.hidden = !isBountyWeek;
+            } else if (isArchaeologyOnlyBlock) {
+              block.hidden = isBountyWeek;
+            } else {
+              block.hidden = false;
+            }
+          });
+        }
+      }
+
       function isMobileLayout() {
         return window.matchMedia("(max-width: 600px)").matches;
       }
@@ -5928,6 +6301,7 @@ async function downloadChartAsImage() {
         renderTaskPanel();
         renderSummary();
         renderRewardSummaryCollapse();
+        updateWeekModeVisibility();
         renderMobilePanels();
         saveState();
       }
@@ -5945,6 +6319,13 @@ async function downloadChartAsImage() {
         if (input) {
           const limits = getInputLimits(input);
           next = clamp(next, limits.min, limits.max);
+        }
+
+        if (state.activeDay === "mon" && isGuildBountyKey(key)) {
+          const current = toInt(day[key]);
+          const otherCompleted =
+            getGuildBountyCompletedCount(day) - current;
+          next = clamp(next, 0, Math.max(0, 15 - otherCompleted));
         }
 
         const resourceCount = setResourceTaskCount(
@@ -6694,6 +7075,13 @@ async function downloadChartAsImage() {
         });
       });
 
+      els.weekModeTabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          state.weekMode = tab.dataset.weekMode === "bounty" ? "bounty" : "archaeology";
+          renderAll();
+        });
+      });
+
       els.mobileNavButtons.forEach(button => {
         button.addEventListener("click", () => {
           setMobilePanel(button.dataset.mobilePanel);
@@ -6735,6 +7123,10 @@ async function downloadChartAsImage() {
           }
 
           if (key === "tradeCard" && !state.settings.tradeCard) {
+            state.days.mon.tradeShip = Math.min(
+              toInt(state.days.mon.tradeShip),
+              4
+            );
             state.days.tue.tradeShip = Math.min(
               toInt(state.days.tue.tradeShip),
               4
@@ -7093,6 +7485,15 @@ async function downloadChartAsImage() {
           const step = toInt(
             (counter && counter.dataset.counterStep) || input.step || 1
           ) || 1;
+
+          if (
+            direction > 0 &&
+            state.activeDay === "mon" &&
+            isGuildBountyKey(key) &&
+            getGuildBountyCompletedCount() >= 15
+          ) {
+            return;
+          }
 
           const nextValue = clamp(
             toInt(activeData()[key]) + direction * step,
