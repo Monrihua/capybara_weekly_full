@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v56</title>
+  <title>水豚每週活動計算機｜週一至週日 v57</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1468,7 +1468,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v56</div>
+      <div class="prototype-badge">週一至週日 v57</div>
     </header>
 
     <nav class="day-tabs" aria-label="星期切換">
@@ -1841,8 +1841,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v56";
+      const STORAGE_KEY = "capybara-weekly-full-v57";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v56",
         "capybara-weekly-full-v55",
         "capybara-weekly-full-v54",
         "capybara-weekly-full-v53",
@@ -2119,7 +2120,7 @@
           habitLabel = `我超懶得挖礦｜一天清一次，取得 ${storageCap} 次`;
         }
 
-        const recommendedDailyCount =
+        const estimatedDailyCount =
           naturalDailyCount + mineCardDailyBonus;
         const minutesToCap = storageCap * intervalMinutes;
 
@@ -2140,7 +2141,7 @@
           naturalDailyCount,
           habit,
           habitLabel,
-          recommendedDailyCount,
+          estimatedDailyCount,
           minutesToCap
         };
       }
@@ -2158,7 +2159,7 @@
       }
 
       function getDefaultGoblinCount(settings = state.settings) {
-        return getMiningConfig(settings).recommendedDailyCount;
+        return 0;
       }
 
       function defaultMonday(settings) {
@@ -2171,14 +2172,14 @@
           arena: 5,
           equipBox: 0,
           cube: 0,
-          goblin: getDefaultGoblinCount(settings),
+          goblin: 0,
           emeraldPack: 0
         };
       }
 
       function defaultTuesday(settings) {
         return {
-          goblin: getDefaultGoblinCount(settings),
+          goblin: 0,
           petBase: 0,
           petStone1: 0,
           petStone2: 0,
@@ -2204,7 +2205,7 @@
           brandDraw: 0,
           dungeonCount: getRecommendedDungeon(settings).total,
           guildRaid: 2,
-          goblin: getDefaultGoblinCount(settings),
+          goblin: 0,
           arena: 5,
           emeraldPack: 0
         };
@@ -2248,7 +2249,7 @@
           chestOpenHistory: defaultChestHistory(),
           tradeShip: 0,
           treasureDraw: 0,
-          goblin: getDefaultGoblinCount(settings),
+          goblin: 0,
           emeraldPack: 0
         };
       }
@@ -2277,7 +2278,7 @@
           gemRefineImmortal: 0,
           gemRefineTranscendent: 0,
           gemRefinePeerless: 0,
-          goblin: getDefaultGoblinCount(settings),
+          goblin: 0,
           emeraldPack: 0
         };
       }
@@ -2330,7 +2331,7 @@
           dungeonTicket: 5,
           horseshoe: 0,
           brandDraw: 0,
-          goblin: getDefaultGoblinCount(settings),
+          goblin: 0,
           emeraldPack: 0
         };
       }
@@ -3635,7 +3636,7 @@
         return taskRow({
           key: "goblin",
           name: "哥布林礦工挖礦",
-          meta: `每日自然恢復建議 ${format(mining.recommendedDailyCount)} 次・存儲上限 ${mining.storageCap} 次・考古前 200 次每次 20 分，超過後每次 2 分`,
+          meta: `依目前設定估計每日約可挖 ${format(mining.estimatedDailyCount)} 次・請手動填入實際次數・存儲上限 ${mining.storageCap} 次・考古前 200 次每次 20 分，超過後每次 2 分`,
           scoreHtml: includeMarathon
             ? `
               <span class="marathon">馬拉松 ${format(day.goblin * 40)} 分</span>
@@ -5074,10 +5075,12 @@
           24 小時理論自然恢復 ${format(mining.recoveriesPerDay)} 次；
           ${mining.habitLabel}，自然取得
           <strong>${format(mining.naturalDailyCount)} 次</strong>。<br>
-          礦卡每日額外領取
+          礦卡每日額外可領取
           <strong>${format(mining.mineCardDailyBonus)} 次</strong>；
-          每日基本任務合計套用
-          <strong>${format(mining.recommendedDailyCount)} 次</strong>。
+          依目前習慣估計每日合計約可挖
+          <strong>${format(mining.estimatedDailyCount)} 次</strong>。<br>
+          此數字僅供參考，不會自動填入任務；若次數堆到存儲上限，
+          只會停止自然恢復，已領取但未挖的礦卡次數也不代表當天實際完成。
         `;
 
         els.ownedStaminaBox.hidden = false;
@@ -6165,10 +6168,6 @@ async function downloadChartAsImage() {
         day.guildRaid = 2;
         day.arena = 5;
 
-        if (state.activeDay !== "sun") {
-          day.goblin = getDefaultGoblinCount();
-        }
-
         if (state.activeDay === "mon" || state.activeDay === "sun") {
           day.heroSupply = state.settings.watchAds ? 1 : 0;
           day.adventurerSupply = state.settings.watchAds ? 4 : 1;
@@ -6180,17 +6179,6 @@ async function downloadChartAsImage() {
 
         if (state.activeDay === "fri") {
           day.guruTicket = 5;
-        }
-      }
-
-      function adjustGoblinForSettings(oldSettings) {
-        const oldCount = getDefaultGoblinCount(oldSettings);
-        const newCount = getDefaultGoblinCount(state.settings);
-        const delta = newCount - oldCount;
-
-        for (const dayKey of ["mon", "tue", "wed", "thu", "fri", "sat"]) {
-          const day = state.days[dayKey];
-          day.goblin = Math.max(0, toInt(day.goblin) + delta);
         }
       }
 
@@ -6410,29 +6398,21 @@ async function downloadChartAsImage() {
             adjustDungeonForSettings(oldSettings);
           }
 
-          if (key === "mineCard") {
-            adjustGoblinForSettings(oldSettings);
-          }
-
           renderAll();
         });
       }
 
       els.miningHabit.addEventListener("change", () => {
-        const oldSettings = { ...state.settings };
         state.settings.miningHabit = els.miningHabit.value;
-        adjustGoblinForSettings(oldSettings);
         renderAll();
       });
 
       els.sacredAnvilStars.addEventListener("change", () => {
-        const oldSettings = { ...state.settings };
         state.settings.sacredAnvilStars = clamp(
           toInt(els.sacredAnvilStars.value),
           0,
           10
         );
-        adjustGoblinForSettings(oldSettings);
         renderAll();
       });
 
