@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v115</title>
+  <title>水豚每週活動計算機｜週一至週日 v116</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1979,7 +1979,7 @@
         bottom: 0;
         z-index: 130;
         display: grid;
-        grid-template-columns: repeat(6, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 4px;
         padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
         background: rgba(244, 247, 251, 0.97);
@@ -1987,6 +1987,14 @@
         box-shadow: 0 -8px 22px rgba(20, 33, 61, 0.12);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
+      }
+
+      .mobile-stats-section-heading {
+        display: block;
+        margin: 18px 4px 8px;
+        color: var(--text);
+        font-size: 18px;
+        font-weight: 900;
       }
 
       .mobile-only-section-title {
@@ -2149,12 +2157,12 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v115</div>
+      <div class="prototype-badge">週一至週日 v116</div>
     </header>
 
     <div class="app-shell">
-      <aside class="card sidebar" id="sidebarCard" aria-label="全域共用設定">
-        <h2 id="sidebarHeading">全域設定</h2>
+      <aside class="card sidebar" id="sidebarCard" aria-label="個人化設置">
+        <h2 id="sidebarHeading">個人化設置</h2>
         <div class="sidebar-note" id="sidebarNote">設定會共用於週一至週日。</div>
 
         <div id="mobileSettingsPanel">
@@ -2330,12 +2338,11 @@
         </div>
       </aside>
 
-      <aside class="card sidebar right-sidebar" id="actionsSidebarCard" aria-label="任務操作">
-        <h2>任務操作</h2>
-        <div class="sidebar-note">這裡集中放置快速操作與自動套用按鈕。</div>
+      <aside class="card sidebar right-sidebar" id="actionsSidebarCard" aria-label="操作按鈕">
+        <h2>操作按鈕</h2>
+        <div class="sidebar-note">快速操作、自動套用與歸零功能。</div>
         <div id="mobileActionsPanel">
-          <div class="mobile-only-section-title">任務操作</div>
-          <div class="actions sidebar-actions" aria-label="任務操作">
+          <div class="actions sidebar-actions" aria-label="操作按鈕">
           <button class="action-btn action-confirm" id="confirmGenerateCharts" type="button">確認並產出圖表</button>
           <button class="action-btn action-plan" id="applyThirtyStarPlan" type="button">補滿本周剩餘積分｜目標 30 星／14 卡皮幣</button>
           <button class="action-btn action-plan" id="applyAllStageFivePlan" type="button">補滿本周剩餘積分｜目標 全週 5 階</button>
@@ -2403,6 +2410,7 @@
         </div>
 
         <div id="mobileWeeklyStagePanel">
+        <div class="mobile-stats-section-heading">本週獎勵統計</div>
         <section class="card section-card weekly-marathon-card" id="weeklySummarySection">
           <div class="section-head weekly-integrated-head">
             <div>
@@ -2495,6 +2503,7 @@
         </div>
 
         <div id="mobileDailyRewardsPanel">
+        <div class="mobile-stats-section-heading">本日階段獎勵</div>
         <section class="card section-card">
           <div class="section-head">
             <h3 id="marathonStageTitle">馬拉松｜本日階段獎勵</h3>
@@ -2517,11 +2526,9 @@
 
   <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="手機頁面切換">
     <button class="mobile-nav-btn active" type="button" data-mobile-panel="tasks">任務</button>
+    <button class="mobile-nav-btn" type="button" data-mobile-panel="actions">操作按鈕</button>
     <button class="mobile-nav-btn" type="button" data-mobile-panel="stats">統計</button>
-    <button class="mobile-nav-btn" type="button" data-mobile-panel="settings">設定</button>
-    <button class="mobile-nav-btn" type="button" data-mobile-panel="actions">按鈕</button>
-    <button class="mobile-nav-btn" type="button" data-mobile-panel="weekly">每週獎勵</button>
-    <button class="mobile-nav-btn" type="button" data-mobile-panel="daily">本日獎勵</button>
+    <button class="mobile-nav-btn" type="button" data-mobile-panel="settings">個人化</button>
   </nav>
 
   <div class="chart-modal" id="chartModal" hidden>
@@ -2570,8 +2577,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v115";
+      const STORAGE_KEY = "capybara-weekly-full-v116";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v115",
         "capybara-weekly-full-v114",
         "capybara-weekly-full-v113",
         "capybara-weekly-full-v112",
@@ -7266,6 +7274,11 @@
         localStorage.getItem(REWARD_SUMMARY_COLLAPSE_KEY) !== "0";
       let activeMobilePanel = "tasks";
 
+      function normalizeMobilePanel(panel) {
+        return ["weekly", "daily"].includes(panel) ? "stats" : panel;
+      }
+
+
 
 function getDayRewardTotals(dayKey) {
   const totals = {};
@@ -7649,25 +7662,26 @@ async function downloadChartAsImage() {
           show(els.mobileStatsPanel, true);
           show(els.mobileWeeklyStagePanel, true);
           show(els.mobileDailyRewardsPanel, true);
-          if (els.sidebarHeading) els.sidebarHeading.textContent = "全域設定";
+          if (els.sidebarHeading) els.sidebarHeading.textContent = "個人化設置";
           if (els.sidebarNote) els.sidebarNote.textContent = "設定會共用於週一至週日。";
           return;
         }
 
         const settingsMode = activeMobilePanel === "settings";
         const actionsMode = activeMobilePanel === "actions";
+        const statsMode = activeMobilePanel === "stats";
 
         show(els.sidebarCard, settingsMode);
         show(els.actionsSidebarCard, actionsMode);
         show(els.mobileSettingsPanel, settingsMode);
         show(els.mobileActionsPanel, actionsMode);
         show(els.mobileTasksPanel, activeMobilePanel === "tasks");
-        show(els.mobileStatsPanel, activeMobilePanel === "stats");
-        show(els.mobileWeeklyStagePanel, activeMobilePanel === "weekly");
-        show(els.mobileDailyRewardsPanel, activeMobilePanel === "daily");
+        show(els.mobileStatsPanel, statsMode);
+        show(els.mobileWeeklyStagePanel, statsMode);
+        show(els.mobileDailyRewardsPanel, statsMode);
 
         if (els.sidebarHeading) {
-          els.sidebarHeading.textContent = "全域設定";
+          els.sidebarHeading.textContent = "個人化設置";
         }
         if (els.sidebarNote) {
           els.sidebarNote.textContent = "設定會共用於週一至週日。";
@@ -7675,7 +7689,7 @@ async function downloadChartAsImage() {
       }
 
       function setMobilePanel(panel) {
-        activeMobilePanel = panel;
+        activeMobilePanel = normalizeMobilePanel(panel);
         renderMobilePanels();
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
