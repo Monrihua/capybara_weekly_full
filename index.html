@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v80</title>
+  <title>水豚每週活動計算機｜週一至週日 v83</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -128,7 +128,7 @@
     .day-tab.active {
       color: #fff;
       border-color: var(--blue);
-      background: var(--blue);
+      background: var(--green);
     }
 
     .day-tabs {
@@ -685,8 +685,8 @@
       min-width: 0;
     }
 
-    .activity-card.marathon { background: #f8fbff; }
-    .activity-card.archaeology { background: #fbf9ff; }
+    .activity-card.marathon { background: var(--green-soft); }
+    .activity-card.archaeology { background: var(--blue-soft); }
 
     .activity-name {
       display: flex;
@@ -702,10 +702,10 @@
       width: 8px;
       height: 8px;
       border-radius: 999px;
-      background: var(--blue);
+      background: var(--green);
     }
 
-    .archaeology .activity-dot { background: var(--purple); }
+    .archaeology .activity-dot { background: var(--blue); }
 
     .activity-score {
       font-size: clamp(27px, 4vw, 38px);
@@ -735,12 +735,12 @@
       width: 0;
       height: 100%;
       border-radius: inherit;
-      background: linear-gradient(90deg, #67a0ff, var(--blue));
+      background: linear-gradient(90deg, #6fd7a7, var(--green));
       transition: width 180ms ease;
     }
 
     .archaeology .progress-bar {
-      background: linear-gradient(90deg, #b59df4, var(--purple));
+      background: linear-gradient(90deg, #67a0ff, var(--blue));
     }
 
     .section-head {
@@ -808,8 +808,8 @@
     }
 
     .type-arch {
-      color: var(--purple);
-      background: var(--purple-soft);
+      color: var(--blue);
+      background: var(--blue-soft);
     }
 
     .stamina-summary,
@@ -843,8 +843,8 @@
       letter-spacing: -0.02em;
     }
 
-    .mini-stat.marathon strong { color: var(--blue); }
-    .mini-stat.archaeology strong { color: var(--purple); }
+    .mini-stat.marathon strong { color: var(--green); }
+    .mini-stat.archaeology strong { color: var(--blue); }
 
     .mini-stat .all-in-score {
       display: block;
@@ -856,11 +856,11 @@
     }
 
     .mini-stat.marathon .all-in-score {
-      color: var(--blue);
+      color: var(--green);
     }
 
     .mini-stat.archaeology .all-in-score {
-      color: var(--purple);
+      color: var(--blue);
     }
 
     .resource-detail {
@@ -1039,14 +1039,14 @@
 
     .score-chip.marathon,
     .task-score .marathon {
-      color: var(--blue);
-      background: var(--blue-soft);
+      color: var(--green);
+      background: var(--green-soft);
     }
 
     .score-chip.archaeology,
     .task-score .archaeology {
-      color: var(--purple);
-      background: var(--purple-soft);
+      color: var(--blue);
+      background: var(--blue-soft);
     }
 
     .score-chip.reduced,
@@ -1832,7 +1832,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v80</div>
+      <div class="prototype-badge">週一至週日 v83</div>
     </header>
 
     <div class="top-tabs-stack">
@@ -1915,7 +1915,7 @@
         </div>
 
         <div class="setting-help">
-          月卡解鎖遊歷 ×50，週卡解鎖困難 ×5／×10／×20。貿易卡會把每日 UR／閃金商船上限由 4 艘提高至 6 艘。礦卡會把哥布林礦工次數存儲上限由 60 提高至 100，並可每日直接領取 50 次。每日另有 2 次挖礦廣告，每次 15 次，但必須先清出空位才會出現。
+          月卡解鎖遊歷 ×50，週卡解鎖困難 ×5／×10／×20。貿易卡會把每日 UR／閃金商船上限由 4 艘提高至 6 艘。礦卡會把哥布林礦工礦鎬數存儲上限由 60 提高至 100，並可每日直接領取 50 個。每日另有 2 次廣告領取礦鎬，每次 15 個，但必須先清出空位才會出現。
         </div>
 
         <div class="owned-stamina-box" id="ownedStaminaBox">
@@ -2202,8 +2202,11 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v80";
+      const STORAGE_KEY = "capybara-weekly-full-v83";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v82",
+        "capybara-weekly-full-v81",
+        "capybara-weekly-full-v80",
         "capybara-weekly-full-v79",
         "capybara-weekly-full-v78",
         "capybara-weekly-full-v77",
@@ -4432,7 +4435,6 @@
             </div>
 
             <div class="task-list">
-              ${goblinTaskRow(day, false)}
               ${taskRow({
                 key: "heroSupply",
                 name: "英雄補給寶箱",
@@ -4445,15 +4447,6 @@
                 name: "冒險者補給寶箱",
                 meta: "每日直送 1 次＋廣告 3 次；其他管道取得的鑰匙可額外增加",
                 scoreHtml: `<span class="marathon">馬拉松 ${format(day.adventurerSupply * 100)} 分</span>`
-              })}
-
-              ${taskRow({
-                key: "dungeonCount",
-                name: "通關任意副本",
-                meta: `聯合考古前 16 次 200 分／次，超過後 20 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
-                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分</span>`,
-                className: "auto",
-                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
               })}
 
               ${taskRow({
@@ -4476,6 +4469,17 @@
                 `,
                 max: 25
               })}
+
+              ${taskRow({
+                key: "dungeonCount",
+                name: "通關任意副本",
+                meta: `聯合考古前 16 次 200 分／次，超過後 20 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
+                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分</span>`,
+                className: "auto",
+                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
+              })}
+
+              ${goblinTaskRow(day, false)}
             </div>
           </div>
 
