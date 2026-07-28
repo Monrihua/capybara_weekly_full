@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v98</title>
+  <title>水豚每週活動計算機｜週一至週日 v99</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1882,7 +1882,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v98</div>
+      <div class="prototype-badge">週一至週日 v99</div>
     </header>
 
     <div class="top-tabs-stack">
@@ -1906,8 +1906,8 @@
         <button class="day-auto-plan-btn" type="button" data-auto-plan-day="tue">週二自動套用</button>
         <button class="day-auto-plan-btn" type="button" data-auto-plan-day="wed">週三自動套用</button>
         <button class="day-auto-plan-btn" type="button" data-auto-plan-day="thu">週四自動套用</button>
-        <span class="day-auto-plan-placeholder"></span>
-        <span class="day-auto-plan-placeholder"></span>
+        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="fri">週五自動套用</button>
+        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="sat">週六自動套用</button>
         <span class="day-auto-plan-placeholder"></span>
       </div>
     </div>
@@ -2262,8 +2262,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v98";
+      const STORAGE_KEY = "capybara-weekly-full-v99";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v98",
         "capybara-weekly-full-v97",
         "capybara-weekly-full-v96",
         "capybara-weekly-full-v95",
@@ -2779,8 +2780,26 @@
           gemRefineImmortal: 0,
           gemRefineTranscendent: 0,
           gemRefinePeerless: 0,
+          treasureDraw: 0,
           goblin: 0,
-          emeraldPack: 0
+          emeraldPack: 0,
+          friGbArenaWhite: 0,
+          friGbDungeonWhite: 0,
+          friGbDungeonPurple: 0,
+          friGbTradeWhite: 0,
+          friGbTradePurple: 0,
+          friGbGoblinWhite: 0,
+          friGbGoblinPurple: 0,
+          friGbStaminaWhite: 0,
+          friGbStaminaPurple: 0,
+          friGbGuruWhite: 0,
+          friGbGuruPurple: 0,
+          friGbGemWhite: 0,
+          friGbGemPurple: 0,
+          friGbGemGold: 0,
+          friGbReagentWhite: 0,
+          friGbReagentPurple: 0,
+          friGbReagentGold: 0
         };
       }
 
@@ -2833,7 +2852,24 @@
           horseshoe: 0,
           brandDraw: 0,
           goblin: 0,
-          emeraldPack: 0
+          emeraldPack: 0,
+          satGbArenaWhite: 0,
+          satGbDungeonWhite: 0,
+          satGbDungeonPurple: 0,
+          satGbTradeWhite: 0,
+          satGbTradePurple: 0,
+          satGbGoblinWhite: 0,
+          satGbGoblinPurple: 0,
+          satGbStaminaWhite: 0,
+          satGbStaminaPurple: 0,
+          satGbGuruWhite: 0,
+          satGbGuruPurple: 0,
+          satGbHorseshoeWhite: 0,
+          satGbHorseshoePurple: 0,
+          satGbHorseshoeGold: 0,
+          satGbBrandWhite: 0,
+          satGbBrandPurple: 0,
+          satGbBrandGold: 0
         };
       }
 
@@ -4255,12 +4291,54 @@
         { key: "thuGbTreasureGold", type: "treasure", name: "珍寶商店 抽 1 次秘寶", action: "抽取", color: "gold", need: 6, unit: "次", score: 300 }
       ];
 
+      const fridayGuildBountyDefinitions = [
+        { key: "friGbArenaWhite", type: "arena", name: "挑戰競技場", action: "挑戰", color: "white", need: 3, unit: "次", score: 50 },
+        { key: "friGbDungeonWhite", type: "dungeon", name: "通關任意副本", action: "通關", color: "white", need: 5, unit: "次", score: 50 },
+        { key: "friGbDungeonPurple", type: "dungeon", name: "通關任意副本", action: "通關", color: "purple", need: 10, unit: "次", score: 100 },
+        { key: "friGbTradeWhite", type: "trade", name: "卡皮貿易 發 UR／閃金商船", action: "發送", color: "white", need: 1, unit: "艘", score: 50 },
+        { key: "friGbTradePurple", type: "trade", name: "卡皮貿易 發 UR／閃金商船", action: "發送", color: "purple", need: 2, unit: "艘", score: 100 },
+        { key: "friGbGoblinWhite", type: "goblin", name: "哥布林礦工挖礦", action: "挖礦", color: "white", need: 50, unit: "次", score: 50 },
+        { key: "friGbGoblinPurple", type: "goblin", name: "哥布林礦工挖礦", action: "挖礦", color: "purple", need: 100, unit: "次", score: 100 },
+        { key: "friGbStaminaWhite", type: "stamina", name: "消耗體力", action: "消耗", color: "white", need: 50, unit: "點", score: 50 },
+        { key: "friGbStaminaPurple", type: "stamina", name: "消耗體力", action: "消耗", color: "purple", need: 100, unit: "點", score: 100 },
+        { key: "friGbGuruWhite", type: "guru", name: "消耗咕嚕礦場門票", action: "消耗", color: "white", need: 1, unit: "張", score: 50 },
+        { key: "friGbGuruPurple", type: "guru", name: "消耗咕嚕礦場門票", action: "消耗", color: "purple", need: 2, unit: "張", score: 100 },
+        { key: "friGbGemWhite", type: "gem", name: "珍寶商店 抽 1 次寶石", action: "抽取", color: "white", need: 1, unit: "次", score: 50 },
+        { key: "friGbGemPurple", type: "gem", name: "珍寶商店 抽 1 次寶石", action: "抽取", color: "purple", need: 2, unit: "次", score: 100 },
+        { key: "friGbGemGold", type: "gem", name: "珍寶商店 抽 1 次寶石", action: "抽取", color: "gold", need: 6, unit: "次", score: 300 },
+        { key: "friGbReagentWhite", type: "reagent", name: "寶石洗煉消耗高級煉金試劑", action: "消耗", color: "white", need: 2, unit: "個", score: 50 },
+        { key: "friGbReagentPurple", type: "reagent", name: "寶石洗煉消耗高級煉金試劑", action: "消耗", color: "purple", need: 5, unit: "個", score: 100 },
+        { key: "friGbReagentGold", type: "reagent", name: "寶石洗煉消耗高級煉金試劑", action: "消耗", color: "gold", need: 10, unit: "個", score: 300 }
+      ];
+
+      const saturdayGuildBountyDefinitions = [
+        { key: "satGbArenaWhite", type: "arena", name: "挑戰競技場", action: "挑戰", color: "white", need: 3, unit: "次", score: 50 },
+        { key: "satGbDungeonWhite", type: "dungeon", name: "通關任意副本", action: "通關", color: "white", need: 5, unit: "次", score: 50 },
+        { key: "satGbDungeonPurple", type: "dungeon", name: "通關任意副本", action: "通關", color: "purple", need: 10, unit: "次", score: 100 },
+        { key: "satGbTradeWhite", type: "trade", name: "卡皮貿易 發 UR／閃金商船", action: "發送", color: "white", need: 1, unit: "艘", score: 50 },
+        { key: "satGbTradePurple", type: "trade", name: "卡皮貿易 發 UR／閃金商船", action: "發送", color: "purple", need: 2, unit: "艘", score: 100 },
+        { key: "satGbGoblinWhite", type: "goblin", name: "哥布林礦工挖礦", action: "挖礦", color: "white", need: 50, unit: "次", score: 50 },
+        { key: "satGbGoblinPurple", type: "goblin", name: "哥布林礦工挖礦", action: "挖礦", color: "purple", need: 100, unit: "次", score: 100 },
+        { key: "satGbStaminaWhite", type: "stamina", name: "消耗體力", action: "消耗", color: "white", need: 50, unit: "點", score: 50 },
+        { key: "satGbStaminaPurple", type: "stamina", name: "消耗體力", action: "消耗", color: "purple", need: 100, unit: "點", score: 100 },
+        { key: "satGbGuruWhite", type: "guru", name: "消耗咕嚕礦場門票", action: "消耗", color: "white", need: 1, unit: "張", score: 50 },
+        { key: "satGbGuruPurple", type: "guru", name: "消耗咕嚕礦場門票", action: "消耗", color: "purple", need: 2, unit: "張", score: 100 },
+        { key: "satGbHorseshoeWhite", type: "horseshoe", name: "坐騎升級 消耗金蹄鐵", action: "消耗", color: "white", need: 100, unit: "個", score: 50 },
+        { key: "satGbHorseshoePurple", type: "horseshoe", name: "坐騎升級 消耗金蹄鐵", action: "消耗", color: "purple", need: 200, unit: "個", score: 100 },
+        { key: "satGbHorseshoeGold", type: "horseshoe", name: "坐騎升級 消耗金蹄鐵", action: "消耗", color: "gold", need: 1000, unit: "個", score: 300 },
+        { key: "satGbBrandWhite", type: "brand", name: "祈願／限時祈願 抽 1 次烙印", action: "抽取", color: "white", need: 1, unit: "次", score: 50 },
+        { key: "satGbBrandPurple", type: "brand", name: "祈願／限時祈願 抽 1 次烙印", action: "抽取", color: "purple", need: 2, unit: "次", score: 100 },
+        { key: "satGbBrandGold", type: "brand", name: "祈願／限時祈願 抽 1 次烙印", action: "抽取", color: "gold", need: 1, unit: "次", score: 300 }
+      ];
+
       const guildBountyKeys = new Set(
         [
           ...guildBountyDefinitions,
           ...tuesdayGuildBountyDefinitions,
           ...wednesdayGuildBountyDefinitions,
-          ...thursdayGuildBountyDefinitions
+          ...thursdayGuildBountyDefinitions,
+          ...fridayGuildBountyDefinitions,
+          ...saturdayGuildBountyDefinitions
         ].map(item => item.key)
       );
 
@@ -4529,6 +4607,85 @@
           toFinal: Math.max(0, 3200 - totalScore),
           activity
         };
+      }
+
+      function finalizeGuildBountySummary(day, definitions, personal, activity) {
+        const normalizedPersonal = personal.map(item => ({
+          ...item,
+          done: item.current >= item.need,
+          remaining: Math.max(0, item.need - item.current)
+        }));
+        const personalScore = normalizedPersonal.reduce(
+          (sum, item) => sum + (item.done ? item.score : 0),
+          0
+        );
+        const guildScore = definitions.reduce(
+          (sum, item) => sum + toInt(day[item.key]) * item.score,
+          0
+        );
+        const completedGuildCount = getGuildBountyCompletedCount(day, definitions);
+        const totalScore = personalScore + guildScore;
+        const nextStage = guildBountyStages.find(stage => totalScore < stage.score) || null;
+        return {
+          personal: normalizedPersonal,
+          personalScore,
+          guildScore,
+          totalScore,
+          completedGuildCount,
+          acceptLimit: 15,
+          acceptsRemaining: Math.max(0, 15 - completedGuildCount),
+          nextStage,
+          toNext: nextStage ? nextStage.score - totalScore : 0,
+          toFinal: Math.max(0, 3200 - totalScore),
+          activity
+        };
+      }
+
+      function getFridayGuildBountySummary() {
+        const day = state.days.fri;
+        const refine = getFridayGemRefineSummary();
+        const activity = {
+          guildRaid: toInt(day.guildRaid),
+          arena: toInt(day.arena),
+          dungeon: toInt(day.dungeonCount),
+          goblin: toInt(day.goblin),
+          guru: toInt(day.guruTicket),
+          treasure: toInt(day.treasureDraw),
+          gem: toInt(day.gemDraw),
+          reagent: toInt(refine.reagents)
+        };
+        const personal = [
+          { name: "挑戰 2 次公會討伐", current: activity.guildRaid, need: 2, score: 50 },
+          { name: "參與 3 次競技場", current: activity.arena, need: 3, score: 50 },
+          { name: "挑戰 10 次任意副本", current: activity.dungeon, need: 10, score: 100 },
+          { name: "哥布林礦工挖礦 100 次", current: activity.goblin, need: 100, score: 100 },
+          { name: "消耗 2 張咕嚕礦場門票", current: activity.guru, need: 2, score: 100 },
+          { name: "珍寶商店 抽 1 次秘寶", current: activity.treasure, need: 1, score: 100 }
+        ];
+        return finalizeGuildBountySummary(day, fridayGuildBountyDefinitions, personal, activity);
+      }
+
+      function getSaturdayGuildBountySummary() {
+        const day = state.days.sat;
+        const stamina = getSaturdayStaminaSummary();
+        const activity = {
+          guildRaid: toInt(day.guildRaid),
+          arena: toInt(day.arena),
+          dungeon: toInt(day.dungeonCount),
+          goblin: toInt(day.goblin),
+          stamina: toInt(stamina.stamina),
+          horseshoe: toInt(day.horseshoe),
+          brand: toInt(day.brandDraw)
+        };
+        const personal = [
+          { name: "挑戰 2 次公會討伐", current: activity.guildRaid, need: 2, score: 50 },
+          { name: "參與 3 次競技場", current: activity.arena, need: 3, score: 50 },
+          { name: "挑戰 10 次任意副本", current: activity.dungeon, need: 10, score: 100 },
+          { name: "哥布林礦工挖礦 100 次", current: activity.goblin, need: 100, score: 100 },
+          { name: "消耗 100 點體力", current: activity.stamina, need: 100, score: 100 },
+          { name: "坐騎升級 消耗金蹄鐵 1,000 個", current: activity.horseshoe, need: 1000, score: 100 }
+        ];
+        return finalizeGuildBountySummary(day, saturdayGuildBountyDefinitions, personal, activity);
       }
 
       function getAvailableGuildBounties(summary) {
@@ -4992,6 +5149,67 @@
             ${renderGuildBountyColorGroup("purple", "紫色", thursdayGuildBountyDefinitions, "thu")}
             ${renderGuildBountyColorGroup("white", "白色", thursdayGuildBountyDefinitions, "thu")}
 
+            <div class="task-block-title" style="margin-top:12px;">
+              <strong>公會懸賞｜本日階段獎勵</strong>
+              <span>共 9 階，達成後自動標示</span>
+            </div>
+            <div class="stage-grid archaeology-grid">
+              ${guildBountyStages.map((stage, index) => {
+                const done = summary.totalScore >= stage.score;
+                const rewards = [
+                  `寵物武裝令牌 ${format(stage.token)}`,
+                  stage.merit ? `功勳幣 ${format(stage.merit)}` : ""
+                ].filter(Boolean).join("，");
+                return `
+                  <div class="stage arch-stage ${done ? "done" : ""}">
+                    <div class="stage-top">
+                      <div class="stage-title">階段 ${index + 1}</div>
+                      <div class="stage-status">${done ? "✓ 已達成" : "未達成"}</div>
+                    </div>
+                    <div class="stage-score">${format(stage.score)} 分</div>
+                    <div class="stage-rewards">${rewards}</div>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      function renderLaterDayGuildBounty(dayKey, dayLabel, summary, definitions) {
+        return `
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>公會懸賞</strong>
+              <span class="type-badge type-free">${dayLabel}公會對決｜獨立積分</span>
+            </div>
+            <div class="guild-bounty-merged-summary">
+              <div class="guild-bounty-merged-item"><span>個人積分</span><strong>${format(summary.personalScore)} / 500</strong></div>
+              <div class="guild-bounty-merged-item"><span>公會任務積分</span><strong>${format(summary.guildScore)}</strong></div>
+              <div class="guild-bounty-merged-item"><span>總積分</span><strong>${format(summary.totalScore)} / 3200</strong></div>
+              <div class="guild-bounty-merged-item"><span>免費／加購</span><strong>${format(Math.min(summary.completedGuildCount, 10))}／${format(Math.max(0, summary.completedGuildCount - 10))}</strong></div>
+              <div class="guild-bounty-merged-item"><span>累計額外花費</span><strong>${format(getGuildBountyExtraGemCost(summary.completedGuildCount))} 紫寶石</strong></div>
+            </div>
+            <div class="task-block-title" style="margin-top:12px;">
+              <strong>個人任務自動判斷</strong>
+              <span>同步讀取${dayLabel}既有進度</span>
+            </div>
+            <div class="personal-task-status">
+              ${summary.personal.map(item => `
+                <div class="personal-task-chip ${item.done ? "done" : ""}">
+                  <strong>${item.done ? "✓" : "○"} ${item.name}</strong><br>
+                  ${format(item.current)} / ${format(item.need)}
+                  ${item.done ? `・已取得 ${item.score} 分` : `・還差 ${format(item.remaining)}`}
+                </div>
+              `).join("")}
+            </div>
+            <div class="task-block-title" style="margin-top:12px;">
+              <strong>已完成的公會懸賞</strong>
+              <span>白／紫／金共同計數，最多 15 件</span>
+            </div>
+            ${renderGuildBountyColorGroup("gold", "金色", definitions, dayKey)}
+            ${renderGuildBountyColorGroup("purple", "紫色", definitions, dayKey)}
+            ${renderGuildBountyColorGroup("white", "白色", definitions, dayKey)}
             <div class="task-block-title" style="margin-top:12px;">
               <strong>公會懸賞｜本日階段獎勵</strong>
               <span>共 9 階，達成後自動標示</span>
@@ -5757,6 +5975,13 @@
                   <span class="archaeology">考古 ${format(day.gemDraw * 1000)} 分（1,000／次）</span>
                 `
               })}
+
+              ${taskRow({
+                key: "treasureDraw",
+                name: "珍寶商店 抽 1 次秘寶",
+                meta: "週五懸賞個人任務同步讀取",
+                scoreHtml: `<span>目前 ${format(day.treasureDraw)} 次</span>`
+              })}
             </div>
           </div>
 
@@ -5794,6 +6019,8 @@
               })}
             </div>
           </div>
+
+          ${state.weekMode === "bounty" ? renderLaterDayGuildBounty("fri", "週五", getFridayGuildBountySummary(), fridayGuildBountyDefinitions) : ""}
         `;
       }
 
@@ -5927,6 +6154,8 @@
               })}
             </div>
           </div>
+
+          ${state.weekMode === "bounty" ? renderLaterDayGuildBounty("sat", "週六", getSaturdayGuildBountySummary(), saturdayGuildBountyDefinitions) : ""}
         `;
       }
 
@@ -6487,13 +6716,17 @@
         const scores = getActiveScores();
         const stars = getMarathonStars(scores.marathon);
         const pickaxes = getArchaeologyPickaxes(scores.archaeology);
-        const bountySummary = state.activeDay === "thu"
-          ? getThursdayGuildBountySummary()
-          : state.activeDay === "wed"
-            ? getWednesdayGuildBountySummary()
-            : state.activeDay === "tue"
-              ? getTuesdayGuildBountySummary()
-              : getMondayGuildBountySummary();
+        const bountySummary = state.activeDay === "sat"
+          ? getSaturdayGuildBountySummary()
+          : state.activeDay === "fri"
+            ? getFridayGuildBountySummary()
+            : state.activeDay === "thu"
+              ? getThursdayGuildBountySummary()
+              : state.activeDay === "wed"
+                ? getWednesdayGuildBountySummary()
+                : state.activeDay === "tue"
+                  ? getTuesdayGuildBountySummary()
+                  : getMondayGuildBountySummary();
         const bountyStageCount = guildBountyStages.filter(
           stage => bountySummary.totalScore >= stage.score
         ).length;
@@ -6561,16 +6794,20 @@
 
         if (
           state.weekMode === "bounty" &&
-          ["mon", "tue", "wed", "thu"].includes(state.activeDay)
+          ["mon", "tue", "wed", "thu", "fri", "sat"].includes(state.activeDay)
         ) {
           els.archaeologyTitle.textContent =
-            state.activeDay === "thu"
-              ? "公會懸賞｜週四公會對決"
-              : state.activeDay === "wed"
-                ? "公會懸賞｜週三公會對決"
-                : state.activeDay === "tue"
-                  ? "公會懸賞｜週二公會對決"
-                  : "公會懸賞｜週一公會對決";
+            state.activeDay === "sat"
+              ? "公會懸賞｜週六公會對決"
+              : state.activeDay === "fri"
+                ? "公會懸賞｜週五公會對決"
+                : state.activeDay === "thu"
+                  ? "公會懸賞｜週四公會對決"
+                  : state.activeDay === "wed"
+                    ? "公會懸賞｜週三公會對決"
+                    : state.activeDay === "tue"
+                      ? "公會懸賞｜週二公會對決"
+                      : "公會懸賞｜週一公會對決";
           els.archaeologyMetricLabel.textContent = "已達階段";
           els.archaeologyRemainingLabel.textContent = "距離滿階";
           els.archaeologyTotalScore.textContent = format(bountySummary.totalScore);
@@ -6933,7 +7170,7 @@ async function downloadChartAsImage() {
 
         if (els.archaeologyActivityCard) {
           els.archaeologyActivityCard.hidden = isBountyWeek
-            ? !["mon", "tue", "wed", "thu"].includes(state.activeDay)
+            ? !["mon", "tue", "wed", "thu", "fri", "sat"].includes(state.activeDay)
             : false;
         }
 
@@ -7048,17 +7285,21 @@ async function downloadChartAsImage() {
         }
 
         if (
-          ["mon", "tue", "wed", "thu"].includes(state.activeDay) &&
+          ["mon", "tue", "wed", "thu", "fri", "sat"].includes(state.activeDay) &&
           isGuildBountyKey(key)
         ) {
           const definitions =
-            state.activeDay === "thu"
-              ? thursdayGuildBountyDefinitions
-              : state.activeDay === "wed"
-                ? wednesdayGuildBountyDefinitions
-                : state.activeDay === "tue"
-                  ? tuesdayGuildBountyDefinitions
-                  : guildBountyDefinitions;
+            state.activeDay === "sat"
+              ? saturdayGuildBountyDefinitions
+              : state.activeDay === "fri"
+                ? fridayGuildBountyDefinitions
+                : state.activeDay === "thu"
+                  ? thursdayGuildBountyDefinitions
+                  : state.activeDay === "wed"
+                    ? wednesdayGuildBountyDefinitions
+                    : state.activeDay === "tue"
+                      ? tuesdayGuildBountyDefinitions
+                      : guildBountyDefinitions;
           const current = toInt(day[key]);
           const otherCompleted =
             getGuildBountyCompletedCount(day, definitions) - current;
@@ -8010,6 +8251,113 @@ async function downloadChartAsImage() {
         `;
       }
 
+      function applyMinimumFridayFreeTasks() {
+        const day = state.days.fri;
+        day.guildRaid = Math.max(toInt(day.guildRaid), 2);
+        day.arena = Math.max(toInt(day.arena), 5);
+        day.dungeonCount = Math.max(toInt(day.dungeonCount), getRecommendedDungeon().total);
+        day.guruTicket = Math.max(toInt(day.guruTicket), 5);
+      }
+
+      function applyFridayAutoPlan() {
+        applyMinimumFridayFreeTasks();
+        const day = state.days.fri;
+
+        if (state.weekMode === "bounty") {
+          day.goblin = Math.max(toInt(day.goblin), 100);
+          day.dungeonCount = Math.max(toInt(day.dungeonCount), 10);
+          day.guruTicket = Math.max(toInt(day.guruTicket), 2);
+          day.treasureDraw = Math.max(toInt(day.treasureDraw), 1);
+        }
+
+        const targetScore = marathonStages[2].score;
+        const currentScore = getScoresForDay("fri").marathon;
+        const missingScore = Math.max(0, targetScore - currentScore);
+        const addedGemDraws = Math.ceil(missingScore / 3000);
+        day.gemDraw = toInt(day.gemDraw) + addedGemDraws;
+
+        const finalScore = getScoresForDay("fri").marathon;
+        const modeName = state.weekMode === "bounty" ? "懸賞週" : "考古週";
+        renderAll();
+
+        els.autoPlanStatus.className = "auto-plan-status show success";
+        els.autoPlanStatus.innerHTML = `
+          <strong>週五 ${modeName} 已自動補到馬拉松第 3 階</strong>
+          <div>
+            補分來源：珍寶商店抽寶石。依目前積分找出最低可達標次數；
+            追加 ${format(addedGemDraws)} 次操作。
+          </div>
+          <div>珍寶商店 抽 1 次寶石 × ${format(addedGemDraws)}</div>
+          <div>
+            目前寶石抽取 ${format(day.gemDraw)} 次，馬拉松積分
+            ${format(finalScore)} / ${format(targetScore)}。
+          </div>
+        `;
+      }
+
+      function applyMinimumSaturdayFreeTasks() {
+        const day = state.days.sat;
+        day.guildRaid = Math.max(toInt(day.guildRaid), 2);
+        day.arena = Math.max(toInt(day.arena), 5);
+        day.dungeonCount = Math.max(toInt(day.dungeonCount), getRecommendedDungeon().total);
+        day.dungeonTicket = Math.max(toInt(day.dungeonTicket), 5);
+      }
+
+      function applySaturdayAutoPlan() {
+        applyMinimumSaturdayFreeTasks();
+        const day = state.days.sat;
+
+        if (state.weekMode === "bounty") {
+          day.goblin = Math.max(toInt(day.goblin), 100);
+          day.dungeonCount = Math.max(toInt(day.dungeonCount), 10);
+
+          const currentStamina = getSaturdayStaminaSummary().stamina;
+          if (currentStamina < 100) {
+            const staminaPlan = findMinimumActionStaminaPlan(
+              100 - currentStamina,
+              getOwnedStaminaAmount()
+            );
+            if (!staminaPlan) {
+              renderAll();
+              els.autoPlanStatus.className = "auto-plan-status show warning";
+              els.autoPlanStatus.innerHTML = `
+                <strong>持有體力不足，無法完成週六懸賞個人任務</strong>
+              `;
+              return;
+            }
+            for (const [key, count] of Object.entries(staminaPlan.counts)) {
+              setStaminaCount("sat", key, toInt(day.staminaCounts[key]) + toInt(count));
+            }
+          }
+
+          day.horseshoe = Math.max(toInt(day.horseshoe), 1000);
+        }
+
+        const targetScore = marathonStages[2].score;
+        const currentScore = getScoresForDay("sat").marathon;
+        const missingScore = Math.max(0, targetScore - currentScore);
+        const addedHorseshoes = Math.ceil(missingScore / 32);
+        day.horseshoe = toInt(day.horseshoe) + addedHorseshoes;
+
+        const finalScore = getScoresForDay("sat").marathon;
+        const modeName = state.weekMode === "bounty" ? "懸賞週" : "考古週";
+        renderAll();
+
+        els.autoPlanStatus.className = "auto-plan-status show success";
+        els.autoPlanStatus.innerHTML = `
+          <strong>週六 ${modeName} 已自動補到馬拉松第 3 階</strong>
+          <div>
+            補分來源：坐騎升級消耗金蹄鐵。依目前積分找出最低可達標數量；
+            追加 ${format(addedHorseshoes)} 個金蹄鐵。
+          </div>
+          <div>坐騎升級 消耗金蹄鐵 × ${format(addedHorseshoes)}</div>
+          <div>
+            目前累計消耗 ${format(day.horseshoe)} 個，馬拉松積分
+            ${format(finalScore)} / ${format(targetScore)}。
+          </div>
+        `;
+      }
+
       function applyWeeklyAutoPlan() {
         const originalDay = state.activeDay;
         const results = [];
@@ -8040,6 +8388,14 @@ async function downloadChartAsImage() {
         applyThursdayAutoPlan();
         captureResult("週四");
 
+        state.activeDay = "fri";
+        applyFridayAutoPlan();
+        captureResult("週五");
+
+        state.activeDay = "sat";
+        applySaturdayAutoPlan();
+        captureResult("週六");
+
         state.activeDay = originalDay;
         renderAll();
 
@@ -8054,7 +8410,7 @@ async function downloadChartAsImage() {
               ${item.html}
             </div>
           `).join("")}
-          <div>目前已完成週一至週四，週五至週日加入後會一併列出。</div>
+          <div>目前已完成週一至週六，週日加入後會一併列出。</div>
         `;
       }
 
@@ -8314,6 +8670,18 @@ async function downloadChartAsImage() {
         if (dayKey === "thu") {
           state.activeDay = "thu";
           applyThursdayAutoPlan();
+          return;
+        }
+
+        if (dayKey === "fri") {
+          state.activeDay = "fri";
+          applyFridayAutoPlan();
+          return;
+        }
+
+        if (dayKey === "sat") {
+          state.activeDay = "sat";
+          applySaturdayAutoPlan();
           return;
         }
 
