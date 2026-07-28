@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v105</title>
+  <title>水豚每週活動計算機｜週一至週日 v115</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -95,9 +95,9 @@
       position: sticky;
       top: 8px;
       z-index: 70;
-      width: auto;
-      margin: 0 calc(clamp(230px, 16vw, 290px) + 12px) 10px;
-      padding: 6px 0 10px;
+      width: 100%;
+      margin: 0 0 10px;
+      padding: 0 0 10px;
       background: rgba(244, 247, 251, 0.96);
       backdrop-filter: blur(9px);
       -webkit-backdrop-filter: blur(9px);
@@ -187,7 +187,7 @@
 
     .app-shell {
       display: grid;
-      grid-template-columns: clamp(230px, 16vw, 290px) minmax(0, 1fr) clamp(230px, 16vw, 290px);
+      grid-template-columns: minmax(280px, 1fr) minmax(640px, 980px) minmax(280px, 1fr);
       grid-template-areas: "settings main actions";
       gap: 12px;
       align-items: start;
@@ -237,6 +237,7 @@
 
     .setting-list {
       display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 7px;
     }
 
@@ -260,6 +261,52 @@
       accent-color: var(--blue);
     }
 
+
+    .card-settings-details {
+      margin-top: 2px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .card-settings-details > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 42px;
+      padding: 9px 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 900;
+      list-style: none;
+      user-select: none;
+    }
+
+    .card-settings-details > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .card-settings-details > summary::after {
+      content: "展開";
+      flex: 0 0 auto;
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .card-settings-details[open] > summary::after {
+      content: "收合";
+    }
+
+    .card-settings-content {
+      padding: 0 9px 9px;
+    }
+
+    .card-settings-live-help {
+      margin-top: 8px;
+    }
 
     .collection-setting {
       margin-top: 10px;
@@ -298,6 +345,12 @@
       color: var(--muted);
       font-size: 11px;
       line-height: 1.55;
+    }
+
+    .setting-value,
+    .mining-setting-help .setting-value {
+      color: var(--green);
+      font-weight: 900;
     }
 
     .guild-bounty-merged-summary {
@@ -705,6 +758,7 @@
     .auto-box strong {
       font-size: 24px;
       letter-spacing: -0.03em;
+      color: var(--green);
     }
 
     .auto-box small {
@@ -712,6 +766,26 @@
       color: var(--muted);
       line-height: 1.45;
       margin-top: 3px;
+    }
+
+    .recommended-dungeon-formula {
+      display: flex !important;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 0 5px;
+      white-space: nowrap;
+      word-break: keep-all;
+      overflow-wrap: normal;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      font-size: 10px;
+    }
+
+    .recommended-dungeon-formula-item {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: baseline;
+      white-space: nowrap;
     }
 
     .main {
@@ -1471,7 +1545,7 @@
     }
 
     .weekly-pickaxe-progress .progress-bar {
-      background: linear-gradient(90deg, #b59df4, var(--purple));
+      background: linear-gradient(90deg, #75a3ff, var(--blue));
     }
 
     .weekly-star-label {
@@ -1553,7 +1627,7 @@
     }
 
     .day-pickaxe-value {
-      color: var(--purple);
+      color: var(--blue);
       font-size: 13px;
     }
 
@@ -1703,8 +1777,8 @@
     }
 
     .stage.arch-stage.done {
-      border-color: #baacf0;
-      background: var(--purple-soft);
+      border-color: #8db3ff;
+      background: var(--blue-soft);
     }
 
     .stage-top {
@@ -1761,12 +1835,14 @@
       line-height: 1.55;
     }
 
-    @media (max-width: 900px) {
-      .top-tabs-stack {
-        width: 100%;
-        margin: 0 0 10px;
+    @media (max-width: 1280px) and (min-width: 901px) {
+      .app-shell {
+        grid-template-columns: 240px minmax(0, 1fr) 240px;
       }
 
+    }
+
+    @media (max-width: 900px) {
       .day-tabs { margin-left: 0; }
       .app-shell {
         grid-template-columns: 1fr;
@@ -1776,7 +1852,7 @@
           "actions";
       }
       .sidebar { position: static; }
-      .setting-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .setting-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
       .stage-grid.marathon-grid,
       .stage-grid.weekly-grid {
@@ -1795,8 +1871,8 @@
         position: sticky;
         top: 0;
         z-index: 100;
-        margin: 0 -8px 10px;
-        padding: 6px 8px;
+        margin: 0 0 10px;
+        padding: 6px 0;
         background: rgba(244, 247, 251, 0.96);
         box-shadow: 0 6px 14px rgba(20, 33, 61, 0.08);
         backdrop-filter: blur(9px);
@@ -1938,6 +2014,132 @@
   .report-day-grid { grid-template-columns: 1fr; gap: 10px; }
   .chart-modal-actions { position: sticky; bottom: 0; }
 }
+
+
+    .weekly-integrated-head {
+      align-items: flex-start;
+    }
+
+    .weekly-activity-totals {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .weekly-activity-total {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .weekly-activity-total.marathon-total {
+      border-color: #a8d9c2;
+      background: linear-gradient(180deg, #ecfaf3, #fff);
+    }
+
+    .weekly-activity-total.archaeology-total {
+      border-color: #a9c3f7;
+      background: linear-gradient(180deg, #edf3ff, #fff);
+    }
+
+    .weekly-activity-total.bounty-total {
+      border-color: #a9c3f7;
+      background: linear-gradient(180deg, #edf3ff, #fff);
+    }
+
+    .weekly-total-kicker {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .marathon-total .weekly-total-kicker { color: var(--green); }
+    .archaeology-total .weekly-total-kicker { color: var(--blue); }
+    .bounty-total .weekly-total-kicker { color: var(--blue); }
+
+    .weekly-activity-total > strong {
+      display: block;
+      font-size: clamp(19px, 2vw, 27px);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      white-space: nowrap;
+    }
+
+
+    .weekly-activity-total[hidden] {
+      display: none !important;
+    }
+
+    .weekly-activity-total > small {
+      display: block;
+      min-height: 18px;
+      margin: 5px 0 8px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .weekly-bounty-progress .progress-bar {
+      background: linear-gradient(90deg, #75a3ff, var(--blue));
+    }
+
+    .weekly-day-stars {
+      grid-template-columns: repeat(7, minmax(100px, 1fr));
+      overflow-x: auto;
+      padding-bottom: 3px;
+    }
+
+    .day-star-card {
+      grid-template-rows: repeat(2, minmax(0, 1fr));
+      text-align: left;
+    }
+
+    .day-metric {
+      grid-template-rows: auto auto;
+      gap: 3px;
+      padding: 6px 2px;
+    }
+
+    .day-card-label,
+    .day-card-value {
+      justify-content: flex-start;
+      height: auto;
+    }
+
+    .day-bounty-value {
+      color: var(--blue);
+      font-size: 12px;
+    }
+
+    .weekly-integrated-stage-block {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .weekly-integrated-stage-block .weekly-grid {
+      margin-top: 9px;
+    }
+
+    @media (max-width: 760px) {
+      .weekly-activity-totals {
+        grid-template-columns: 1fr;
+      }
+
+      .weekly-summary-head-tools {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .weekly-summary-head-tools .section-note {
+        text-align: left;
+        white-space: normal;
+      }
+    }
+
 </style>
 </head>
 <body>
@@ -1947,35 +2149,8 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v105</div>
+      <div class="prototype-badge">週一至週日 v115</div>
     </header>
-
-    <div class="top-tabs-stack">
-      <nav class="week-mode-tabs" aria-label="活動週切換">
-        <button class="week-mode-tab active" type="button" data-week-mode="archaeology">考古週</button>
-        <button class="week-mode-tab" type="button" data-week-mode="bounty">懸賞週</button>
-      </nav>
-
-      <nav class="day-tabs" aria-label="星期切換">
-        <button class="day-tab active" type="button" data-day="mon">週一</button>
-        <button class="day-tab" type="button" data-day="tue">週二</button>
-        <button class="day-tab" type="button" data-day="wed">週三</button>
-        <button class="day-tab" type="button" data-day="thu">週四</button>
-        <button class="day-tab" type="button" data-day="fri">週五</button>
-        <button class="day-tab" type="button" data-day="sat">週六</button>
-        <button class="day-tab" type="button" data-day="sun">週日</button>
-      </nav>
-
-      <div class="day-auto-plan-row" aria-label="每日自動套用">
-        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="mon">週一自動套用</button>
-        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="tue">週二自動套用</button>
-        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="wed">週三自動套用</button>
-        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="thu">週四自動套用</button>
-        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="fri">週五自動套用</button>
-        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="sat">週六自動套用</button>
-        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="sun">週日自動套用</button>
-      </div>
-    </div>
 
     <div class="app-shell">
       <aside class="card sidebar" id="sidebarCard" aria-label="全域共用設定">
@@ -1984,38 +2159,55 @@
 
         <div id="mobileSettingsPanel">
 
-        <div class="setting-list">
-          <label class="setting-row">
-            <input type="checkbox" id="monthlyCard" />
-            我有月卡
-          </label>
+        <details class="card-settings-details" open>
+          <summary>卡片與廣告設定</summary>
+          <div class="card-settings-content">
+            <div class="setting-list">
+              <label class="setting-row">
+                <input type="checkbox" id="monthlyCard" />
+                我有月卡
+              </label>
 
-          <label class="setting-row">
-            <input type="checkbox" id="weeklyCard" />
-            我有週卡
-          </label>
+              <label class="setting-row">
+                <input type="checkbox" id="weeklyCard" />
+                我有週卡
+              </label>
 
-          <label class="setting-row">
-            <input type="checkbox" id="lifetimeCard" />
-            我有終身卡
-          </label>
+              <label class="setting-row">
+                <input type="checkbox" id="lifetimeCard" />
+                我有終身卡
+              </label>
 
-          <label class="setting-row">
-            <input type="checkbox" id="watchAds" />
-            我會看滿廣告
-          </label>
+              <label class="setting-row">
+                <input type="checkbox" id="watchAds" />
+                我會看滿廣告
+              </label>
 
-          <label class="setting-row">
-            <input type="checkbox" id="tradeCard" />
-            我有貿易卡
-          </label>
+              <label class="setting-row">
+                <input type="checkbox" id="tradeCard" />
+                我有貿易卡
+              </label>
 
-          <label class="setting-row">
-            <input type="checkbox" id="mineCard" />
-            我有礦卡
-          </label>
+              <label class="setting-row">
+                <input type="checkbox" id="mineCard" />
+                我有礦卡
+              </label>
+            </div>
 
-        </div>
+            <div class="auto-box" style="margin-top:10px;">
+              <span>建議副本次數</span>
+              <strong id="recommendedDungeonSidebar">8 次</strong>
+              <small id="recommendedDungeonFormula" class="recommended-dungeon-formula"></small>
+            </div>
+
+          </div>
+        </details>
+
+        <div
+          class="setting-help card-settings-live-help"
+          id="cardSettingsHelp"
+          aria-live="polite"
+        ></div>
 
         <div class="collection-setting">
           <span class="collection-setting-title">藏品－神聖鐵砧</span>
@@ -2039,9 +2231,6 @@
           <div class="mining-setting-help" id="miningSettingHelp"></div>
         </div>
 
-        <div class="setting-help">
-          月卡解鎖遊歷 ×50，週卡解鎖困難 ×5／×10／×20。貿易卡會把每日 UR／閃金商船上限由 4 艘提高至 6 艘。礦卡會把哥布林礦工礦鎬數存儲上限由 60 提高至 100，並可每日直接領取 50 個。每日另有 2 次廣告領取礦鎬，每次 15 個，但必須先清出空位才會出現。
-        </div>
 
         <div class="owned-stamina-box" id="ownedStaminaBox">
           <div class="inventory-title">擁有體力</div>
@@ -2156,16 +2345,36 @@
           <button class="action-btn action-danger" id="zeroAllDays" type="button">本週全部歸零</button>
         </div>
         <div class="auto-plan-status" id="autoPlanStatus" aria-live="polite"></div>
-
-        <div class="auto-box">
-          <span>建議任意副本次數</span>
-          <strong id="recommendedDungeonSidebar">8 次</strong>
-          <small id="recommendedDungeonFormula">基本 8 次</small>
-        </div>
         </div>
       </aside>
 
       <div class="main">
+    <div class="top-tabs-stack">
+      <nav class="week-mode-tabs" aria-label="活動週切換">
+        <button class="week-mode-tab active" type="button" data-week-mode="archaeology">考古週</button>
+        <button class="week-mode-tab" type="button" data-week-mode="bounty">懸賞週</button>
+      </nav>
+
+      <nav class="day-tabs" aria-label="星期切換">
+        <button class="day-tab active" type="button" data-day="mon">週一</button>
+        <button class="day-tab" type="button" data-day="tue">週二</button>
+        <button class="day-tab" type="button" data-day="wed">週三</button>
+        <button class="day-tab" type="button" data-day="thu">週四</button>
+        <button class="day-tab" type="button" data-day="fri">週五</button>
+        <button class="day-tab" type="button" data-day="sat">週六</button>
+        <button class="day-tab" type="button" data-day="sun">週日</button>
+      </nav>
+
+      <div class="day-auto-plan-row" aria-label="每日自動套用">
+        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="mon">週一自動套用</button>
+        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="tue">週二自動套用</button>
+        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="wed">週三自動套用</button>
+        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="thu">週四自動套用</button>
+        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="fri">週五自動套用</button>
+        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="sat">週六自動套用</button>
+        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="sun">週日自動套用</button>
+      </div>
+    </div>
         <div id="mobileStatsPanel">
         <section class="card summary-card" aria-label="今日雙活動進度">
           <div class="activity-summary">
@@ -2191,9 +2400,15 @@
           </div>
         </section>
 
+        </div>
+
+        <div id="mobileWeeklyStagePanel">
         <section class="card section-card weekly-marathon-card" id="weeklySummarySection">
-          <div class="section-head">
-            <h3>馬拉松｜聯合考古｜本週獎勵統計</h3>
+          <div class="section-head weekly-integrated-head">
+            <div>
+              <h3 id="weeklyIntegratedTitle">馬拉松｜聯合考古｜本週獎勵統計</h3>
+              <div class="section-note">依目前活動週顯示馬拉松與對應活動進度</div>
+            </div>
             <div class="weekly-summary-head-tools">
               <div class="section-note" id="weeklyNextStageText">統計每日已達成階段</div>
               <button
@@ -2206,49 +2421,60 @@
             </div>
           </div>
 
-          <div class="weekly-overview">
-            <div class="weekly-total-card">
-              <div class="weekly-total-item">
-                <div class="weekly-star-line">
-                  <span class="weekly-star-label">本週累計星星</span>
-                  <strong class="weekly-star-value" id="weeklyStarTotal">0 / 30</strong>
-                </div>
-                <div class="progress">
-                  <div class="progress-bar" id="weeklyStarProgress"></div>
-                </div>
-              </div>
-
-              <div class="weekly-total-item">
-                <div class="weekly-star-line">
-                  <span class="weekly-pickaxe-label">本週累計幸運礦鎬</span>
-                  <strong class="weekly-pickaxe-value" id="weeklyPickaxeTotal">0 / 336</strong>
-                </div>
-                <div class="progress weekly-pickaxe-progress">
-                  <div class="progress-bar" id="weeklyPickaxeProgress"></div>
-                </div>
-              </div>
+          <div class="weekly-activity-totals">
+            <div class="weekly-activity-total marathon-total">
+              <span class="weekly-total-kicker">馬拉松</span>
+              <strong id="weeklyStarTotal">0 / 30 星</strong>
+              <small>每週階段解鎖依據</small>
+              <div class="progress"><div class="progress-bar" id="weeklyStarProgress"></div></div>
             </div>
 
-            <div class="weekly-day-stars" id="weeklyDayStars"></div>
+            <div class="weekly-activity-total archaeology-total" id="weeklyArchaeologyCard">
+              <span class="weekly-total-kicker">聯合考古</span>
+              <strong id="weeklyPickaxeTotal">0 / 336 礦鎬</strong>
+              <small>週一至週六每日最多 56</small>
+              <div class="progress weekly-pickaxe-progress"><div class="progress-bar" id="weeklyPickaxeProgress"></div></div>
+            </div>
+
+            <div class="weekly-activity-total bounty-total" id="weeklyBountyCard">
+              <span class="weekly-total-kicker">公會懸賞</span>
+              <strong id="weeklyBountyTotal">0 / 30,000 分</strong>
+              <small>已達階段 <span id="weeklyBountyStages">0 / 54</span></small>
+              <div class="progress weekly-bounty-progress"><div class="progress-bar" id="weeklyBountyProgress"></div></div>
+            </div>
           </div>
 
-          <div
-            class="reward-summary-content"
-            id="rewardSummaryContent"
-            hidden
-          >
+          <div class="weekly-day-stars" id="weeklyDayStars"></div>
+
+          <div class="weekly-integrated-stage-block">
+            <div class="weekly-reward-heading">
+              <strong>每週階段獎勵</strong>
+              <span>依馬拉松每日階段累積的星星解鎖</span>
+            </div>
+            <div class="stage-grid weekly-grid" id="weeklyStageGrid"></div>
+          </div>
+
+          <div class="reward-summary-content" id="rewardSummaryContent" hidden>
             <div class="weekly-reward-block">
               <div class="weekly-reward-heading">
-                <strong>每日階段獎勵總計</strong>
+                <strong>馬拉松每日階段獎勵總計</strong>
                 <span>統計週一至週日目前已解鎖的所有物品</span>
               </div>
               <div class="reward-total-list" id="dailyRewardTotals"></div>
             </div>
 
+            <div class="weekly-reward-block" id="bountyRewardSummaryBlock">
+              <div class="weekly-reward-heading">
+                <strong>公會懸賞階段獎勵總計</strong>
+                <span>統計週一至週六目前已達成的懸賞階段</span>
+              </div>
+              <div class="reward-total-list" id="bountyRewardTotals"></div>
+            </div>
+
             <div class="weekly-reward-block">
               <div class="weekly-reward-heading">
                 <strong>已取得每週獎勵總計</strong>
-                <span>包含所有已解鎖的每週階段</span>
+                <span>包含所有已解鎖的馬拉松每週階段</span>
               </div>
               <div class="reward-total-list" id="weeklyRewardTotals"></div>
             </div>
@@ -2268,16 +2494,6 @@
         </section>
         </div>
 
-        <div id="mobileWeeklyStagePanel">
-        <section class="card section-card weekly-stage-card">
-          <div class="section-head">
-            <h3>每週階段獎勵</h3>
-            <div class="section-note">依每日階段累積的星星解鎖</div>
-          </div>
-          <div class="stage-grid weekly-grid" id="weeklyStageGrid"></div>
-        </section>
-        </div>
-
         <div id="mobileDailyRewardsPanel">
         <section class="card section-card">
           <div class="section-head">
@@ -2289,8 +2505,8 @@
 
         <section class="card section-card" id="archaeologyDailyStageSection">
           <div class="section-head">
-            <h3>聯合考古｜本日階段獎勵</h3>
-            <div class="section-note">共 9 階，達成後自動標示</div>
+            <h3 id="secondaryDailyStageTitle">聯合考古｜本日階段獎勵</h3>
+            <div class="section-note" id="secondaryDailyStageNote">共 9 階，達成後自動標示</div>
           </div>
           <div class="stage-grid archaeology-grid" id="archaeologyStageGrid"></div>
         </section>
@@ -2354,8 +2570,16 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v105";
+      const STORAGE_KEY = "capybara-weekly-full-v115";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v114",
+        "capybara-weekly-full-v113",
+        "capybara-weekly-full-v112",
+        "capybara-weekly-full-v109",
+        "capybara-weekly-full-v108",
+        "capybara-weekly-full-v107",
+        "capybara-weekly-full-v106",
+        "capybara-weekly-full-v105",
         "capybara-weekly-full-v104",
         "capybara-weekly-full-v103",
         "capybara-weekly-full-v102",
@@ -3150,6 +3374,7 @@
         watchAds: document.getElementById("watchAds"),
         tradeCard: document.getElementById("tradeCard"),
         mineCard: document.getElementById("mineCard"),
+        cardSettingsHelp: document.getElementById("cardSettingsHelp"),
         sacredAnvilStars: document.getElementById("sacredAnvilStars"),
         miningSettingHelp: document.getElementById("miningSettingHelp"),
         ownedStaminaBox: document.getElementById("ownedStaminaBox"),
@@ -3187,15 +3412,25 @@
         marathonStageTitle: document.getElementById("marathonStageTitle"),
         marathonStageGrid: document.getElementById("marathonStageGrid"),
         archaeologyStageGrid: document.getElementById("archaeologyStageGrid"),
+        secondaryDailyStageTitle: document.getElementById("secondaryDailyStageTitle"),
+        secondaryDailyStageNote: document.getElementById("secondaryDailyStageNote"),
+        weeklyIntegratedTitle: document.getElementById("weeklyIntegratedTitle"),
+        weeklyArchaeologyCard: document.getElementById("weeklyArchaeologyCard"),
+        weeklyBountyCard: document.getElementById("weeklyBountyCard"),
         weeklyStarTotal: document.getElementById("weeklyStarTotal"),
         weeklyStarProgress: document.getElementById("weeklyStarProgress"),
         weeklyPickaxeTotal: document.getElementById("weeklyPickaxeTotal"),
         weeklyPickaxeProgress: document.getElementById("weeklyPickaxeProgress"),
+        weeklyBountyTotal: document.getElementById("weeklyBountyTotal"),
+        weeklyBountyStages: document.getElementById("weeklyBountyStages"),
+        weeklyBountyProgress: document.getElementById("weeklyBountyProgress"),
         weeklyNextStageText: document.getElementById("weeklyNextStageText"),
         weeklyDayStars: document.getElementById("weeklyDayStars"),
         weeklyStageGrid: document.getElementById("weeklyStageGrid"),
         dailyRewardTotals: document.getElementById("dailyRewardTotals"),
         weeklyRewardTotals: document.getElementById("weeklyRewardTotals"),
+        bountyRewardSummaryBlock: document.getElementById("bountyRewardSummaryBlock"),
+        bountyRewardTotals: document.getElementById("bountyRewardTotals"),
         rewardSummaryContent: document.getElementById("rewardSummaryContent"),
         rewardSummaryToggle: document.getElementById("rewardSummaryToggle"),
         autoPlanStatus: document.getElementById("autoPlanStatus"),
@@ -4242,18 +4477,41 @@
         `;
       }
 
+      const staminaDetailsOpenState = {};
+
+      function getStaminaDetailsOpen(dayKey, groupIndex) {
+        const stateKey = `${dayKey}:${groupIndex}`;
+        if (Object.prototype.hasOwnProperty.call(staminaDetailsOpenState, stateKey)) {
+          return staminaDetailsOpenState[stateKey];
+        }
+
+        const isHardGroup = groupIndex === 1;
+        return state.settings.weeklyCard ? isHardGroup : !isHardGroup;
+      }
+
+      function switchStaminaDetailsForWeeklyCard() {
+        const openHard = state.settings.weeklyCard;
+
+        for (const dayKey of ["mon", "wed", "sat"]) {
+          staminaDetailsOpenState[`${dayKey}:0`] = !openHard;
+          staminaDetailsOpenState[`${dayKey}:1`] = openHard;
+        }
+      }
+
       function renderStaminaOptions(dayKey = "mon") {
         const day = state.days[dayKey];
         const isMonday = dayKey === "mon";
 
         return staminaGroups.map((group, groupIndex) => {
-          const isHardGroup = groupIndex === 1;
-          const shouldOpen = state.settings.weeklyCard
-            ? isHardGroup
-            : !isHardGroup;
+          const shouldOpen = getStaminaDetailsOpen(dayKey, groupIndex);
 
           return `
-          <details class="stamina-source-details" ${shouldOpen ? "open" : ""}>
+          <details
+            class="stamina-source-details"
+            data-stamina-details-day="${dayKey}"
+            data-stamina-details-group="${groupIndex}"
+            ${shouldOpen ? "open" : ""}
+          >
             <summary>
               <span class="stamina-source-summary-text">
                 <strong>${group.title}</strong>
@@ -4333,6 +4591,9 @@
         { score: 2500, token: 180, merit: 200 },
         { score: 3200, token: 360, merit: 300 }
       ];
+
+      const GUILD_BOUNTY_GUILD_MAX = 4500;
+      const GUILD_BOUNTY_TOTAL_MAX = 5000;
 
       const guildBountyDefinitions = [
         { key: "gbArenaWhite", type: "arena", name: "挑戰競技場", action: "挑戰", color: "white", need: 3, unit: "次", score: 50 },
@@ -4999,11 +5260,11 @@
               </div>
               <div class="guild-bounty-merged-item">
                 <span>公會任務積分</span>
-                <strong>${format(summary.guildScore)}</strong>
+                <strong>${format(summary.guildScore)} / ${format(GUILD_BOUNTY_GUILD_MAX)}</strong>
               </div>
               <div class="guild-bounty-merged-item">
                 <span>總積分</span>
-                <strong>${format(summary.totalScore)} / 3200</strong>
+                <strong>${format(summary.totalScore)} / ${format(GUILD_BOUNTY_TOTAL_MAX)}</strong>
               </div>
               <div class="guild-bounty-merged-item">
                 <span>免費／加購</span>
@@ -5037,30 +5298,6 @@
             ${renderGuildBountyColorGroup("purple", "紫色")}
             ${renderGuildBountyColorGroup("white", "白色")}
 
-            <div class="task-block-title" style="margin-top:12px;">
-              <strong>公會懸賞｜本日階段獎勵</strong>
-              <span>共 9 階，達成後自動標示</span>
-            </div>
-            <div class="stage-grid archaeology-grid">
-              ${guildBountyStages.map((stage, index) => {
-                const done = summary.totalScore >= stage.score;
-                const rewards = [
-                  `寵物武裝令牌 ${format(stage.token)}`,
-                  stage.merit ? `功勳幣 ${format(stage.merit)}` : ""
-                ].filter(Boolean).join("，");
-
-                return `
-                  <div class="stage arch-stage ${done ? "done" : ""}">
-                    <div class="stage-top">
-                      <div class="stage-title">階段 ${index + 1}</div>
-                      <div class="stage-status">${done ? "✓ 已達成" : "未達成"}</div>
-                    </div>
-                    <div class="stage-score">${format(stage.score)} 分</div>
-                    <div class="stage-rewards">${rewards}</div>
-                  </div>
-                `;
-              }).join("")}
-            </div>
           </div>
         `;
       }
@@ -5083,11 +5320,11 @@
               </div>
               <div class="guild-bounty-merged-item">
                 <span>公會任務積分</span>
-                <strong>${format(summary.guildScore)}</strong>
+                <strong>${format(summary.guildScore)} / ${format(GUILD_BOUNTY_GUILD_MAX)}</strong>
               </div>
               <div class="guild-bounty-merged-item">
                 <span>總積分</span>
-                <strong>${format(summary.totalScore)} / 3200</strong>
+                <strong>${format(summary.totalScore)} / ${format(GUILD_BOUNTY_TOTAL_MAX)}</strong>
               </div>
               <div class="guild-bounty-merged-item">
                 <span>免費／加購</span>
@@ -5122,30 +5359,6 @@
             ${renderGuildBountyColorGroup("purple", "紫色", tuesdayGuildBountyDefinitions, "tue")}
             ${renderGuildBountyColorGroup("white", "白色", tuesdayGuildBountyDefinitions, "tue")}
 
-            <div class="task-block-title" style="margin-top:12px;">
-              <strong>公會懸賞｜本日階段獎勵</strong>
-              <span>共 9 階，達成後自動標示</span>
-            </div>
-            <div class="stage-grid archaeology-grid">
-              ${guildBountyStages.map((stage, index) => {
-                const done = summary.totalScore >= stage.score;
-                const rewards = [
-                  `寵物武裝令牌 ${format(stage.token)}`,
-                  stage.merit ? `功勳幣 ${format(stage.merit)}` : ""
-                ].filter(Boolean).join("，");
-
-                return `
-                  <div class="stage arch-stage ${done ? "done" : ""}">
-                    <div class="stage-top">
-                      <div class="stage-title">階段 ${index + 1}</div>
-                      <div class="stage-status">${done ? "✓ 已達成" : "未達成"}</div>
-                    </div>
-                    <div class="stage-score">${format(stage.score)} 分</div>
-                    <div class="stage-rewards">${rewards}</div>
-                  </div>
-                `;
-              }).join("")}
-            </div>
           </div>
         `;
       }
@@ -5167,11 +5380,11 @@
               </div>
               <div class="guild-bounty-merged-item">
                 <span>公會任務積分</span>
-                <strong>${format(summary.guildScore)}</strong>
+                <strong>${format(summary.guildScore)} / ${format(GUILD_BOUNTY_GUILD_MAX)}</strong>
               </div>
               <div class="guild-bounty-merged-item">
                 <span>總積分</span>
-                <strong>${format(summary.totalScore)} / 3200</strong>
+                <strong>${format(summary.totalScore)} / ${format(GUILD_BOUNTY_TOTAL_MAX)}</strong>
               </div>
               <div class="guild-bounty-merged-item">
                 <span>免費／加購</span>
@@ -5205,29 +5418,6 @@
             ${renderGuildBountyColorGroup("purple", "紫色", wednesdayGuildBountyDefinitions, "wed")}
             ${renderGuildBountyColorGroup("white", "白色", wednesdayGuildBountyDefinitions, "wed")}
 
-            <div class="task-block-title" style="margin-top:12px;">
-              <strong>公會懸賞｜本日階段獎勵</strong>
-              <span>共 9 階，達成後自動標示</span>
-            </div>
-            <div class="stage-grid archaeology-grid">
-              ${guildBountyStages.map((stage, index) => {
-                const done = summary.totalScore >= stage.score;
-                const rewards = [
-                  `寵物武裝令牌 ${format(stage.token)}`,
-                  stage.merit ? `功勳幣 ${format(stage.merit)}` : ""
-                ].filter(Boolean).join("，");
-                return `
-                  <div class="stage arch-stage ${done ? "done" : ""}">
-                    <div class="stage-top">
-                      <div class="stage-title">階段 ${index + 1}</div>
-                      <div class="stage-status">${done ? "✓ 已達成" : "未達成"}</div>
-                    </div>
-                    <div class="stage-score">${format(stage.score)} 分</div>
-                    <div class="stage-rewards">${rewards}</div>
-                  </div>
-                `;
-              }).join("")}
-            </div>
           </div>
         `;
       }
@@ -5244,8 +5434,8 @@
 
             <div class="guild-bounty-merged-summary">
               <div class="guild-bounty-merged-item"><span>個人積分</span><strong>${format(summary.personalScore)} / 500</strong></div>
-              <div class="guild-bounty-merged-item"><span>公會任務積分</span><strong>${format(summary.guildScore)}</strong></div>
-              <div class="guild-bounty-merged-item"><span>總積分</span><strong>${format(summary.totalScore)} / 3200</strong></div>
+              <div class="guild-bounty-merged-item"><span>公會任務積分</span><strong>${format(summary.guildScore)} / ${format(GUILD_BOUNTY_GUILD_MAX)}</strong></div>
+              <div class="guild-bounty-merged-item"><span>總積分</span><strong>${format(summary.totalScore)} / ${format(GUILD_BOUNTY_TOTAL_MAX)}</strong></div>
               <div class="guild-bounty-merged-item"><span>免費／加購</span><strong>${format(Math.min(summary.completedGuildCount, 10))}／${format(Math.max(0, summary.completedGuildCount - 10))}</strong></div>
               <div class="guild-bounty-merged-item"><span>累計額外花費</span><strong>${format(getGuildBountyExtraGemCost(summary.completedGuildCount))} 紫寶石</strong></div>
             </div>
@@ -5272,29 +5462,6 @@
             ${renderGuildBountyColorGroup("purple", "紫色", thursdayGuildBountyDefinitions, "thu")}
             ${renderGuildBountyColorGroup("white", "白色", thursdayGuildBountyDefinitions, "thu")}
 
-            <div class="task-block-title" style="margin-top:12px;">
-              <strong>公會懸賞｜本日階段獎勵</strong>
-              <span>共 9 階，達成後自動標示</span>
-            </div>
-            <div class="stage-grid archaeology-grid">
-              ${guildBountyStages.map((stage, index) => {
-                const done = summary.totalScore >= stage.score;
-                const rewards = [
-                  `寵物武裝令牌 ${format(stage.token)}`,
-                  stage.merit ? `功勳幣 ${format(stage.merit)}` : ""
-                ].filter(Boolean).join("，");
-                return `
-                  <div class="stage arch-stage ${done ? "done" : ""}">
-                    <div class="stage-top">
-                      <div class="stage-title">階段 ${index + 1}</div>
-                      <div class="stage-status">${done ? "✓ 已達成" : "未達成"}</div>
-                    </div>
-                    <div class="stage-score">${format(stage.score)} 分</div>
-                    <div class="stage-rewards">${rewards}</div>
-                  </div>
-                `;
-              }).join("")}
-            </div>
           </div>
         `;
       }
@@ -5308,8 +5475,8 @@
             </div>
             <div class="guild-bounty-merged-summary">
               <div class="guild-bounty-merged-item"><span>個人積分</span><strong>${format(summary.personalScore)} / 500</strong></div>
-              <div class="guild-bounty-merged-item"><span>公會任務積分</span><strong>${format(summary.guildScore)}</strong></div>
-              <div class="guild-bounty-merged-item"><span>總積分</span><strong>${format(summary.totalScore)} / 3200</strong></div>
+              <div class="guild-bounty-merged-item"><span>公會任務積分</span><strong>${format(summary.guildScore)} / ${format(GUILD_BOUNTY_GUILD_MAX)}</strong></div>
+              <div class="guild-bounty-merged-item"><span>總積分</span><strong>${format(summary.totalScore)} / ${format(GUILD_BOUNTY_TOTAL_MAX)}</strong></div>
               <div class="guild-bounty-merged-item"><span>免費／加購</span><strong>${format(Math.min(summary.completedGuildCount, 10))}／${format(Math.max(0, summary.completedGuildCount - 10))}</strong></div>
               <div class="guild-bounty-merged-item"><span>累計額外花費</span><strong>${format(getGuildBountyExtraGemCost(summary.completedGuildCount))} 紫寶石</strong></div>
             </div>
@@ -5333,29 +5500,6 @@
             ${renderGuildBountyColorGroup("gold", "金色", definitions, dayKey)}
             ${renderGuildBountyColorGroup("purple", "紫色", definitions, dayKey)}
             ${renderGuildBountyColorGroup("white", "白色", definitions, dayKey)}
-            <div class="task-block-title" style="margin-top:12px;">
-              <strong>公會懸賞｜本日階段獎勵</strong>
-              <span>共 9 階，達成後自動標示</span>
-            </div>
-            <div class="stage-grid archaeology-grid">
-              ${guildBountyStages.map((stage, index) => {
-                const done = summary.totalScore >= stage.score;
-                const rewards = [
-                  `寵物武裝令牌 ${format(stage.token)}`,
-                  stage.merit ? `功勳幣 ${format(stage.merit)}` : ""
-                ].filter(Boolean).join("，");
-                return `
-                  <div class="stage arch-stage ${done ? "done" : ""}">
-                    <div class="stage-top">
-                      <div class="stage-title">階段 ${index + 1}</div>
-                      <div class="stage-status">${done ? "✓ 已達成" : "未達成"}</div>
-                    </div>
-                    <div class="stage-score">${format(stage.score)} 分</div>
-                    <div class="stage-rewards">${rewards}</div>
-                  </div>
-                `;
-              }).join("")}
-            </div>
           </div>
         `;
       }
@@ -6580,12 +6724,48 @@
           }
         }
 
+        const dayBountyScores = {};
+        const dayBountyStages = {};
+        const bountyRewards = {};
+        let totalBountyScore = 0;
+        let totalBountyStages = 0;
+
+        for (const dayKey of dayOrder) {
+          if (dayKey === "sun") {
+            dayBountyScores[dayKey] = 0;
+            dayBountyStages[dayKey] = 0;
+            continue;
+          }
+
+          const bounty = getGuildBountySummaryForDay(dayKey);
+          dayBountyScores[dayKey] = bounty.totalScore;
+          totalBountyScore += bounty.totalScore;
+
+          const achievedStages = guildBountyStages.filter(
+            stage => bounty.totalScore >= stage.score
+          );
+          dayBountyStages[dayKey] = achievedStages.length;
+          totalBountyStages += achievedStages.length;
+
+          for (const stage of achievedStages) {
+            bountyRewards["寵物武裝令牌"] =
+              toInt(bountyRewards["寵物武裝令牌"]) + stage.token;
+            bountyRewards["功勳幣"] =
+              toInt(bountyRewards["功勳幣"]) + stage.merit;
+          }
+        }
+
         return {
           totalStars,
           totalPickaxes,
+          totalBountyScore,
+          totalBountyStages,
           dayStars,
           dayPickaxes,
+          dayBountyScores,
+          dayBountyStages,
           dailyRewards,
+          bountyRewards,
           weeklyRewards
         };
       }
@@ -6648,43 +6828,68 @@
       function renderWeeklyMarathonSummary() {
         const summary = getWeeklyMarathonSummary();
         const targetStars = 30;
+        const isBountyWeek = state.weekMode === "bounty";
         const nextStage = weeklyMarathonStages.find(
           stage => summary.totalStars < stage.stars
         );
 
+        els.weeklyIntegratedTitle.textContent = isBountyWeek
+          ? "馬拉松｜公會懸賞｜本週獎勵統計"
+          : "馬拉松｜聯合考古｜本週獎勵統計";
+        els.weeklyArchaeologyCard.hidden = isBountyWeek;
+        els.weeklyBountyCard.hidden = !isBountyWeek;
+        els.bountyRewardSummaryBlock.hidden = !isBountyWeek;
+
         els.weeklyStarTotal.textContent =
-          `${format(summary.totalStars)} / ${targetStars}`;
+          `${format(summary.totalStars)} / ${targetStars} 星`;
         els.weeklyStarProgress.style.width =
           `${Math.min(100, summary.totalStars / targetStars * 100)}%`;
 
         const weeklyPickaxeTarget = 56 * 6;
         els.weeklyPickaxeTotal.textContent =
-          `${format(summary.totalPickaxes)} / ${format(weeklyPickaxeTarget)}`;
+          `${format(summary.totalPickaxes)} / ${format(weeklyPickaxeTarget)} 礦鎬`;
         els.weeklyPickaxeProgress.style.width =
           `${Math.min(100, summary.totalPickaxes / weeklyPickaxeTarget * 100)}%`;
 
+        const weeklyBountyTarget = 5000 * 6;
+        const weeklyBountyStageTarget = 9 * 6;
+        els.weeklyBountyTotal.textContent =
+          `${format(summary.totalBountyScore)} / ${format(weeklyBountyTarget)} 分`;
+        els.weeklyBountyStages.textContent =
+          `${format(summary.totalBountyStages)} / ${format(weeklyBountyStageTarget)}`;
+        els.weeklyBountyProgress.style.width =
+          `${Math.min(100, summary.totalBountyScore / weeklyBountyTarget * 100)}%`;
+
         els.weeklyNextStageText.textContent = nextStage
-          ? `距離下一階段還差 ${format(nextStage.stars - summary.totalStars)} 顆星`
+          ? `距離下一個每週獎勵還差 ${format(nextStage.stars - summary.totalStars)} 顆星`
           : `已解鎖全部每週階段獎勵`;
 
         els.weeklyDayStars.innerHTML = dayOrder
           .map(dayKey => {
             const isSunday = dayKey === "sun";
-            const pickaxeText = isSunday
-              ? "休息"
-              : `${summary.dayPickaxes[dayKey]} / 56`;
+            const secondaryLabel = isBountyWeek ? "公會懸賞" : "聯合考古";
+            const secondaryText = isBountyWeek
+              ? (isSunday
+                  ? "休息"
+                  : `${format(summary.dayBountyScores[dayKey])} / 5,000 分・${summary.dayBountyStages[dayKey]} / 9 階`)
+              : (isSunday
+                  ? "休息"
+                  : `${summary.dayPickaxes[dayKey]} / 56 礦鎬`);
+            const secondaryClass = isBountyWeek
+              ? "day-bounty-value"
+              : "day-pickaxe-value";
 
             return `
               <div class="day-star-card ${dayKey === state.activeDay ? "active" : ""}">
                 <div class="day-metric">
-                  <div class="day-card-label">${shortDayLabels[dayKey]}</div>
-                  <div class="day-card-value day-star-value">${summary.dayStars[dayKey]} / 6</div>
+                  <div class="day-card-label">${shortDayLabels[dayKey]}・馬拉松</div>
+                  <div class="day-card-value day-star-value">${summary.dayStars[dayKey]} / 6 星</div>
                 </div>
 
                 <div class="day-metric">
-                  <div class="day-card-label">${shortDayLabels[dayKey]}</div>
-                  <div class="day-card-value day-pickaxe-value ${isSunday ? "rest" : ""}">
-                    ${pickaxeText}
+                  <div class="day-card-label">${secondaryLabel}</div>
+                  <div class="day-card-value ${secondaryClass} ${isSunday ? "rest" : ""}">
+                    ${secondaryText}
                   </div>
                 </div>
               </div>
@@ -6692,10 +6897,15 @@
           })
           .join("");
 
-
         renderRewardTotals(
           els.dailyRewardTotals,
           summary.dailyRewards
+        );
+
+        renderRewardTotals(
+          els.bountyRewardTotals,
+          summary.bountyRewards,
+          "weekly"
         );
 
         renderRewardTotals(
@@ -6711,7 +6921,7 @@
             return `
               <div class="stage ${done ? "done" : ""}">
                 <div class="stage-top">
-                  <div class="stage-title">每週階段${index + 1}</div>
+                  <div class="stage-title">每週階段 ${index + 1}</div>
                   <div class="stage-inline-score">${format(stage.stars)} 顆星</div>
                   <div class="stage-status">${done ? "已解鎖" : "未解鎖"}</div>
                 </div>
@@ -6720,7 +6930,6 @@
             `;
           })
           .join("");
-
       }
 
       function renderStages(marathonScore, archaeologyScore) {
@@ -6740,7 +6949,41 @@
           `;
         }).join("");
 
-        if (state.activeDay === "sun") {
+        if (state.weekMode === "bounty") {
+          els.secondaryDailyStageTitle.textContent = "公會懸賞｜本日階段獎勵";
+          els.secondaryDailyStageNote.textContent = "共 9 階，達成後自動標示";
+          if (state.activeDay === "sun") {
+            els.archaeologyStageGrid.innerHTML = `
+              <div class="stage arch-stage" style="grid-column: 1 / -1;">
+                <div class="stage-top">
+                  <div class="stage-title">週日</div>
+                  <div class="stage-status">休息日</div>
+                </div>
+                <div class="stage-score">公會懸賞休息</div>
+                <div class="stage-rewards">週一再開始新的每日階段。</div>
+              </div>
+            `;
+          } else {
+            const bountySummary = getGuildBountySummaryForDay(state.activeDay);
+            els.archaeologyStageGrid.innerHTML = guildBountyStages.map((stage, index) => {
+              const done = bountySummary.totalScore >= stage.score;
+              const rewards = [`寵物武裝令牌 ${stage.token}`];
+              if (stage.merit > 0) rewards.push(`功勳幣 ${stage.merit}`);
+              return `
+                <div class="stage arch-stage ${done ? "done" : ""}">
+                  <div class="stage-top">
+                    <div class="stage-title">階段 ${index + 1}</div>
+                    <div class="stage-status">${done ? "✓ 已達成" : "未達成"}</div>
+                  </div>
+                  <div class="stage-score">${format(stage.score)} 分</div>
+                  <div class="stage-rewards">${rewards.join("，")}</div>
+                </div>
+              `;
+            }).join("");
+          }
+        } else if (state.activeDay === "sun") {
+          els.secondaryDailyStageTitle.textContent = "聯合考古｜本日階段獎勵";
+          els.secondaryDailyStageNote.textContent = "共 9 階，達成後自動標示";
           els.archaeologyStageGrid.innerHTML = `
             <div class="stage arch-stage" style="grid-column: 1 / -1;">
               <div class="stage-top">
@@ -6752,6 +6995,8 @@
             </div>
           `;
         } else {
+          els.secondaryDailyStageTitle.textContent = "聯合考古｜本日階段獎勵";
+          els.secondaryDailyStageNote.textContent = "共 9 階，達成後自動標示";
           els.archaeologyStageGrid.innerHTML = archaeologyStages.map((stage, index) => {
             const done = archaeologyScore >= stage.score;
 
@@ -6784,6 +7029,59 @@
           .join("");
       }
 
+      function renderCardSettingsHelp() {
+        const settings = state.settings;
+        const enabled = [];
+
+        if (settings.monthlyCard) {
+          enabled.push(`月卡：解鎖遊歷 <span class="setting-value">×50</span>，建議副本次數 <span class="setting-value">+2</span>`);
+        }
+
+        if (settings.weeklyCard) {
+          enabled.push(`週卡：解鎖困難副本 <span class="setting-value">×5</span>／<span class="setting-value">×10</span>／<span class="setting-value">×20</span>`);
+        }
+
+        if (settings.lifetimeCard) {
+          enabled.push(`終身卡：建議副本次數 <span class="setting-value">+4</span>`);
+        }
+
+        if (settings.watchAds) {
+          enabled.push(`廣告：建議副本次數 <span class="setting-value">+8</span>；每日可領礦鎬 <span class="setting-value">30 個</span>；寵物蛋免費 <span class="setting-value">105 抽</span>`);
+        }
+
+        enabled.push(
+          settings.tradeCard
+            ? `貿易卡：每日 UR／閃金商船上限為 <span class="setting-value">6 艘</span>`
+            : `未啟用貿易卡：每日 UR／閃金商船上限為 <span class="setting-value">4 艘</span>`
+        );
+
+        enabled.push(
+          settings.mineCard
+            ? `礦卡：礦鎬存儲上限 <span class="setting-value">100</span>，並可每日直接領取 <span class="setting-value">50 個</span>`
+            : `未啟用礦卡：礦鎬存儲上限 <span class="setting-value">60</span>，並可每日直接領取 <span class="setting-value">0 個</span>`
+        );
+
+        const activeBonusCount = [
+          settings.monthlyCard,
+          settings.weeklyCard,
+          settings.lifetimeCard,
+          settings.watchAds,
+          settings.tradeCard,
+          settings.mineCard
+        ].filter(Boolean).length;
+
+        const heading = activeBonusCount > 0
+          ? "目前已套用："
+          : "目前未啟用卡片或廣告加成。";
+
+        els.cardSettingsHelp.innerHTML = `
+          <strong>${heading}</strong>
+          <div style="margin-top:5px; line-height:1.7;">
+            ${enabled.map(item => `・${item}`).join("<br>")}
+          </div>
+        `;
+      }
+
       function renderGlobalSettings() {
         els.monthlyCard.checked = state.settings.monthlyCard;
         els.weeklyCard.checked = state.settings.weeklyCard;
@@ -6791,26 +7089,18 @@
         els.watchAds.checked = state.settings.watchAds;
         els.tradeCard.checked = state.settings.tradeCard;
         els.mineCard.checked = state.settings.mineCard;
+        renderCardSettingsHelp();
         els.sacredAnvilStars.value = String(
           clamp(toInt(state.settings.sacredAnvilStars), 0, 10)
         );
 
         const mining = getMiningConfig();
         els.miningSettingHelp.innerHTML = `
-          目前恢復速度 +${Math.round(mining.speedBonusRate * 100)}%，
-          約每 ${mining.intervalMinutes.toFixed(2)} 分鐘恢復 1 次。<br>
-          24 小時理論自然獲得
-          <strong>${format(mining.recoveriesPerDay)} 礦鎬</strong>。<br>
-          存儲上限 ${mining.storageCap} 個，從 0 堆滿約需
-          <strong>${formatDurationFromMinutes(mining.minutesToCap)}</strong>。<br>
-          礦卡每日可直接領取
-          <strong>+${format(mining.mineCardDailyClaim)} 個</strong>；
-          每日看廣告可領取
-          <strong>${format(mining.adRewardPerClaim)} 礦鎬 × ${format(mining.adClaimsPerDay)} 次</strong>。
-          但廣告必須先挖礦清零礦鎬石才會出現。<br>
-          若自然恢復完全不溢出、礦卡有領、兩次廣告都有拿到，
-          一天理論最多能挖
-          <strong>${format(mining.theoreticalDailyMax)} 次</strong>。<br>
+          目前恢復速度 <span class="setting-value">+${Math.round(mining.speedBonusRate * 100)}%</span>，約每 <span class="setting-value">${mining.intervalMinutes.toFixed(2)} 分鐘</span> 恢復 <span class="setting-value">1 次</span>。<br>
+          <span class="setting-value">24 小時</span>理論自然獲得 <span class="setting-value">${format(mining.recoveriesPerDay)} 礦鎬</span>。<br>
+          存儲上限 <span class="setting-value">${format(mining.storageCap)} 個</span>，從 <span class="setting-value">0</span> 堆滿約需 <span class="setting-value">${formatDurationFromMinutes(mining.minutesToCap)}</span>。<br>
+          礦卡每日可直接領取 <span class="setting-value">+${format(mining.mineCardDailyClaim)} 個</span>； 每日看廣告可領取 <span class="setting-value">${format(mining.adRewardPerClaim)} 礦鎬 × ${format(mining.adClaimsPerDay)} 次</span>。 但廣告必須先挖礦清零礦鎬時才會出現。<br>
+          若自然恢復完全不溢出、礦卡有領、兩次廣告都有拿到， 一天理論最多能挖 <span class="setting-value">${format(mining.theoreticalDailyMax)} 次</span>。<br>
           此資訊不會自動填入任務，請依自己的清空頻率手動輸入實際挖礦次數。
         `;
 
@@ -6832,7 +7122,19 @@
 
         const dungeon = getRecommendedDungeon();
         els.recommendedDungeonSidebar.textContent = `${format(dungeon.total)} 次`;
-        els.recommendedDungeonFormula.textContent = dungeon.formula;
+        const dungeonFormulaParts = dungeon.formula
+          .split("・")
+          .map(part => part.trim())
+          .filter(Boolean);
+        els.recommendedDungeonFormula.innerHTML = dungeonFormulaParts
+          .map(part => {
+            const highlighted = part.replace(
+              /(\+?\d+)/g,
+              '<span class="setting-value">$1</span>'
+            );
+            return `<span class="recommended-dungeon-formula-item">${highlighted}</span>`;
+          })
+          .join("");
       }
 
       function renderSummary() {
@@ -6935,9 +7237,9 @@
             els.archaeologyTotalScore.textContent = format(bountySummary.totalScore);
             els.archaeologyPickaxes.textContent = `${bountyStageCount} / 9`;
             els.archaeologyRemaining.textContent =
-              format(Math.max(0, 3200 - bountySummary.totalScore));
+              format(Math.max(0, GUILD_BOUNTY_TOTAL_MAX - bountySummary.totalScore));
             els.archaeologyProgress.style.width =
-              `${Math.min(100, bountySummary.totalScore / 3200 * 100)}%`;
+              `${Math.min(100, bountySummary.totalScore / GUILD_BOUNTY_TOTAL_MAX * 100)}%`;
           }
         } else if (state.activeDay === "sun") {
           els.archaeologyTotalScore.textContent = "休息";
@@ -7298,11 +7600,11 @@ async function downloadChartAsImage() {
         }
 
         if (els.weeklySummarySection) {
-          els.weeklySummarySection.hidden = isBountyWeek;
+          els.weeklySummarySection.hidden = false;
         }
 
         if (els.archaeologyDailyStageSection) {
-          els.archaeologyDailyStageSection.hidden = isBountyWeek;
+          els.archaeologyDailyStageSection.hidden = false;
         }
 
         if (els.taskPanel) {
@@ -9419,6 +9721,10 @@ async function downloadChartAsImage() {
           const oldSettings = { ...state.settings };
           state.settings[key] = element.checked;
 
+          if (key === "weeklyCard") {
+            switchStaminaDetailsForWeeklyCard();
+          }
+
           if (key === "monthlyCard" && !state.settings.monthlyCard) {
             for (const dayKey of ["mon", "wed", "sat"]) {
               setStaminaCount(dayKey, "travel50", 0);
@@ -9645,6 +9951,14 @@ async function downloadChartAsImage() {
           event.preventDefault();
         }
       });
+
+      els.taskPanel.addEventListener("toggle", event => {
+        const details = event.target.closest("details[data-stamina-details-day]");
+        if (!details) return;
+
+        const stateKey = `${details.dataset.staminaDetailsDay}:${details.dataset.staminaDetailsGroup}`;
+        staminaDetailsOpenState[stateKey] = details.open;
+      }, true);
 
       els.taskPanel.addEventListener("click", event => {
         const chestButton = event.target.closest("button[data-chest-action]");
