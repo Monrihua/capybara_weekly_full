@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v94</title>
+  <title>水豚每週活動計算機｜週一至週日 v95</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1872,7 +1872,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v94</div>
+      <div class="prototype-badge">週一至週日 v95</div>
     </header>
 
     <div class="top-tabs-stack">
@@ -2252,8 +2252,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v94";
+      const STORAGE_KEY = "capybara-weekly-full-v95";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v94",
         "capybara-weekly-full-v93",
         "capybara-weekly-full-v92",
         "capybara-weekly-full-v91",
@@ -7646,87 +7647,104 @@ async function downloadChartAsImage() {
         ];
 
         const required = Math.max(0, toInt(requiredOpenedEggs));
-        if (required <= 0) return { opened: 0, consumed: 0, actions: 0, counts: {} };
+        if (required <= 0) {
+          return { opened: 0, consumed: 0, actions: 0, counts: {} };
+        }
 
-        const minimumOpened = 35;
-        const maxOpened = required + minimumOpened;
+        const smallestOpenedUnit = 35;
+        const minimumUnits = Math.ceil(required / smallestOpenedUnit);
+        const maximumUnitsToCheck = Math.floor(availableEggs / 30);
+
+        let minimumReachableOpened = null;
+        let minimumReachableUnits = null;
+
+        for (
+          let units = minimumUnits;
+          units <= maximumUnitsToCheck;
+          units++
+        ) {
+          const opened = units * smallestOpenedUnit;
+          const consumed = units * 30;
+          if (consumed > availableEggs) break;
+
+          minimumReachableOpened = opened;
+          minimumReachableUnits = units;
+          break;
+        }
+
+        if (minimumReachableOpened === null) return null;
+
+        const allowedMaximumOpened =
+          minimumReachableOpened + smallestOpenedUnit;
+        const allowedMaximumUnits =
+          Math.floor(allowedMaximumOpened / smallestOpenedUnit);
+
+        const dp = Array(allowedMaximumUnits + 1).fill(null);
+        dp[0] = { actions: 0, consumed: 0, counts: {} };
+
+        for (let units = 0; units <= allowedMaximumUnits; units++) {
+          const current = dp[units];
+          if (!current) continue;
+
+          for (const option of options) {
+            const optionUnits = option.opened / smallestOpenedUnit;
+            const nextUnits = units + optionUnits;
+            if (nextUnits > allowedMaximumUnits) continue;
+
+            const nextConsumed = current.consumed + option.consumed;
+            if (nextConsumed > availableEggs) continue;
+
+            const candidate = {
+              actions: current.actions + 1,
+              consumed: nextConsumed,
+              counts: {
+                ...current.counts,
+                [option.key]: toInt(current.counts[option.key]) + 1
+              }
+            };
+
+            const existing = dp[nextUnits];
+            if (
+              !existing ||
+              candidate.actions < existing.actions ||
+              (
+                candidate.actions === existing.actions &&
+                candidate.consumed < existing.consumed
+              )
+            ) {
+              dp[nextUnits] = candidate;
+            }
+          }
+        }
+
         let best = null;
+        for (
+          let units = minimumReachableUnits;
+          units <= allowedMaximumUnits;
+          units++
+        ) {
+          const candidate = dp[units];
+          if (!candidate) continue;
 
-        const max10 = Math.ceil(maxOpened / 350) + 1;
-        for (let c10 = 0; c10 <= max10; c10++) {
-          const opened10 = c10 * 350;
-          if (opened10 > maxOpened + 350) break;
-          const max5 = Math.ceil(Math.max(0, maxOpened - opened10) / 175) + 1;
-          for (let c5 = 0; c5 <= max5; c5++) {
-            const opened5 = opened10 + c5 * 175;
-            const max3 = Math.ceil(Math.max(0, maxOpened - opened5) / 105) + 1;
-            for (let c3 = 0; c3 <= max3; c3++) {
-              const opened3 = opened5 + c3 * 105;
-              const remaining = Math.max(0, required - opened3);
-              const c1 = Math.ceil(remaining / 35);
-              const opened = opened3 + c1 * 35;
-              const consumed = c10 * 300 + c5 * 150 + c3 * 90 + c1 * 30;
-              const actions = c10 + c5 + c3 + c1;
-
-              if (opened < required || consumed > availableEggs) continue;
-              if (
-                !best ||
-                opened < best.opened ||
-                (opened === best.opened && actions < best.actions)
-              ) {
-                best = {
-                  opened,
-                  consumed,
-                  actions,
-                  counts: {
-                    petEggBundle10: c10,
-                    petEggBundle5: c5,
-                    petEggBundle3: c3,
-                    petEggBundle1: c1
-                  }
-                };
-              }
-            }
+          const opened = units * smallestOpenedUnit;
+          if (
+            !best ||
+            candidate.actions < best.actions ||
+            (
+              candidate.actions === best.actions &&
+              opened < best.opened
+            )
+          ) {
+            best = {
+              opened,
+              consumed: candidate.consumed,
+              actions: candidate.actions,
+              counts: candidate.counts
+            };
           }
         }
 
-        if (!best) return null;
-
-        const allowedOpened = best.opened + 35;
-        let reducedActions = best;
-        for (let c10 = 0; c10 <= Math.ceil(allowedOpened / 350); c10++) {
-          for (let c5 = 0; c5 <= Math.ceil(allowedOpened / 175); c5++) {
-            for (let c3 = 0; c3 <= Math.ceil(allowedOpened / 105); c3++) {
-              for (let c1 = 0; c1 <= Math.ceil(allowedOpened / 35); c1++) {
-                const opened = c10 * 350 + c5 * 175 + c3 * 105 + c1 * 35;
-                const consumed = c10 * 300 + c5 * 150 + c3 * 90 + c1 * 30;
-                const actions = c10 + c5 + c3 + c1;
-                if (
-                  opened < required ||
-                  opened > allowedOpened ||
-                  consumed > availableEggs
-                ) continue;
-                if (
-                  actions < reducedActions.actions ||
-                  (actions === reducedActions.actions && opened < reducedActions.opened)
-                ) {
-                  reducedActions = {
-                    opened,
-                    consumed,
-                    actions,
-                    counts: {
-                      petEggBundle10: c10,
-                      petEggBundle5: c5,
-                      petEggBundle3: c3,
-                      petEggBundle1: c1
-                    }
-                  };
-                }
-              }
-            }
-          }
-        }
-        return reducedActions;
+        return best;
       }
 
       function applyWednesdayEggPlan(plan) {
