@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v96</title>
+  <title>水豚每週活動計算機｜週一至週日 v97</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1274,6 +1274,16 @@
       display: block;
     }
 
+    .weekly-auto-plan-result {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed currentColor;
+    }
+
+    .weekly-auto-plan-result:first-of-type {
+      margin-top: 8px;
+    }
+
     .auto-plan-status.success {
       border-color: #9ed6b5;
       background: #edf9f2;
@@ -1872,7 +1882,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v96</div>
+      <div class="prototype-badge">週一至週日 v97</div>
     </header>
 
     <div class="top-tabs-stack">
@@ -2252,8 +2262,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v96";
+      const STORAGE_KEY = "capybara-weekly-full-v97";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v96",
         "capybara-weekly-full-v95",
         "capybara-weekly-full-v94",
         "capybara-weekly-full-v93",
@@ -7517,9 +7528,10 @@ async function downloadChartAsImage() {
       }
 
       function applyTuesdayAutoPlan() {
-        applyMinimumTuesdayFreeTasks();
-
         const day = state.days.tue;
+        const startingPetBase = toInt(day.petBase);
+
+        applyMinimumTuesdayFreeTasks();
 
         if (state.weekMode === "bounty") {
           day.guildRaid = Math.max(toInt(day.guildRaid), 2);
@@ -7586,44 +7598,69 @@ async function downloadChartAsImage() {
 
         renderAll();
 
+        const addedActions = Math.max(
+          0,
+          toInt(day.petBase) - startingPetBase
+        );
+
         els.autoPlanStatus.className = "auto-plan-status show success";
         els.autoPlanStatus.innerHTML = `
           <strong>週二 ${modeName} 已自動補到馬拉松第 5 階</strong>
           <div>
-            補分只使用「寵物培育｜不鎖定詞綴」。
-            目前共 ${format(day.petBase)} 次，消耗
-            ${format(finalPet.spiritStones)} 靈石。
+            補分來源：寵物培育｜不鎖定詞綴。依目前積分計算最低可達標次數；
+            追加 ${format(addedActions)} 次操作，消耗
+            ${format(addedActions * 200)} 靈石。
           </div>
+          <div>寵物培育｜不鎖定詞綴 × ${format(addedActions)}</div>
           <div>
-            馬拉松積分 ${format(finalScore)} / ${format(targetScore)}。
+            目前總培育次數 ${format(day.petBase)}，累計消耗
+            ${format(finalPet.spiritStones)} 靈石，馬拉松積分
+            ${format(finalScore)} / ${format(targetScore)}。
           </div>
         `;
       }
 
       function applyWeeklyAutoPlan() {
         const originalDay = state.activeDay;
-        const messages = [];
+        const results = [];
+
+        const captureResult = dayLabel => {
+          const isWarning =
+            els.autoPlanStatus.classList.contains("warning");
+          results.push({
+            dayLabel,
+            isWarning,
+            html: els.autoPlanStatus.innerHTML
+          });
+        };
 
         state.activeDay = "mon";
         applyThirtyStarPlan();
-        messages.push("週一方案已執行");
+        captureResult("週一");
 
         state.activeDay = "tue";
         applyTuesdayAutoPlan();
-        messages.push("週二方案已執行");
+        captureResult("週二");
 
         state.activeDay = "wed";
         applyWednesdayAutoPlan();
-        messages.push("週三方案已執行");
+        captureResult("週三");
 
         state.activeDay = originalDay;
         renderAll();
 
-        els.autoPlanStatus.className = "auto-plan-status show success";
+        const hasWarning = results.some(item => item.isWarning);
+        els.autoPlanStatus.className =
+          `auto-plan-status show ${hasWarning ? "warning" : "success"}`;
         els.autoPlanStatus.innerHTML = `
-          <strong>本週批次自動套用已執行</strong>
-          <div>${messages.join("；")}。</div>
-          <div>目前已完成週一至週三，週四至週日加入後會由此按鈕一併執行。</div>
+          <strong>本週批次自動套用結果</strong>
+          ${results.map(item => `
+            <div class="weekly-auto-plan-result">
+              <div><strong>${item.dayLabel}</strong></div>
+              ${item.html}
+            </div>
+          `).join("")}
+          <div>目前已完成週一至週三，週四至週日加入後會一併列出。</div>
         `;
       }
 
@@ -7841,15 +7878,19 @@ async function downloadChartAsImage() {
 
         renderAll();
 
+        const modeName =
+          state.weekMode === "bounty" ? "懸賞週" : "考古週";
+
         els.autoPlanStatus.className = "auto-plan-status show success";
         els.autoPlanStatus.innerHTML = `
-          <strong>週三已自動補到馬拉松第 5 階</strong>
-          <div>${planParts || "不需追加寵物蛋操作"}</div>
+          <strong>週三 ${modeName} 已自動補到馬拉松第 5 階</strong>
           <div>
-            追加開啟 ${format(plan.opened)} 顆，消耗
-            ${format(plan.consumed)} 顆持有寵物蛋，共
-            ${format(plan.actions)} 次操作。
+            補分來源：寵物蛋抽取。先找最低可達標蛋數，
+            並容許增加 1 次 ×1 以減少操作；追加開啟
+            ${format(plan.opened)} 顆，${format(plan.actions)} 次操作，
+            消耗 ${format(plan.consumed)} 顆持有寵物蛋。
           </div>
+          <div>${planParts || "不需追加寵物蛋操作"}</div>
           <div>
             目前計分開啟 ${format(finalEggs.openedEggs)} 顆，
             馬拉松積分 ${format(finalScore)} / ${format(targetScore)}。
