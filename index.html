@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v97</title>
+  <title>水豚每週活動計算機｜週一至週日 v98</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1882,7 +1882,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v97</div>
+      <div class="prototype-badge">週一至週日 v98</div>
     </header>
 
     <div class="top-tabs-stack">
@@ -1905,7 +1905,7 @@
         <button class="day-auto-plan-btn" type="button" data-auto-plan-day="mon">週一自動套用</button>
         <button class="day-auto-plan-btn" type="button" data-auto-plan-day="tue">週二自動套用</button>
         <button class="day-auto-plan-btn" type="button" data-auto-plan-day="wed">週三自動套用</button>
-        <span class="day-auto-plan-placeholder"></span>
+        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="thu">週四自動套用</button>
         <span class="day-auto-plan-placeholder"></span>
         <span class="day-auto-plan-placeholder"></span>
         <span class="day-auto-plan-placeholder"></span>
@@ -2262,8 +2262,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v97";
+      const STORAGE_KEY = "capybara-weekly-full-v98";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v97",
         "capybara-weekly-full-v96",
         "capybara-weekly-full-v95",
         "capybara-weekly-full-v94",
@@ -2733,7 +2734,24 @@
           tradeShip: 0,
           treasureDraw: 0,
           goblin: 0,
-          emeraldPack: 0
+          emeraldPack: 0,
+          thuGbArenaWhite: 0,
+          thuGbDungeonWhite: 0,
+          thuGbDungeonPurple: 0,
+          thuGbTradeWhite: 0,
+          thuGbTradePurple: 0,
+          thuGbGoblinWhite: 0,
+          thuGbGoblinPurple: 0,
+          thuGbStaminaWhite: 0,
+          thuGbStaminaPurple: 0,
+          thuGbGuruWhite: 0,
+          thuGbGuruPurple: 0,
+          thuGbChestWhite: 0,
+          thuGbChestPurple: 0,
+          thuGbChestGold: 0,
+          thuGbTreasureWhite: 0,
+          thuGbTreasurePurple: 0,
+          thuGbTreasureGold: 0
         };
       }
 
@@ -4217,11 +4235,32 @@
         { key: "wedGbBrandGold", type: "brand", name: "祈願／限時祈願 抽取烙印", action: "抽取", color: "gold", need: 10, unit: "次", score: 300 }
       ];
 
+      const thursdayGuildBountyDefinitions = [
+        { key: "thuGbArenaWhite", type: "arena", name: "挑戰競技場", action: "挑戰", color: "white", need: 3, unit: "次", score: 50 },
+        { key: "thuGbDungeonWhite", type: "dungeon", name: "通關任意副本", action: "通關", color: "white", need: 5, unit: "次", score: 50 },
+        { key: "thuGbDungeonPurple", type: "dungeon", name: "通關任意副本", action: "通關", color: "purple", need: 10, unit: "次", score: 100 },
+        { key: "thuGbTradeWhite", type: "trade", name: "卡皮貿易 發 UR／閃金商船", action: "發送", color: "white", need: 1, unit: "艘", score: 50 },
+        { key: "thuGbTradePurple", type: "trade", name: "卡皮貿易 發 UR／閃金商船", action: "發送", color: "purple", need: 2, unit: "艘", score: 100 },
+        { key: "thuGbGoblinWhite", type: "goblin", name: "哥布林礦工挖礦", action: "挖礦", color: "white", need: 50, unit: "次", score: 50 },
+        { key: "thuGbGoblinPurple", type: "goblin", name: "哥布林礦工挖礦", action: "挖礦", color: "purple", need: 100, unit: "次", score: 100 },
+        { key: "thuGbStaminaWhite", type: "stamina", name: "消耗體力", action: "消耗", color: "white", need: 50, unit: "點", score: 50 },
+        { key: "thuGbStaminaPurple", type: "stamina", name: "消耗體力", action: "消耗", color: "purple", need: 100, unit: "點", score: 100 },
+        { key: "thuGbGuruWhite", type: "guru", name: "消耗咕嚕礦場門票", action: "消耗", color: "white", need: 1, unit: "張", score: 50 },
+        { key: "thuGbGuruPurple", type: "guru", name: "消耗咕嚕礦場門票", action: "消耗", color: "purple", need: 2, unit: "張", score: 100 },
+        { key: "thuGbChestWhite", type: "chestPoints", name: "從開啟寶箱獲得寶箱積分", action: "獲得", color: "white", need: 100, unit: "分", score: 50 },
+        { key: "thuGbChestPurple", type: "chestPoints", name: "從開啟寶箱獲得寶箱積分", action: "獲得", color: "purple", need: 200, unit: "分", score: 100 },
+        { key: "thuGbChestGold", type: "chestPoints", name: "從開啟寶箱獲得寶箱積分", action: "獲得", color: "gold", need: 650, unit: "分", score: 300 },
+        { key: "thuGbTreasureWhite", type: "treasure", name: "珍寶商店 抽 1 次秘寶", action: "抽取", color: "white", need: 1, unit: "次", score: 50 },
+        { key: "thuGbTreasurePurple", type: "treasure", name: "珍寶商店 抽 1 次秘寶", action: "抽取", color: "purple", need: 2, unit: "次", score: 100 },
+        { key: "thuGbTreasureGold", type: "treasure", name: "珍寶商店 抽 1 次秘寶", action: "抽取", color: "gold", need: 6, unit: "次", score: 300 }
+      ];
+
       const guildBountyKeys = new Set(
         [
           ...guildBountyDefinitions,
           ...tuesdayGuildBountyDefinitions,
-          ...wednesdayGuildBountyDefinitions
+          ...wednesdayGuildBountyDefinitions,
+          ...thursdayGuildBountyDefinitions
         ].map(item => item.key)
       );
 
@@ -4428,6 +4467,63 @@
           completedGuildCount,
           acceptLimit,
           acceptsRemaining,
+          nextStage,
+          toNext: nextStage ? nextStage.score - totalScore : 0,
+          toFinal: Math.max(0, 3200 - totalScore),
+          activity
+        };
+      }
+
+      function getThursdayGuildBountySummary() {
+        const day = state.days.thu;
+        const chests = getChestSummary("thu");
+        const activity = {
+          guildRaid: toInt(day.guildRaid),
+          arena: toInt(day.arena),
+          dungeon: toInt(day.dungeonCount),
+          trade: toInt(day.tradeShip),
+          goblin: toInt(day.goblin),
+          chestPoints: toInt(chests.chestPoints),
+          treasure: toInt(day.treasureDraw)
+        };
+
+        const personal = [
+          { name: "挑戰 2 次公會討伐", current: activity.guildRaid, need: 2, score: 50 },
+          { name: "參與 3 次競技場", current: activity.arena, need: 3, score: 50 },
+          { name: "挑戰 10 次任意副本", current: activity.dungeon, need: 10, score: 100 },
+          { name: "哥布林礦工挖礦 100 次", current: activity.goblin, need: 100, score: 100 },
+          { name: "個人貿易發送 2 艘 UR／閃金商船", current: activity.trade, need: 2, score: 100 },
+          { name: "從開啟寶箱獲得 650 寶箱積分", current: activity.chestPoints, need: 650, score: 100 }
+        ].map(item => ({
+          ...item,
+          done: item.current >= item.need,
+          remaining: Math.max(0, item.need - item.current)
+        }));
+
+        const personalScore = personal.reduce(
+          (sum, item) => sum + (item.done ? item.score : 0),
+          0
+        );
+        const guildScore = thursdayGuildBountyDefinitions.reduce(
+          (sum, item) => sum + toInt(day[item.key]) * item.score,
+          0
+        );
+        const completedGuildCount = getGuildBountyCompletedCount(
+          day,
+          thursdayGuildBountyDefinitions
+        );
+        const acceptLimit = 15;
+        const totalScore = personalScore + guildScore;
+        const nextStage = guildBountyStages.find(stage => totalScore < stage.score) || null;
+
+        return {
+          personal,
+          personalScore,
+          guildScore,
+          totalScore,
+          completedGuildCount,
+          acceptLimit,
+          acceptsRemaining: Math.max(0, acceptLimit - completedGuildCount),
           nextStage,
           toNext: nextStage ? nextStage.score - totalScore : 0,
           toFinal: Math.max(0, 3200 - totalScore),
@@ -4828,6 +4924,73 @@
             ${renderGuildBountyColorGroup("gold", "金色", wednesdayGuildBountyDefinitions, "wed")}
             ${renderGuildBountyColorGroup("purple", "紫色", wednesdayGuildBountyDefinitions, "wed")}
             ${renderGuildBountyColorGroup("white", "白色", wednesdayGuildBountyDefinitions, "wed")}
+
+            <div class="task-block-title" style="margin-top:12px;">
+              <strong>公會懸賞｜本日階段獎勵</strong>
+              <span>共 9 階，達成後自動標示</span>
+            </div>
+            <div class="stage-grid archaeology-grid">
+              ${guildBountyStages.map((stage, index) => {
+                const done = summary.totalScore >= stage.score;
+                const rewards = [
+                  `寵物武裝令牌 ${format(stage.token)}`,
+                  stage.merit ? `功勳幣 ${format(stage.merit)}` : ""
+                ].filter(Boolean).join("，");
+                return `
+                  <div class="stage arch-stage ${done ? "done" : ""}">
+                    <div class="stage-top">
+                      <div class="stage-title">階段 ${index + 1}</div>
+                      <div class="stage-status">${done ? "✓ 已達成" : "未達成"}</div>
+                    </div>
+                    <div class="stage-score">${format(stage.score)} 分</div>
+                    <div class="stage-rewards">${rewards}</div>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      function renderThursdayGuildBounty() {
+        const summary = getThursdayGuildBountySummary();
+
+        return `
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>公會懸賞</strong>
+              <span class="type-badge type-free">週四公會對決｜獨立積分</span>
+            </div>
+
+            <div class="guild-bounty-merged-summary">
+              <div class="guild-bounty-merged-item"><span>個人積分</span><strong>${format(summary.personalScore)} / 500</strong></div>
+              <div class="guild-bounty-merged-item"><span>公會任務積分</span><strong>${format(summary.guildScore)}</strong></div>
+              <div class="guild-bounty-merged-item"><span>總積分</span><strong>${format(summary.totalScore)} / 3200</strong></div>
+              <div class="guild-bounty-merged-item"><span>免費／加購</span><strong>${format(Math.min(summary.completedGuildCount, 10))}／${format(Math.max(0, summary.completedGuildCount - 10))}</strong></div>
+              <div class="guild-bounty-merged-item"><span>累計額外花費</span><strong>${format(getGuildBountyExtraGemCost(summary.completedGuildCount))} 紫寶石</strong></div>
+            </div>
+
+            <div class="task-block-title" style="margin-top:12px;">
+              <strong>個人任務自動判斷</strong>
+              <span>同步讀取週四既有進度</span>
+            </div>
+            <div class="personal-task-status">
+              ${summary.personal.map(item => `
+                <div class="personal-task-chip ${item.done ? "done" : ""}">
+                  <strong>${item.done ? "✓" : "○"} ${item.name}</strong><br>
+                  ${format(item.current)} / ${format(item.need)}
+                  ${item.done ? `・已取得 ${item.score} 分` : `・還差 ${format(item.remaining)}`}
+                </div>
+              `).join("")}
+            </div>
+
+            <div class="task-block-title" style="margin-top:12px;">
+              <strong>已完成的公會懸賞</strong>
+              <span>白／紫／金共同計數，最多 15 件</span>
+            </div>
+            ${renderGuildBountyColorGroup("gold", "金色", thursdayGuildBountyDefinitions, "thu")}
+            ${renderGuildBountyColorGroup("purple", "紫色", thursdayGuildBountyDefinitions, "thu")}
+            ${renderGuildBountyColorGroup("white", "白色", thursdayGuildBountyDefinitions, "thu")}
 
             <div class="task-block-title" style="margin-top:12px;">
               <strong>公會懸賞｜本日階段獎勵</strong>
@@ -5507,6 +5670,8 @@
               })}
             </div>
           </div>
+
+          ${state.weekMode === "bounty" ? renderThursdayGuildBounty() : ""}
         `;
       }
 
@@ -6322,11 +6487,13 @@
         const scores = getActiveScores();
         const stars = getMarathonStars(scores.marathon);
         const pickaxes = getArchaeologyPickaxes(scores.archaeology);
-        const bountySummary = state.activeDay === "wed"
-          ? getWednesdayGuildBountySummary()
-          : state.activeDay === "tue"
-            ? getTuesdayGuildBountySummary()
-            : getMondayGuildBountySummary();
+        const bountySummary = state.activeDay === "thu"
+          ? getThursdayGuildBountySummary()
+          : state.activeDay === "wed"
+            ? getWednesdayGuildBountySummary()
+            : state.activeDay === "tue"
+              ? getTuesdayGuildBountySummary()
+              : getMondayGuildBountySummary();
         const bountyStageCount = guildBountyStages.filter(
           stage => bountySummary.totalScore >= stage.score
         ).length;
@@ -6394,14 +6561,16 @@
 
         if (
           state.weekMode === "bounty" &&
-          ["mon", "tue", "wed"].includes(state.activeDay)
+          ["mon", "tue", "wed", "thu"].includes(state.activeDay)
         ) {
           els.archaeologyTitle.textContent =
-            state.activeDay === "wed"
-              ? "公會懸賞｜週三公會對決"
-              : state.activeDay === "tue"
-                ? "公會懸賞｜週二公會對決"
-                : "公會懸賞｜週一公會對決";
+            state.activeDay === "thu"
+              ? "公會懸賞｜週四公會對決"
+              : state.activeDay === "wed"
+                ? "公會懸賞｜週三公會對決"
+                : state.activeDay === "tue"
+                  ? "公會懸賞｜週二公會對決"
+                  : "公會懸賞｜週一公會對決";
           els.archaeologyMetricLabel.textContent = "已達階段";
           els.archaeologyRemainingLabel.textContent = "距離滿階";
           els.archaeologyTotalScore.textContent = format(bountySummary.totalScore);
@@ -6764,7 +6933,7 @@ async function downloadChartAsImage() {
 
         if (els.archaeologyActivityCard) {
           els.archaeologyActivityCard.hidden = isBountyWeek
-            ? !["mon", "tue", "wed"].includes(state.activeDay)
+            ? !["mon", "tue", "wed", "thu"].includes(state.activeDay)
             : false;
         }
 
@@ -6879,15 +7048,17 @@ async function downloadChartAsImage() {
         }
 
         if (
-          ["mon", "tue", "wed"].includes(state.activeDay) &&
+          ["mon", "tue", "wed", "thu"].includes(state.activeDay) &&
           isGuildBountyKey(key)
         ) {
           const definitions =
-            state.activeDay === "wed"
-              ? wednesdayGuildBountyDefinitions
-              : state.activeDay === "tue"
-                ? tuesdayGuildBountyDefinitions
-                : guildBountyDefinitions;
+            state.activeDay === "thu"
+              ? thursdayGuildBountyDefinitions
+              : state.activeDay === "wed"
+                ? wednesdayGuildBountyDefinitions
+                : state.activeDay === "tue"
+                  ? tuesdayGuildBountyDefinitions
+                  : guildBountyDefinitions;
           const current = toInt(day[key]);
           const otherCompleted =
             getGuildBountyCompletedCount(day, definitions) - current;
@@ -7620,6 +7791,225 @@ async function downloadChartAsImage() {
         `;
       }
 
+      function buildChestOpeningPrefixes(key) {
+        const config = chestConfigs[key];
+        let holding = toInt(state.inventory[key]);
+        let openedBoxes = 0;
+        let chestPoints = 0;
+        const batches = [];
+        const prefixes = [{
+          key,
+          operations: 0,
+          openedBoxes: 0,
+          chestPoints: 0,
+          batches: []
+        }];
+
+        while (holding > 0) {
+          const batch = getChestBatch(holding);
+          if (batch <= 0) break;
+
+          holding -= batch;
+          openedBoxes += batch;
+          chestPoints += batch * config.pointPerBox;
+          batches.push(batch);
+          prefixes.push({
+            key,
+            operations: batches.length,
+            openedBoxes,
+            chestPoints,
+            batches: [...batches]
+          });
+        }
+
+        return prefixes;
+      }
+
+      function findThursdayChestPlan(requiredChestPoints) {
+        const required = Math.max(0, toInt(requiredChestPoints));
+        if (required <= 0) {
+          return {
+            chestPoints: 0,
+            operations: 0,
+            openedBoxes: 0,
+            selections: {}
+          };
+        }
+
+        const prefixGroups = Object.keys(chestConfigs).map(
+          buildChestOpeningPrefixes
+        );
+
+        let states = new Map();
+        states.set(0, {
+          chestPoints: 0,
+          operations: 0,
+          openedBoxes: 0,
+          selections: {}
+        });
+
+        for (const prefixes of prefixGroups) {
+          const nextStates = new Map();
+
+          for (const stateItem of states.values()) {
+            for (const prefix of prefixes) {
+              const candidate = {
+                chestPoints: stateItem.chestPoints + prefix.chestPoints,
+                operations: stateItem.operations + prefix.operations,
+                openedBoxes: stateItem.openedBoxes + prefix.openedBoxes,
+                selections: {
+                  ...stateItem.selections,
+                  [prefix.key]: prefix
+                }
+              };
+
+              const existing = nextStates.get(candidate.chestPoints);
+              if (
+                !existing ||
+                candidate.operations < existing.operations ||
+                (
+                  candidate.operations === existing.operations &&
+                  candidate.openedBoxes < existing.openedBoxes
+                )
+              ) {
+                nextStates.set(candidate.chestPoints, candidate);
+              }
+            }
+          }
+
+          states = nextStates;
+        }
+
+        const reachable = [...states.values()]
+          .filter(item => item.chestPoints >= required)
+          .sort((a, b) =>
+            a.chestPoints - b.chestPoints ||
+            a.operations - b.operations ||
+            a.openedBoxes - b.openedBoxes
+          );
+
+        if (!reachable.length) return null;
+
+        const minimum = reachable[0];
+        let allowedExtra = 0;
+
+        for (const [key, prefix] of Object.entries(minimum.selections)) {
+          const allPrefixes = prefixGroups.find(group => group[0].key === key);
+          const nextPrefix = allPrefixes[prefix.operations + 1];
+          if (!nextPrefix) continue;
+          const extra = nextPrefix.chestPoints - prefix.chestPoints;
+          if (allowedExtra === 0 || extra < allowedExtra) {
+            allowedExtra = extra;
+          }
+        }
+
+        const allowedMaximum =
+          minimum.chestPoints + Math.max(0, allowedExtra);
+
+        return reachable
+          .filter(item => item.chestPoints <= allowedMaximum)
+          .sort((a, b) =>
+            a.operations - b.operations ||
+            a.chestPoints - b.chestPoints ||
+            a.openedBoxes - b.openedBoxes
+          )[0];
+      }
+
+      function applyThursdayChestPlan(plan) {
+        if (!plan) return;
+
+        for (const [key, prefix] of Object.entries(plan.selections)) {
+          for (const batch of prefix.batches) {
+            const opened = openChestBatch(key, "thu");
+            if (!opened) {
+              throw new Error(`套用 ${chestConfigs[key].name} 時持有數量不足`);
+            }
+          }
+        }
+      }
+
+      function applyMinimumThursdayFreeTasks() {
+        const day = state.days.thu;
+        day.guildRaid = Math.max(toInt(day.guildRaid), 2);
+        day.arena = Math.max(toInt(day.arena), 5);
+        day.dungeonCount = Math.max(
+          toInt(day.dungeonCount),
+          getRecommendedDungeon().total
+        );
+      }
+
+      function applyThursdayAutoPlan() {
+        applyMinimumThursdayFreeTasks();
+        const day = state.days.thu;
+
+        if (state.weekMode === "bounty") {
+          day.goblin = Math.max(toInt(day.goblin), 100);
+          day.tradeShip = Math.max(toInt(day.tradeShip), 2);
+          day.dungeonCount = Math.max(toInt(day.dungeonCount), 10);
+        }
+
+        const targetScore = marathonStages[2].score;
+        const currentScore = getScoresForDay("thu").marathon;
+        const currentChestPoints = getChestSummary("thu").chestPoints;
+        const missingScore = Math.max(0, targetScore - currentScore);
+        const scoreRequiredChestPoints = Math.ceil(missingScore / 48);
+        const personalRequiredChestPoints =
+          state.weekMode === "bounty"
+            ? Math.max(0, 650 - currentChestPoints)
+            : 0;
+        const requiredChestPoints = Math.max(
+          scoreRequiredChestPoints,
+          personalRequiredChestPoints
+        );
+
+        const plan = findThursdayChestPlan(requiredChestPoints);
+        if (!plan) {
+          renderAll();
+          els.autoPlanStatus.className = "auto-plan-status show warning";
+          els.autoPlanStatus.innerHTML = `
+            <strong>持有寶箱不足，無法完成週四自動方案</strong>
+            <div>
+              馬拉松還差 ${format(missingScore)} 分；本次至少需要再取得
+              ${format(requiredChestPoints)} 寶箱積分。
+            </div>
+          `;
+          return;
+        }
+
+        applyThursdayChestPlan(plan);
+
+        const finalScore = getScoresForDay("thu").marathon;
+        const finalChests = getChestSummary("thu");
+        const modeName =
+          state.weekMode === "bounty" ? "懸賞週" : "考古週";
+        const planParts = Object.entries(plan.selections)
+          .filter(([, prefix]) => prefix.operations > 0)
+          .map(([key, prefix]) =>
+            `${chestConfigs[key].name}：${prefix.batches.map(batch => `開 ${format(batch)}`).join("、")}`
+          )
+          .join("；");
+
+        renderAll();
+
+        els.autoPlanStatus.className = "auto-plan-status show success";
+        els.autoPlanStatus.innerHTML = `
+          <strong>週四 ${modeName} 已自動補到馬拉松第 3 階</strong>
+          <div>
+            補分來源：開啟寶箱。先找最低可達標寶箱積分，
+            並容許多一次合法開箱以減少操作；追加
+            ${format(plan.chestPoints)} 寶箱積分，
+            ${format(plan.operations)} 次操作。
+          </div>
+          <div>${planParts || "不需追加開箱操作"}</div>
+          <div>
+            追加開啟 ${format(plan.openedBoxes)} 個寶箱；目前累計
+            ${format(finalChests.openedBoxes)} 個、寶箱積分
+            ${format(finalChests.chestPoints)}，馬拉松積分
+            ${format(finalScore)} / ${format(targetScore)}。
+          </div>
+        `;
+      }
+
       function applyWeeklyAutoPlan() {
         const originalDay = state.activeDay;
         const results = [];
@@ -7646,6 +8036,10 @@ async function downloadChartAsImage() {
         applyWednesdayAutoPlan();
         captureResult("週三");
 
+        state.activeDay = "thu";
+        applyThursdayAutoPlan();
+        captureResult("週四");
+
         state.activeDay = originalDay;
         renderAll();
 
@@ -7660,7 +8054,7 @@ async function downloadChartAsImage() {
               ${item.html}
             </div>
           `).join("")}
-          <div>目前已完成週一至週三，週四至週日加入後會一併列出。</div>
+          <div>目前已完成週一至週四，週五至週日加入後會一併列出。</div>
         `;
       }
 
@@ -7914,6 +8308,12 @@ async function downloadChartAsImage() {
         if (dayKey === "wed") {
           state.activeDay = "wed";
           applyWednesdayAutoPlan();
+          return;
+        }
+
+        if (dayKey === "thu") {
+          state.activeDay = "thu";
+          applyThursdayAutoPlan();
           return;
         }
 
