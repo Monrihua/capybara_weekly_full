@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v88</title>
+  <title>水豚每週活動計算機｜週一至週日 v89</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1832,7 +1832,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v88</div>
+      <div class="prototype-badge">週一至週日 v89</div>
     </header>
 
     <div class="top-tabs-stack">
@@ -2202,8 +2202,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v88";
+      const STORAGE_KEY = "capybara-weekly-full-v89";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v88",
         "capybara-weekly-full-v87",
         "capybara-weekly-full-v86",
         "capybara-weekly-full-v85",
@@ -2571,6 +2572,8 @@
           guildRaid: 2,
           arena: 5,
           emeraldPack: 0,
+          tueBountyStamina: 0,
+          tueBountyGuruTicket: 0,
           tueGbArenaWhite: 0,
           tueGbDungeonWhite: 0,
           tueGbDungeonPurple: 0,
@@ -4207,19 +4210,52 @@
 
       function getTuesdayGuildBountySummary() {
         const day = state.days.tue;
+        const pet = getTuesdayPetSummary();
+        const activity = {
+          arena: toInt(day.arena),
+          dungeon: toInt(day.dungeonCount),
+          trade: toInt(day.tradeShip),
+          goblin: toInt(day.goblin),
+          stamina: toInt(day.tueBountyStamina),
+          guru: toInt(day.tueBountyGuruTicket),
+          spirit: toInt(pet.spiritStones),
+          treasure: toInt(day.treasureDraw)
+        };
+
+        const personal = [
+          { name: "個人貿易發送 2 艘 UR／閃金商船", current: activity.trade, need: 2, score: 100 },
+          { name: "哥布林礦工挖礦 100 次", current: activity.goblin, need: 100, score: 100 },
+          { name: "消耗 100 點體力", current: activity.stamina, need: 100, score: 100 },
+          { name: "消耗 2 張咕嚕礦場門票", current: activity.guru, need: 2, score: 100 },
+          { name: "通過寵物培育消耗 2,000 個靈石", current: activity.spirit, need: 2000, score: 100 },
+          { name: "在珍寶商店中抽取 10 次秘寶寶箱", current: activity.treasure, need: 10, score: 100 }
+        ].map(item => ({
+          ...item,
+          done: item.current >= item.need,
+          remaining: Math.max(0, item.need - item.current)
+        }));
+
+        const personalScore = personal.reduce(
+          (sum, item) => sum + (item.done ? item.score : 0),
+          0
+        );
+
         const guildScore = tuesdayGuildBountyDefinitions.reduce(
           (sum, item) => sum + toInt(day[item.key]) * item.score,
           0
         );
-        const completedGuildCount = getGuildBountyCompletedCount(day, tuesdayGuildBountyDefinitions);
+        const completedGuildCount = getGuildBountyCompletedCount(
+          day,
+          tuesdayGuildBountyDefinitions
+        );
         const acceptLimit = 15;
         const acceptsRemaining = Math.max(0, acceptLimit - completedGuildCount);
-        const totalScore = guildScore;
+        const totalScore = personalScore + guildScore;
         const nextStage = guildBountyStages.find(stage => totalScore < stage.score) || null;
 
         return {
-          personal: [],
-          personalScore: 0,
+          personal,
+          personalScore,
           guildScore,
           totalScore,
           completedGuildCount,
@@ -4227,7 +4263,8 @@
           acceptsRemaining,
           nextStage,
           toNext: nextStage ? nextStage.score - totalScore : 0,
-          toFinal: Math.max(0, 3200 - totalScore)
+          toFinal: Math.max(0, 3200 - totalScore),
+          activity
         };
       }
 
@@ -4486,6 +4523,7 @@
       }
 
       function renderTuesdayGuildBounty() {
+        const day = state.days.tue;
         const summary = getTuesdayGuildBountySummary();
 
         return `
@@ -4496,6 +4534,10 @@
             </div>
 
             <div class="guild-bounty-merged-summary">
+              <div class="guild-bounty-merged-item">
+                <span>個人積分</span>
+                <strong>${format(summary.personalScore)} / 600</strong>
+              </div>
               <div class="guild-bounty-merged-item">
                 <span>公會任務積分</span>
                 <strong>${format(summary.guildScore)}</strong>
@@ -4512,6 +4554,36 @@
                 <span>累計額外花費</span>
                 <strong>${format(getGuildBountyExtraGemCost(summary.completedGuildCount))} 紫寶石</strong>
               </div>
+            </div>
+
+            <div class="task-block-title" style="margin-top:12px;">
+              <strong>個人任務自動判斷</strong>
+              <span>貿易、挖礦、靈石與秘寶抽取同步讀取週二既有進度</span>
+            </div>
+
+            <div class="task-list" style="margin-bottom:10px;">
+              ${taskRow({
+                key: "tueBountyStamina",
+                name: "懸賞個人任務｜消耗體力",
+                meta: "週二目前沒有其他體力任務，請輸入實際消耗量",
+                scoreHtml: `<span>目前 ${format(day.tueBountyStamina)} / 100 點</span>`
+              })}
+              ${taskRow({
+                key: "tueBountyGuruTicket",
+                name: "懸賞個人任務｜消耗咕嚕礦場門票",
+                meta: "請輸入週二實際消耗的門票數",
+                scoreHtml: `<span>目前 ${format(day.tueBountyGuruTicket)} / 2 張</span>`
+              })}
+            </div>
+
+            <div class="personal-task-status">
+              ${summary.personal.map(item => `
+                <div class="personal-task-chip ${item.done ? "done" : ""}">
+                  <strong>${item.done ? "✓" : "○"} ${item.name}</strong><br>
+                  ${format(item.current)} / ${format(item.need)}
+                  ${item.done ? `・已取得 ${item.score} 分` : `・還差 ${format(item.remaining)}`}
+                </div>
+              `).join("")}
             </div>
 
             <div class="task-block-title" style="margin-top:12px;">
@@ -4719,16 +4791,6 @@
             </div>
 
             <div class="task-list">
-              ${goblinTaskRow(day, true)}
-              ${taskRow({
-                key: "dungeonCount",
-                name: "通關任意副本",
-                meta: `考古前 16 次 200 分／次，超過後 20 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
-                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分</span>`,
-                className: "auto",
-                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
-              })}
-
               ${taskRow({
                 key: "guildRaid",
                 name: "挑戰公會討伐",
@@ -4749,6 +4811,17 @@
                 `,
                 max: 25
               })}
+
+              ${taskRow({
+                key: "dungeonCount",
+                name: "通關任意副本",
+                meta: `考古前 16 次 200 分／次，超過後 20 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
+                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分</span>`,
+                className: "auto",
+                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
+              })}
+
+              ${goblinTaskRow(day, true)}
             </div>
           </div>
 
@@ -4874,16 +4947,6 @@
             </div>
 
             <div class="task-list">
-              ${goblinTaskRow(day, false)}
-              ${taskRow({
-                key: "dungeonCount",
-                name: "通關任意副本",
-                meta: `考古前 16 次 200 分／次，超過後 20 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
-                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分</span>`,
-                className: "auto",
-                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
-              })}
-
               ${taskRow({
                 key: "guildRaid",
                 name: "挑戰公會討伐",
@@ -4907,6 +4970,17 @@
                 `,
                 max: 25
               })}
+
+              ${taskRow({
+                key: "dungeonCount",
+                name: "通關任意副本",
+                meta: `考古前 16 次 200 分／次，超過後 20 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
+                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分</span>`,
+                className: "auto",
+                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
+              })}
+
+              ${goblinTaskRow(day, false)}
 
               ${taskRow({
                 key: "adPetEgg",
@@ -5103,19 +5177,6 @@
             </div>
 
             <div class="task-list">
-              ${goblinTaskRow(day, false)}
-              ${taskRow({
-                key: "dungeonCount",
-                name: "通關任意副本",
-                meta: `同時計入兩個活動・建議 ${dungeon.total} 次（${dungeon.formula}），可再加入其他管道取得的副本券`,
-                scoreHtml: `
-                  <span class="marathon">馬拉松 ${format(day.dungeonCount * 500)} 分（500／次）</span>
-                  <span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分（前16次200，超過20／次）</span>
-                `,
-                className: "auto",
-                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
-              })}
-
               ${taskRow({
                 key: "guildRaid",
                 name: "挑戰公會討伐",
@@ -5136,6 +5197,20 @@
                 `,
                 max: 25
               })}
+
+              ${taskRow({
+                key: "dungeonCount",
+                name: "通關任意副本",
+                meta: `同時計入兩個活動・建議 ${dungeon.total} 次（${dungeon.formula}），可再加入其他管道取得的副本券`,
+                scoreHtml: `
+                  <span class="marathon">馬拉松 ${format(day.dungeonCount * 500)} 分（500／次）</span>
+                  <span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分（前16次200，超過20／次）</span>
+                `,
+                className: "auto",
+                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
+              })}
+
+              ${goblinTaskRow(day, false)}
             </div>
           </div>
 
@@ -5219,16 +5294,6 @@
             </div>
 
             <div class="task-list">
-              ${goblinTaskRow(day, false)}
-              ${taskRow({
-                key: "dungeonCount",
-                name: "通關任意副本",
-                meta: `考古前 16 次 200 分／次，超過後 20 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
-                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分</span>`,
-                className: "auto",
-                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
-              })}
-
               ${taskRow({
                 key: "guildRaid",
                 name: "挑戰公會討伐",
@@ -5249,6 +5314,18 @@
                 `,
                 max: 25
               })}
+
+              ${taskRow({
+                key: "dungeonCount",
+                name: "通關任意副本",
+                meta: `考古前 16 次 200 分／次，超過後 20 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
+                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分</span>`,
+                className: "auto",
+                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
+              })}
+
+              ${goblinTaskRow(day, false)}
+
               ${taskRow({
                 key: "guruTicket",
                 name: "消耗咕嚕礦場門票",
@@ -5338,16 +5415,6 @@
             </div>
 
             <div class="task-list">
-              ${goblinTaskRow(day, false)}
-              ${taskRow({
-                key: "dungeonCount",
-                name: "通關任意副本",
-                meta: `考古前 16 次 200 分／次，超過後 20 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
-                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分</span>`,
-                className: "auto",
-                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
-              })}
-
               ${taskRow({
                 key: "guildRaid",
                 name: "挑戰公會討伐",
@@ -5368,6 +5435,17 @@
                 `,
                 max: 25
               })}
+
+              ${taskRow({
+                key: "dungeonCount",
+                name: "通關任意副本",
+                meta: `考古前 16 次 200 分／次，超過後 20 分／次・建議 ${dungeon.total} 次（${dungeon.formula}）`,
+                scoreHtml: `<span class="archaeology">考古 ${format(archaeologyDungeonScore(day.dungeonCount))} 分</span>`,
+                className: "auto",
+                extraHtml: `<div class="inline-actions"><button class="tiny-btn" type="button" data-apply-dungeon>套用建議次數</button></div>`
+              })}
+
+              ${goblinTaskRow(day, false)}
             </div>
           </div>
 
