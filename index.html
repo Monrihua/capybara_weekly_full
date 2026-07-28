@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v86</title>
+  <title>水豚每週活動計算機｜週一至週日 v87</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1832,7 +1832,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v86</div>
+      <div class="prototype-badge">週一至週日 v87</div>
     </header>
 
     <div class="top-tabs-stack">
@@ -2202,8 +2202,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v86";
+      const STORAGE_KEY = "capybara-weekly-full-v87";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v86",
         "capybara-weekly-full-v85",
         "capybara-weekly-full-v84",
         "capybara-weekly-full-v83",
@@ -6923,13 +6924,16 @@ async function downloadChartAsImage() {
         if (options.length === 0 || availableStamina < required) return null;
 
         const maxOption = Math.max(...options.map(option => option.stamina));
+        const minimumOption = Math.min(...options.map(option => option.stamina));
+        const toleratedMaximum = required + minimumOption;
         const searchLimit = Math.min(
           availableStamina,
-          required + maxOption
+          Math.max(toleratedMaximum, required + maxOption)
         );
 
         const maxUnits = Math.floor(searchLimit / 5);
         const requiredUnits = Math.ceil(required / 5);
+        const toleratedMaximumUnits = Math.floor(toleratedMaximum / 5);
         const dp = Array(maxUnits + 1).fill(null);
         dp[0] = { actions: 0, counts: {} };
 
@@ -6957,18 +6961,37 @@ async function downloadChartAsImage() {
           }
         }
 
-        let best = null;
+        let minimumReachableStamina = null;
         for (let units = requiredUnits; units <= maxUnits; units++) {
+          if (!dp[units]) continue;
+          minimumReachableStamina = units * 5;
+          break;
+        }
+
+        if (minimumReachableStamina === null) return null;
+
+        const allowedMaximumStamina = Math.min(
+          availableStamina,
+          minimumReachableStamina + minimumOption
+        );
+        const allowedMaximumUnits = Math.min(
+          maxUnits,
+          Math.floor(allowedMaximumStamina / 5),
+          Math.max(requiredUnits, toleratedMaximumUnits)
+        );
+
+        let best = null;
+        for (let units = requiredUnits; units <= allowedMaximumUnits; units++) {
           const candidate = dp[units];
           if (!candidate) continue;
 
           const stamina = units * 5;
           if (
             !best ||
-            stamina < best.stamina ||
+            candidate.actions < best.actions ||
             (
-              stamina === best.stamina &&
-              candidate.actions < best.actions
+              candidate.actions === best.actions &&
+              stamina < best.stamina
             )
           ) {
             best = {
@@ -7086,8 +7109,8 @@ async function downloadChartAsImage() {
         els.autoPlanStatus.innerHTML = `
           <strong>週一 ${modeName} 已自動補到馬拉松第 3 階</strong>
           <div>
-            補體來源：${sourceName}。先取最低可達標體力，
-            再以最少操作組合；追加 ${format(targetPlan.stamina)} 體，
+            補體來源：${sourceName}。先找最低可達標體力，
+            並容許增加 1 次最小體力以減少操作；追加 ${format(targetPlan.stamina)} 體，
             ${format(targetPlan.actions)} 次操作。
           </div>
           <div>${formatStaminaPlan(targetPlan)}</div>
