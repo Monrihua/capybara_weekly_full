@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v79</title>
+  <title>水豚每週活動計算機｜週一至週日 v80</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1832,7 +1832,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v79</div>
+      <div class="prototype-badge">週一至週日 v80</div>
     </header>
 
     <div class="top-tabs-stack">
@@ -2202,8 +2202,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v79";
+      const STORAGE_KEY = "capybara-weekly-full-v80";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v79",
         "capybara-weekly-full-v78",
         "capybara-weekly-full-v77",
         "capybara-weekly-full-v76",
@@ -5826,18 +5827,17 @@
         els.miningSettingHelp.innerHTML = `
           目前恢復速度 +${Math.round(mining.speedBonusRate * 100)}%，
           約每 ${mining.intervalMinutes.toFixed(2)} 分鐘恢復 1 次。<br>
-          24 小時理論自然恢復
-          <strong>${format(mining.recoveriesPerDay)} 次</strong>。<br>
-          存儲上限 ${mining.storageCap} 次，從 0 堆滿約需
-          <strong>${formatDurationFromMinutes(mining.minutesToCap)}</strong>；
-          堆滿後只會停止自然恢復。<br>
+          24 小時理論自然獲得
+          <strong>${format(mining.recoveriesPerDay)} 礦鎬</strong>。<br>
+          存儲上限 ${mining.storageCap} 個，從 0 堆滿約需
+          <strong>${formatDurationFromMinutes(mining.minutesToCap)}</strong>。<br>
           礦卡每日可直接領取
-          <strong>+${format(mining.mineCardDailyClaim)} 次</strong>；
-          每日 2 次廣告最多
-          <strong>+${format(mining.maxAdDailyReward)} 次</strong>，
-          但廣告必須先挖礦清出空位才會出現。<br>
+          <strong>+${format(mining.mineCardDailyClaim)} 個</strong>；
+          每日看廣告可領取
+          <strong>${format(mining.adRewardPerClaim)} 礦鎬 × ${format(mining.adClaimsPerDay)} 次</strong>。
+          但廣告必須先挖礦清零礦鎬石才會出現。<br>
           若自然恢復完全不溢出、礦卡有領、兩次廣告都有拿到，
-          一天理論最多約
+          一天理論最多能挖
           <strong>${format(mining.theoreticalDailyMax)} 次</strong>。<br>
           此資訊不會自動填入任務，請依自己的清空頻率手動輸入實際挖礦次數。
         `;
