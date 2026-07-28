@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v117</title>
+  <title>水豚每週活動計算機｜週一至週日 v120</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -184,10 +184,6 @@
       line-height: 1.25;
       text-align: center;
       justify-self: stretch;
-    }
-
-    .day-auto-plan-btn[hidden] {
-      display: none !important;
     }
 
     .day-auto-plan-btn:hover {
@@ -2020,6 +2016,95 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
+      #mobileStatsPanel,
+      #mobileWeeklyStagePanel,
+      #mobileDailyRewardsPanel,
+      #weeklySummarySection,
+      .weekly-marathon-card,
+      .weekly-integrated-head,
+      .weekly-activity-totals,
+      .weekly-activity-total,
+      .weekly-day-stars,
+      .weekly-integrated-stage-block,
+      .reward-summary-content,
+      .weekly-reward-block,
+      .weekly-reward-heading,
+      .reward-total-list {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+      }
+
+      #mobileStatsPanel,
+      #mobileWeeklyStagePanel,
+      #mobileDailyRewardsPanel,
+      #weeklySummarySection,
+      .weekly-marathon-card {
+        overflow-x: hidden;
+      }
+
+      .weekly-integrated-head,
+      .weekly-reward-heading {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 6px;
+      }
+
+      .weekly-integrated-head > div,
+      .weekly-integrated-head h3,
+      .weekly-integrated-head .section-note,
+      .weekly-reward-heading > * {
+        min-width: 0;
+        max-width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+
+      .weekly-summary-head-tools {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        align-items: stretch;
+      }
+
+      .reward-summary-toggle {
+        max-width: 100%;
+        white-space: normal;
+      }
+
+      .weekly-activity-total > strong {
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+
+      .weekly-day-stars {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        overflow-x: visible;
+        padding-bottom: 0;
+      }
+
+      .day-star-card,
+      .day-metric,
+      .day-card-label,
+      .day-card-value {
+        min-width: 0;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+      }
+
+      .reward-total-chip {
+        max-width: 100%;
+        min-width: 0;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+
+      .mobile-stats-section-heading {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+      }
+
       .mobile-bottom-nav {
         position: fixed;
         left: 0;
@@ -2058,7 +2143,7 @@
       }
 
       .weekly-day-stars {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: 1fr;
       }
     }
   
@@ -2196,6 +2281,20 @@
       }
     }
 
+    @media (max-width: 760px) {
+      .weekly-marathon-card .section-head {
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .weekly-marathon-card .section-head h3 {
+        min-width: 0;
+        max-width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+    }
+
 </style>
 </head>
 <body>
@@ -2205,7 +2304,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v117</div>
+      <div class="prototype-badge">週一至週日 v120</div>
     </header>
 
     <div class="app-shell">
@@ -2421,13 +2520,9 @@
       </nav>
 
       <div class="day-auto-plan-row" aria-label="每日自動套用">
-        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="mon">週一自動套用</button>
-        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="tue">週二自動套用</button>
-        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="wed">週三自動套用</button>
-        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="thu">週四自動套用</button>
-        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="fri">週五自動套用</button>
-        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="sat">週六自動套用</button>
-        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="sun">週日自動套用</button>
+        <button class="day-auto-plan-btn" id="dailyAutoPlanButton" type="button">
+          自動補齊本日積分至目標（30 星／14 卡皮幣）
+        </button>
       </div>
     </div>
         <div id="mobileStatsPanel">
@@ -2625,8 +2720,11 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v117";
+      const STORAGE_KEY = "capybara-weekly-full-v120";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v119",
+        "capybara-weekly-full-v118",
+        "capybara-weekly-full-v117",
         "capybara-weekly-full-v116",
         "capybara-weekly-full-v115",
         "capybara-weekly-full-v114",
@@ -3411,7 +3509,7 @@
       const els = {
         weekModeTabs: [...document.querySelectorAll(".week-mode-tab")],
         dayTabs: [...document.querySelectorAll(".day-tab")],
-        dayAutoPlanButtons: [...document.querySelectorAll("[data-auto-plan-day]")],
+        dailyAutoPlanButton: document.getElementById("dailyAutoPlanButton"),
         sidebarCard: document.getElementById("sidebarCard"),
         sidebarHeading: document.getElementById("sidebarHeading"),
         sidebarNote: document.getElementById("sidebarNote"),
@@ -7743,14 +7841,11 @@ async function downloadChartAsImage() {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
-      function updateDayAutoPlanButtons() {
-        els.dayAutoPlanButtons.forEach(button => {
-          const isActive = button.dataset.autoPlanDay === state.activeDay;
-          button.hidden = !isActive;
-          if (isActive) {
-            button.textContent = "自動補齊本日積分至目標（30 星／14 卡皮幣）";
-          }
-        });
+      function updateDailyAutoPlanButton() {
+        if (!els.dailyAutoPlanButton) return;
+        els.dailyAutoPlanButton.dataset.activeDay = state.activeDay;
+        els.dailyAutoPlanButton.textContent =
+          "自動補齊本日積分至目標（30 星／14 卡皮幣）";
       }
 
       function getGuildBountySummaryForDay(dayKey) {
@@ -7772,7 +7867,7 @@ async function downloadChartAsImage() {
         els.dayTabs.forEach(tab => {
           tab.classList.toggle("active", tab.dataset.day === state.activeDay);
         });
-        updateDayAutoPlanButtons();
+        updateDailyAutoPlanButton();
 
         renderGlobalSettings();
         renderTaskPanel();
@@ -10237,10 +10332,8 @@ async function downloadChartAsImage() {
         applyWeeklyAutoPlan(ALL_STAGE_FIVE_TARGETS);
       });
 
-      els.dayAutoPlanButtons.forEach(button => {
-        button.addEventListener("click", () => {
-          applyAutoPlanForDay(button.dataset.autoPlanDay, STANDARD_WEEKLY_TARGETS);
-        });
+      els.dailyAutoPlanButton.addEventListener("click", () => {
+        applyAutoPlanForDay(state.activeDay, STANDARD_WEEKLY_TARGETS);
       });
 
       document.getElementById("applyDailyDefaults").addEventListener("click", () => {
