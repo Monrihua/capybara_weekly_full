@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v91</title>
+  <title>水豚每週活動計算機｜週一至週日 v92</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1872,7 +1872,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v91</div>
+      <div class="prototype-badge">週一至週日 v92</div>
     </header>
 
     <div class="top-tabs-stack">
@@ -2069,7 +2069,7 @@
           <div class="mobile-only-section-title">任務操作</div>
           <div class="actions sidebar-actions" aria-label="任務操作">
           <button class="action-btn action-confirm" id="confirmGenerateCharts" type="button">確認並產出圖表</button>
-          <button class="action-btn action-plan" id="applyThirtyStarPlan" type="button">自動套用 30 星／14 卡皮幣方案</button>
+          <button class="action-btn action-plan" id="applyThirtyStarPlan" type="button">執行本週自動套用方案</button>
           <button class="action-btn action-primary" id="applyDailyDefaults" type="button">重套當日無消耗型任務</button>
           <button class="action-btn action-secondary" id="clearCurrentDay" type="button">當日全部歸零＋重套無消耗型任務</button>
           <button class="action-btn action-warning" id="resetAllDaysDefaults" type="button">本週全部歸零＋重套無消耗型任務</button>
@@ -2252,8 +2252,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v91";
+      const STORAGE_KEY = "capybara-weekly-full-v92";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v91",
         "capybara-weekly-full-v90",
         "capybara-weekly-full-v89",
         "capybara-weekly-full-v88",
@@ -7354,7 +7355,7 @@ async function downloadChartAsImage() {
           }
         }
 
-        const targetScore = marathonStages[2].score;
+        const targetScore = marathonStages[4].score;
         const currentScore = getScoresForDay("tue").marathon;
         const missingScore = Math.max(0, targetScore - currentScore);
         const requiredActions = Math.ceil(missingScore / 3000);
@@ -7368,7 +7369,7 @@ async function downloadChartAsImage() {
             renderAll();
             els.autoPlanStatus.className = "auto-plan-status show warning";
             els.autoPlanStatus.innerHTML = `
-              <strong>靈石不足，無法補到馬拉松第 3 階</strong>
+              <strong>靈石不足，無法補到馬拉松第 5 階</strong>
               <div>
                 目前 ${format(currentScore)} 分，距離 ${format(targetScore)} 分
                 還差 ${format(missingScore)} 分，需要再做
@@ -7390,7 +7391,7 @@ async function downloadChartAsImage() {
 
         els.autoPlanStatus.className = "auto-plan-status show success";
         els.autoPlanStatus.innerHTML = `
-          <strong>週二 ${modeName} 已自動補到馬拉松第 3 階</strong>
+          <strong>週二 ${modeName} 已自動補到馬拉松第 5 階</strong>
           <div>
             補分只使用「寵物培育｜不鎖定詞綴」。
             目前共 ${format(day.petBase)} 次，消耗
@@ -7399,6 +7400,29 @@ async function downloadChartAsImage() {
           <div>
             馬拉松積分 ${format(finalScore)} / ${format(targetScore)}。
           </div>
+        `;
+      }
+
+      function applyWeeklyAutoPlan() {
+        const originalDay = state.activeDay;
+        const messages = [];
+
+        state.activeDay = "mon";
+        applyThirtyStarPlan();
+        messages.push("週一方案已執行");
+
+        state.activeDay = "tue";
+        applyTuesdayAutoPlan();
+        messages.push("週二方案已執行");
+
+        state.activeDay = originalDay;
+        renderAll();
+
+        els.autoPlanStatus.className = "auto-plan-status show success";
+        els.autoPlanStatus.innerHTML = `
+          <strong>本週批次自動套用已執行</strong>
+          <div>${messages.join("；")}。</div>
+          <div>目前僅完成週一與週二，週三至週日加入後會由此按鈕一併執行。</div>
         `;
       }
 
@@ -8156,7 +8180,7 @@ async function downloadChartAsImage() {
       });
 
       document.getElementById("applyThirtyStarPlan").addEventListener("click", () => {
-        applyAutoPlanForDay(state.activeDay);
+        applyWeeklyAutoPlan();
       });
 
       els.dayAutoPlanButtons.forEach(button => {
