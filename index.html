@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v100</title>
+  <title>水豚每週活動計算機｜週一至週日 v105</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -35,7 +35,7 @@
                    "PingFang TC", "Microsoft JhengHei", sans-serif;
     }
 
-    body { padding: 16px 12px 36px; }
+    body { padding: 16px clamp(10px, 1.2vw, 22px) 36px; }
     button, input { font: inherit; }
 
     button {
@@ -55,7 +55,8 @@
     }
 
     .page {
-      width: min(1180px, 100%);
+      width: 100%;
+      max-width: none;
       margin: 0 auto;
     }
 
@@ -94,7 +95,8 @@
       position: sticky;
       top: 8px;
       z-index: 70;
-      margin: 0 0 10px 222px;
+      width: auto;
+      margin: 0 calc(clamp(230px, 16vw, 290px) + 12px) 10px;
       padding: 6px 0 10px;
       background: rgba(244, 247, 251, 0.96);
       backdrop-filter: blur(9px);
@@ -149,22 +151,30 @@
 
     .day-auto-plan-row {
       display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 1fr);
       gap: 8px;
       margin-top: 8px;
+      width: 100%;
     }
 
     .day-auto-plan-btn {
       min-width: 0;
-      min-height: 36px;
-      padding: 7px 8px;
+      width: 100%;
+      min-height: 40px;
+      padding: 8px 12px;
       border: 1px solid #b9c8e8;
       border-radius: 11px;
       background: #fff;
       color: var(--blue);
-      font-size: 11px;
+      font-size: 13px;
       font-weight: 900;
       line-height: 1.25;
+      text-align: center;
+      justify-self: stretch;
+    }
+
+    .day-auto-plan-btn[hidden] {
+      display: none !important;
     }
 
     .day-auto-plan-btn:hover {
@@ -177,10 +187,23 @@
 
     .app-shell {
       display: grid;
-      grid-template-columns: 250px minmax(0, 1fr);
+      grid-template-columns: clamp(230px, 16vw, 290px) minmax(0, 1fr) clamp(230px, 16vw, 290px);
+      grid-template-areas: "settings main actions";
       gap: 12px;
       align-items: start;
       min-width: 0;
+    }
+
+    #sidebarCard {
+      grid-area: settings;
+    }
+
+    .main {
+      grid-area: main;
+    }
+
+    #actionsSidebarCard {
+      grid-area: actions;
     }
 
     .card {
@@ -194,6 +217,10 @@
     .sidebar {
       position: static;
       padding: 14px;
+    }
+
+    .right-sidebar {
+      align-self: start;
     }
 
     .sidebar h2 {
@@ -1352,6 +1379,33 @@
     .report-row-net td.negative { color:#b42318; font-weight:800; }
     .report-row-net td.positive { color:#1d4ed8; font-weight:800; }
     body.modal-open { overflow:hidden; }
+    .plan-choice-modal[hidden] { display:none; }
+    .plan-choice-modal { position:fixed; inset:0; z-index:360; }
+    .plan-choice-backdrop { position:absolute; inset:0; background:rgba(15,23,42,.52); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
+    .plan-choice-dialog { position:relative; z-index:1; width:min(920px, calc(100vw - 24px)); max-height:calc(100vh - 24px); margin:12px auto; border-radius:22px; background:#fff; box-shadow:0 30px 80px rgba(15,23,42,.26); overflow:hidden; display:flex; flex-direction:column; }
+    .plan-choice-head { display:flex; justify-content:space-between; gap:12px; padding:16px 18px; border-bottom:1px solid var(--line); }
+    .plan-choice-head h3 { margin:0; font-size:18px; }
+    .plan-choice-head p { margin:5px 0 0; color:var(--sub); font-size:12px; }
+    .plan-choice-body { padding:14px; overflow:auto; background:#f3f6fb; }
+    .plan-choice-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+    .plan-choice-card { border:1px solid var(--line); border-radius:16px; background:#fff; padding:13px; }
+    .plan-choice-card.best { border-color:#7eb69b; box-shadow:0 0 0 2px rgba(52,133,91,.10); }
+    .plan-choice-card.unavailable { opacity:.58; }
+    .plan-choice-card h4 { margin:0 0 8px; font-size:15px; }
+    .plan-choice-card .choice-badge { display:inline-block; margin-left:6px; padding:2px 7px; border-radius:999px; background:#e6f5ec; color:#26704c; font-size:10px; font-weight:900; }
+    .plan-choice-metrics { display:grid; gap:5px; font-size:12px; color:var(--sub); }
+    .plan-choice-metrics strong { color:var(--text); }
+    .plan-choice-detail { margin-top:9px; font-size:12px; line-height:1.55; color:var(--text); }
+    .plan-choice-actions { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; padding:12px 14px 14px; border-top:1px solid var(--line); background:#fff; }
+    .plan-choice-btn { min-height:42px; border:1px solid #b8c6df; border-radius:12px; background:#fff; font-weight:900; color:var(--blue); }
+    .plan-choice-btn.best { background:#e9f6ee; color:#26704c; border-color:#93c5a7; }
+    .plan-choice-btn:disabled { opacity:.45; cursor:not-allowed; }
+    @media (max-width:760px) {
+      .plan-choice-dialog { width:100vw; max-height:100vh; margin:0; border-radius:20px 20px 0 0; }
+      .plan-choice-grid { grid-template-columns:1fr; }
+      .plan-choice-actions { grid-template-columns:1fr 1fr; position:sticky; bottom:0; }
+    }
+
 
 
     .weekly-marathon-card {
@@ -1708,8 +1762,19 @@
     }
 
     @media (max-width: 900px) {
+      .top-tabs-stack {
+        width: 100%;
+        margin: 0 0 10px;
+      }
+
       .day-tabs { margin-left: 0; }
-      .app-shell { grid-template-columns: 1fr; }
+      .app-shell {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "main"
+          "settings"
+          "actions";
+      }
       .sidebar { position: static; }
       .setting-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
@@ -1772,10 +1837,10 @@
       }
 
       .day-auto-plan-btn {
-        min-height: 34px;
-        padding: 5px 2px;
-        border-radius: 9px;
-        font-size: 10px;
+        min-height: 38px;
+        padding: 7px 10px;
+        border-radius: 10px;
+        font-size: 12px;
       }
 
       .weekly-summary-head-tools {
@@ -1882,7 +1947,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v100</div>
+      <div class="prototype-badge">週一至週日 v105</div>
     </header>
 
     <div class="top-tabs-stack">
@@ -1908,7 +1973,7 @@
         <button class="day-auto-plan-btn" type="button" data-auto-plan-day="thu">週四自動套用</button>
         <button class="day-auto-plan-btn" type="button" data-auto-plan-day="fri">週五自動套用</button>
         <button class="day-auto-plan-btn" type="button" data-auto-plan-day="sat">週六自動套用</button>
-        <span class="day-auto-plan-placeholder"></span>
+        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="sun">週日自動套用</button>
       </div>
     </div>
 
@@ -2074,12 +2139,17 @@
         </div>
 
         </div>
+      </aside>
 
+      <aside class="card sidebar right-sidebar" id="actionsSidebarCard" aria-label="任務操作">
+        <h2>任務操作</h2>
+        <div class="sidebar-note">這裡集中放置快速操作與自動套用按鈕。</div>
         <div id="mobileActionsPanel">
           <div class="mobile-only-section-title">任務操作</div>
           <div class="actions sidebar-actions" aria-label="任務操作">
           <button class="action-btn action-confirm" id="confirmGenerateCharts" type="button">確認並產出圖表</button>
-          <button class="action-btn action-plan" id="applyThirtyStarPlan" type="button">執行本週自動套用方案</button>
+          <button class="action-btn action-plan" id="applyThirtyStarPlan" type="button">補滿本周剩餘積分｜目標 30 星／14 卡皮幣</button>
+          <button class="action-btn action-plan" id="applyAllStageFivePlan" type="button">補滿本周剩餘積分｜目標 全週 5 階</button>
           <button class="action-btn action-primary" id="applyDailyDefaults" type="button">重套當日無消耗型任務</button>
           <button class="action-btn action-secondary" id="clearCurrentDay" type="button">當日全部歸零＋重套無消耗型任務</button>
           <button class="action-btn action-warning" id="resetAllDaysDefaults" type="button">本週全部歸零＋重套無消耗型任務</button>
@@ -2258,12 +2328,39 @@
   </div>
 </div>
 
+  <div class="plan-choice-modal" id="sundayPlanModal" hidden>
+    <div class="plan-choice-backdrop" data-close-sunday-plan></div>
+    <div class="plan-choice-dialog" role="dialog" aria-modal="true" aria-labelledby="sundayPlanTitle">
+      <div class="plan-choice-head">
+        <div>
+          <h3 id="sundayPlanTitle">週日自動補足方案比較</h3>
+          <p>三種方案皆以馬拉松第 5 階為目標；選定後才會實際扣除資源。</p>
+        </div>
+        <button class="chart-close-btn" id="closeSundayPlanTop" type="button">關閉</button>
+      </div>
+      <div class="plan-choice-body">
+        <div class="plan-choice-grid" id="sundayPlanResults"></div>
+      </div>
+      <div class="plan-choice-actions">
+        <button class="plan-choice-btn" type="button" data-sunday-choice="cultivation">1 偏好培育</button>
+        <button class="plan-choice-btn" type="button" data-sunday-choice="egg">2 偏好寵物蛋</button>
+        <button class="plan-choice-btn" type="button" data-sunday-choice="chest">3 偏好寶箱</button>
+        <button class="plan-choice-btn best" type="button" data-sunday-choice="best">4 採用最佳方案</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v100";
+      const STORAGE_KEY = "capybara-weekly-full-v105";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v104",
+        "capybara-weekly-full-v103",
+        "capybara-weekly-full-v102",
+        "capybara-weekly-full-v101",
+        "capybara-weekly-full-v100",
         "capybara-weekly-full-v99",
         "capybara-weekly-full-v98",
         "capybara-weekly-full-v97",
@@ -2458,6 +2555,26 @@
         fri: "週五",
         sat: "週六",
         sun: "週日"
+      };
+
+      const STANDARD_WEEKLY_TARGETS = {
+        mon: 3,
+        tue: 5,
+        wed: 5,
+        thu: 3,
+        fri: 3,
+        sat: 3,
+        sun: 5
+      };
+
+      const ALL_STAGE_FIVE_TARGETS = {
+        mon: 5,
+        tue: 5,
+        wed: 5,
+        thu: 5,
+        fri: 5,
+        sat: 5,
+        sun: 5
       };
 
       const archaeologyStages = [
@@ -3017,6 +3134,7 @@
         sidebarCard: document.getElementById("sidebarCard"),
         sidebarHeading: document.getElementById("sidebarHeading"),
         sidebarNote: document.getElementById("sidebarNote"),
+        actionsSidebarCard: document.getElementById("actionsSidebarCard"),
         mobileSettingsPanel: document.getElementById("mobileSettingsPanel"),
         mobileActionsPanel: document.getElementById("mobileActionsPanel"),
         mobileTasksPanel: document.getElementById("mobileTasksPanel"),
@@ -3086,7 +3204,11 @@
         chartReport: document.getElementById("chartReport"),
         closeChartTop: document.getElementById("closeChartTop"),
         closeChartModal: document.getElementById("closeChartModal"),
-        downloadChartImage: document.getElementById("downloadChartImage")
+        downloadChartImage: document.getElementById("downloadChartImage"),
+        sundayPlanModal: document.getElementById("sundayPlanModal"),
+        sundayPlanResults: document.getElementById("sundayPlanResults"),
+        closeSundayPlanTop: document.getElementById("closeSundayPlanTop"),
+        sundayPlanButtons: [...document.querySelectorAll("[data-sunday-choice]")]
       };
 
       function toNonNegativeNumber(value) {
@@ -6717,17 +6839,7 @@
         const scores = getActiveScores();
         const stars = getMarathonStars(scores.marathon);
         const pickaxes = getArchaeologyPickaxes(scores.archaeology);
-        const bountySummary = state.activeDay === "sat"
-          ? getSaturdayGuildBountySummary()
-          : state.activeDay === "fri"
-            ? getFridayGuildBountySummary()
-            : state.activeDay === "thu"
-              ? getThursdayGuildBountySummary()
-              : state.activeDay === "wed"
-                ? getWednesdayGuildBountySummary()
-                : state.activeDay === "tue"
-                  ? getTuesdayGuildBountySummary()
-                  : getMondayGuildBountySummary();
+        const bountySummary = getGuildBountySummaryForDay(state.activeDay);
         const bountyStageCount = guildBountyStages.filter(
           stage => bountySummary.totalScore >= stage.score
         ).length;
@@ -6795,28 +6907,38 @@
 
         if (
           state.weekMode === "bounty" &&
-          ["mon", "tue", "wed", "thu", "fri", "sat"].includes(state.activeDay)
+          ["mon", "tue", "wed", "thu", "fri", "sat", "sun"].includes(state.activeDay)
         ) {
           els.archaeologyTitle.textContent =
-            state.activeDay === "sat"
-              ? "公會懸賞｜週六公會對決"
-              : state.activeDay === "fri"
-                ? "公會懸賞｜週五公會對決"
-                : state.activeDay === "thu"
-                  ? "公會懸賞｜週四公會對決"
-                  : state.activeDay === "wed"
-                    ? "公會懸賞｜週三公會對決"
-                    : state.activeDay === "tue"
-                      ? "公會懸賞｜週二公會對決"
-                      : "公會懸賞｜週一公會對決";
+            state.activeDay === "sun"
+              ? "公會懸賞｜週日休息"
+              : state.activeDay === "sat"
+                ? "公會懸賞｜週六公會對決"
+                : state.activeDay === "fri"
+                  ? "公會懸賞｜週五公會對決"
+                  : state.activeDay === "thu"
+                    ? "公會懸賞｜週四公會對決"
+                    : state.activeDay === "wed"
+                      ? "公會懸賞｜週三公會對決"
+                      : state.activeDay === "tue"
+                        ? "公會懸賞｜週二公會對決"
+                        : "公會懸賞｜週一公會對決";
           els.archaeologyMetricLabel.textContent = "已達階段";
           els.archaeologyRemainingLabel.textContent = "距離滿階";
-          els.archaeologyTotalScore.textContent = format(bountySummary.totalScore);
-          els.archaeologyPickaxes.textContent = `${bountyStageCount} / 9`;
-          els.archaeologyRemaining.textContent =
-            format(Math.max(0, 3200 - bountySummary.totalScore));
-          els.archaeologyProgress.style.width =
-            `${Math.min(100, bountySummary.totalScore / 3200 * 100)}%`;
+
+          if (state.activeDay === "sun") {
+            els.archaeologyTotalScore.textContent = "休息";
+            els.archaeologyPickaxes.textContent = "—";
+            els.archaeologyRemaining.textContent = "—";
+            els.archaeologyProgress.style.width = "0%";
+          } else {
+            els.archaeologyTotalScore.textContent = format(bountySummary.totalScore);
+            els.archaeologyPickaxes.textContent = `${bountyStageCount} / 9`;
+            els.archaeologyRemaining.textContent =
+              format(Math.max(0, 3200 - bountySummary.totalScore));
+            els.archaeologyProgress.style.width =
+              `${Math.min(100, bountySummary.totalScore / 3200 * 100)}%`;
+          }
         } else if (state.activeDay === "sun") {
           els.archaeologyTotalScore.textContent = "休息";
           els.archaeologyPickaxes.textContent = "—";
@@ -7171,7 +7293,7 @@ async function downloadChartAsImage() {
 
         if (els.archaeologyActivityCard) {
           els.archaeologyActivityCard.hidden = isBountyWeek
-            ? !["mon", "tue", "wed", "thu", "fri", "sat"].includes(state.activeDay)
+            ? !["mon", "tue", "wed", "thu", "fri", "sat", "sun"].includes(state.activeDay)
             : false;
         }
 
@@ -7218,6 +7340,7 @@ async function downloadChartAsImage() {
 
         if (!isMobile) {
           show(els.sidebarCard, true);
+          show(els.actionsSidebarCard, true);
           show(els.mobileSettingsPanel, true);
           show(els.mobileActionsPanel, true);
           show(els.mobileTasksPanel, true);
@@ -7232,7 +7355,8 @@ async function downloadChartAsImage() {
         const settingsMode = activeMobilePanel === "settings";
         const actionsMode = activeMobilePanel === "actions";
 
-        show(els.sidebarCard, settingsMode || actionsMode);
+        show(els.sidebarCard, settingsMode);
+        show(els.actionsSidebarCard, actionsMode);
         show(els.mobileSettingsPanel, settingsMode);
         show(els.mobileActionsPanel, actionsMode);
         show(els.mobileTasksPanel, activeMobilePanel === "tasks");
@@ -7241,12 +7365,10 @@ async function downloadChartAsImage() {
         show(els.mobileDailyRewardsPanel, activeMobilePanel === "daily");
 
         if (els.sidebarHeading) {
-          els.sidebarHeading.textContent = settingsMode ? "全域設定" : "任務操作";
+          els.sidebarHeading.textContent = "全域設定";
         }
         if (els.sidebarNote) {
-          els.sidebarNote.textContent = settingsMode
-            ? "設定會共用於週一至週日。"
-            : "這裡集中放置快速操作與自動套用按鈕。";
+          els.sidebarNote.textContent = "設定會共用於週一至週日。";
         }
       }
 
@@ -7256,10 +7378,36 @@ async function downloadChartAsImage() {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
+      function updateDayAutoPlanButtons() {
+        els.dayAutoPlanButtons.forEach(button => {
+          const isActive = button.dataset.autoPlanDay === state.activeDay;
+          button.hidden = !isActive;
+          if (isActive) {
+            button.textContent = "自動補齊本日積分至目標（30 星／14 卡皮幣）";
+          }
+        });
+      }
+
+      function getGuildBountySummaryForDay(dayKey) {
+        if (dayKey === "sat") return getSaturdayGuildBountySummary();
+        if (dayKey === "fri") return getFridayGuildBountySummary();
+        if (dayKey === "thu") return getThursdayGuildBountySummary();
+        if (dayKey === "wed") return getWednesdayGuildBountySummary();
+        if (dayKey === "tue") return getTuesdayGuildBountySummary();
+        if (dayKey === "mon") return getMondayGuildBountySummary();
+        return {
+          personalScore: 0,
+          guildScore: 0,
+          totalScore: 0,
+          completedGuildCount: 0
+        };
+      }
+
       function renderAll() {
         els.dayTabs.forEach(tab => {
           tab.classList.toggle("active", tab.dataset.day === state.activeDay);
         });
+        updateDayAutoPlanButtons();
 
         renderGlobalSettings();
         renderTaskPanel();
@@ -7940,7 +8088,7 @@ async function downloadChartAsImage() {
         return setResourceTaskCount("tue", "petBase", requested);
       }
 
-      function applyTuesdayAutoPlan() {
+      function applyTuesdayAutoPlan(targetStage = 5) {
         const day = state.days.tue;
         const startingPetBase = toInt(day.petBase);
 
@@ -7977,7 +8125,7 @@ async function downloadChartAsImage() {
           }
         }
 
-        const targetScore = marathonStages[4].score;
+        const targetScore = marathonStages[Math.max(0, targetStage - 1)].score;
         const currentScore = getScoresForDay("tue").marathon;
         const missingScore = Math.max(0, targetScore - currentScore);
         const requiredActions = Math.ceil(missingScore / 3000);
@@ -7991,7 +8139,7 @@ async function downloadChartAsImage() {
             renderAll();
             els.autoPlanStatus.className = "auto-plan-status show warning";
             els.autoPlanStatus.innerHTML = `
-              <strong>靈石不足，無法補到馬拉松第 5 階</strong>
+              <strong>靈石不足，無法補到馬拉松第 ${targetStage} 階</strong>
               <div>
                 目前 ${format(currentScore)} 分，距離 ${format(targetScore)} 分
                 還差 ${format(missingScore)} 分，需要再做
@@ -8018,7 +8166,7 @@ async function downloadChartAsImage() {
 
         els.autoPlanStatus.className = "auto-plan-status show success";
         els.autoPlanStatus.innerHTML = `
-          <strong>週二 ${modeName} 已自動補到馬拉松第 5 階</strong>
+          <strong>週二 ${modeName} 已自動補到馬拉松第 ${targetStage} 階</strong>
           <div>
             補分來源：寵物培育｜不鎖定詞綴。依目前積分計算最低可達標次數；
             追加 ${format(addedActions)} 次操作，消耗
@@ -8180,7 +8328,7 @@ async function downloadChartAsImage() {
         );
       }
 
-      function applyThursdayAutoPlan() {
+      function applyThursdayAutoPlan(targetStage = 3) {
         applyMinimumThursdayFreeTasks();
         const day = state.days.thu;
 
@@ -8190,7 +8338,7 @@ async function downloadChartAsImage() {
           day.dungeonCount = Math.max(toInt(day.dungeonCount), 10);
         }
 
-        const targetScore = marathonStages[2].score;
+        const targetScore = marathonStages[Math.max(0, targetStage - 1)].score;
         const currentScore = getScoresForDay("thu").marathon;
         const currentChestPoints = getChestSummary("thu").chestPoints;
         const missingScore = Math.max(0, targetScore - currentScore);
@@ -8235,7 +8383,7 @@ async function downloadChartAsImage() {
 
         els.autoPlanStatus.className = "auto-plan-status show success";
         els.autoPlanStatus.innerHTML = `
-          <strong>週四 ${modeName} 已自動補到馬拉松第 3 階</strong>
+          <strong>週四 ${modeName} 已自動補到馬拉松第 ${targetStage} 階</strong>
           <div>
             補分來源：開啟寶箱。先找最低可達標寶箱積分，
             並容許多一次合法開箱以減少操作；追加
@@ -8260,7 +8408,7 @@ async function downloadChartAsImage() {
         day.guruTicket = Math.max(toInt(day.guruTicket), 5);
       }
 
-      function applyFridayAutoPlan() {
+      function applyFridayAutoPlan(targetStage = 3) {
         applyMinimumFridayFreeTasks();
         const day = state.days.fri;
 
@@ -8271,7 +8419,7 @@ async function downloadChartAsImage() {
           day.treasureDraw = Math.max(toInt(day.treasureDraw), 1);
         }
 
-        const targetScore = marathonStages[2].score;
+        const targetScore = marathonStages[Math.max(0, targetStage - 1)].score;
         const currentScore = getScoresForDay("fri").marathon;
         const missingScore = Math.max(0, targetScore - currentScore);
         const addedGemDraws = Math.ceil(missingScore / 3000);
@@ -8283,7 +8431,7 @@ async function downloadChartAsImage() {
 
         els.autoPlanStatus.className = "auto-plan-status show success";
         els.autoPlanStatus.innerHTML = `
-          <strong>週五 ${modeName} 已自動補到馬拉松第 3 階</strong>
+          <strong>週五 ${modeName} 已自動補到馬拉松第 ${targetStage} 階</strong>
           <div>
             補分來源：珍寶商店抽寶石。依目前積分找出最低可達標次數；
             追加 ${format(addedGemDraws)} 次操作。
@@ -8304,7 +8452,7 @@ async function downloadChartAsImage() {
         day.dungeonTicket = Math.max(toInt(day.dungeonTicket), 5);
       }
 
-      function applySaturdayAutoPlan() {
+      function applySaturdayAutoPlan(targetStage = 3) {
         applyMinimumSaturdayFreeTasks();
         const day = state.days.sat;
 
@@ -8334,7 +8482,7 @@ async function downloadChartAsImage() {
           day.horseshoe = Math.max(toInt(day.horseshoe), 1000);
         }
 
-        const targetScore = marathonStages[2].score;
+        const targetScore = marathonStages[Math.max(0, targetStage - 1)].score;
         const currentScore = getScoresForDay("sat").marathon;
         const missingScore = Math.max(0, targetScore - currentScore);
         const addedHorseshoes = Math.ceil(missingScore / 32);
@@ -8346,7 +8494,7 @@ async function downloadChartAsImage() {
 
         els.autoPlanStatus.className = "auto-plan-status show success";
         els.autoPlanStatus.innerHTML = `
-          <strong>週六 ${modeName} 已自動補到馬拉松第 3 階</strong>
+          <strong>週六 ${modeName} 已自動補到馬拉松第 ${targetStage} 階</strong>
           <div>
             補分來源：坐騎升級消耗金蹄鐵。依目前積分找出最低可達標數量；
             追加 ${format(addedHorseshoes)} 個金蹄鐵。
@@ -8359,7 +8507,291 @@ async function downloadChartAsImage() {
         `;
       }
 
-      function applyWeeklyAutoPlan() {
+      let pendingSundayPlans = null;
+      let pendingWeeklyAutoPlanResults = null;
+
+      function applyMinimumSundayFreeTasks() {
+        const day = state.days.sun;
+        day.arena = Math.max(toInt(day.arena), 5);
+        day.heroSupply = Math.max(
+          toInt(day.heroSupply),
+          state.settings.watchAds ? 1 : 0
+        );
+        day.adventurerSupply = Math.max(
+          toInt(day.adventurerSupply),
+          state.settings.watchAds ? 4 : 1
+        );
+        if (state.settings.watchAds) {
+          day.adPetEgg = Math.max(toInt(day.adPetEgg), 3);
+        }
+      }
+
+      function getSundayPlanBase() {
+        applyMinimumSundayFreeTasks();
+        const targetScore = marathonStages[4].score;
+        const currentScore = getScoresForDay("sun").marathon;
+        return {
+          targetScore,
+          currentScore,
+          missingScore: Math.max(0, targetScore - currentScore)
+        };
+      }
+
+      function simulateSundayCultivationPlan(base) {
+        const actions = Math.ceil(base.missingScore / 3000);
+        const spiritCost = actions * 200;
+        const feasible = spiritCost <= getOwnedResourceAmount("spiritStone");
+        const addedScore = actions * 3000;
+        return {
+          type: "cultivation",
+          name: "寵物培育",
+          feasible,
+          operations: actions,
+          resourceUsed: spiritCost,
+          resourceLabel: "靈石",
+          addedScore,
+          finalScore: base.currentScore + addedScore,
+          overshoot: Math.max(0, base.currentScore + addedScore - base.targetScore),
+          detail: `寵物培育｜不鎖定詞綴 × ${format(actions)}`
+        };
+      }
+
+      function simulateSundayEggPlan(base) {
+        const requiredEggs = Math.ceil(base.missingScore / 60);
+        const plan = findWednesdayEggBundlePlan(
+          requiredEggs,
+          getOwnedResourceAmount("petEgg")
+        );
+        if (!plan) {
+          return {
+            type: "egg",
+            name: "寵物蛋",
+            feasible: false,
+            operations: Number.POSITIVE_INFINITY,
+            resourceUsed: 0,
+            resourceLabel: "寵物蛋",
+            addedScore: 0,
+            finalScore: base.currentScore,
+            overshoot: Number.POSITIVE_INFINITY,
+            detail: `至少還需開啟 ${format(requiredEggs)} 顆`
+          };
+        }
+        const parts = [
+          ["petEggBundle10", "×10"],
+          ["petEggBundle5", "×5"],
+          ["petEggBundle3", "×3"],
+          ["petEggBundle1", "×1"]
+        ].filter(([key]) => toInt(plan.counts[key]) > 0)
+          .map(([key, label]) => `${label} ${format(plan.counts[key])} 次`)
+          .join("、");
+        const addedScore = plan.opened * 60;
+        return {
+          type: "egg",
+          name: "寵物蛋",
+          feasible: true,
+          operations: plan.actions,
+          resourceUsed: plan.consumed,
+          resourceLabel: "寵物蛋",
+          addedScore,
+          finalScore: base.currentScore + addedScore,
+          overshoot: Math.max(0, base.currentScore + addedScore - base.targetScore),
+          detail: parts,
+          plan
+        };
+      }
+
+      function simulateSundayChestPlan(base) {
+        const requiredPoints = Math.ceil(base.missingScore / 48);
+        const plan = findThursdayChestPlan(requiredPoints);
+        if (!plan) {
+          return {
+            type: "chest",
+            name: "寶箱",
+            feasible: false,
+            operations: Number.POSITIVE_INFINITY,
+            resourceUsed: 0,
+            resourceLabel: "寶箱",
+            addedScore: 0,
+            finalScore: base.currentScore,
+            overshoot: Number.POSITIVE_INFINITY,
+            detail: `至少還需取得 ${format(requiredPoints)} 寶箱積分`
+          };
+        }
+        const parts = Object.entries(plan.selections)
+          .filter(([, prefix]) => prefix.operations > 0)
+          .map(([key, prefix]) =>
+            `${chestConfigs[key].name}：${prefix.batches.map(batch => `開 ${format(batch)}`).join("、")}`
+          ).join("；");
+        const addedScore = plan.chestPoints * 48;
+        return {
+          type: "chest",
+          name: "寶箱",
+          feasible: true,
+          operations: plan.operations,
+          resourceUsed: plan.openedBoxes,
+          resourceLabel: "寶箱",
+          addedScore,
+          finalScore: base.currentScore + addedScore,
+          overshoot: Math.max(0, base.currentScore + addedScore - base.targetScore),
+          detail: parts,
+          plan
+        };
+      }
+
+      function chooseBestSundayPlan(plans) {
+        const feasible = plans.filter(plan => plan.feasible);
+        if (!feasible.length) return null;
+        return [...feasible].sort((a, b) =>
+          a.operations - b.operations ||
+          a.overshoot - b.overshoot ||
+          (a.resourceUsed / Math.max(1,
+            a.type === "cultivation"
+              ? getOwnedResourceAmount("spiritStone")
+              : a.type === "egg"
+                ? getOwnedResourceAmount("petEgg")
+                : getHeldChestSummary().heldBoxes
+          )) -
+          (b.resourceUsed / Math.max(1,
+            b.type === "cultivation"
+              ? getOwnedResourceAmount("spiritStone")
+              : b.type === "egg"
+                ? getOwnedResourceAmount("petEgg")
+                : getHeldChestSummary().heldBoxes
+          ))
+        )[0];
+      }
+
+      function renderSundayPlanModal(base, plans, best) {
+        els.sundayPlanResults.innerHTML = plans.map(plan => `
+          <div class="plan-choice-card ${best?.type === plan.type ? "best" : ""} ${plan.feasible ? "" : "unavailable"}">
+            <h4>${plan.name}${best?.type === plan.type ? `<span class="choice-badge">系統最佳</span>` : ""}</h4>
+            <div class="plan-choice-metrics">
+              <div>可執行：<strong>${plan.feasible ? "是" : "否"}</strong></div>
+              <div>操作次數：<strong>${plan.feasible ? format(plan.operations) : "—"}</strong></div>
+              <div>資源消耗：<strong>${plan.feasible ? `${format(plan.resourceUsed)} ${plan.resourceLabel}` : "資源不足"}</strong></div>
+              <div>追加積分：<strong>${format(plan.addedScore)}</strong></div>
+              <div>超出目標：<strong>${plan.feasible ? format(plan.overshoot) : "—"}</strong></div>
+              <div>最終積分：<strong>${format(plan.finalScore)} / ${format(base.targetScore)}</strong></div>
+            </div>
+            <div class="plan-choice-detail">${plan.detail || "不需追加操作"}</div>
+          </div>
+        `).join("");
+
+        for (const button of els.sundayPlanButtons) {
+          const choice = button.dataset.sundayChoice;
+          if (choice === "best") {
+            button.disabled = !best;
+          } else {
+            button.disabled = !plans.find(plan => plan.type === choice)?.feasible;
+          }
+        }
+
+        els.sundayPlanModal.hidden = false;
+        document.body.classList.add("modal-open");
+      }
+
+      function closeSundayPlanModal() {
+        els.sundayPlanModal.hidden = true;
+        if (els.chartModal.hidden) {
+          document.body.classList.remove("modal-open");
+        }
+      }
+
+      function openSundayAutoPlan() {
+        const base = getSundayPlanBase();
+        const plans = [
+          simulateSundayCultivationPlan(base),
+          simulateSundayEggPlan(base),
+          simulateSundayChestPlan(base)
+        ];
+        const best = chooseBestSundayPlan(plans);
+        pendingSundayPlans = { base, plans, best };
+        renderAll();
+        renderSundayPlanModal(base, plans, best);
+      }
+
+      function applySundayChestPlan(plan) {
+        for (const [key, prefix] of Object.entries(plan.selections)) {
+          for (let i = 0; i < prefix.operations; i++) {
+            openChestBatch(key, "sun");
+          }
+        }
+      }
+
+      function finishWeeklyAutoPlanWithSunday() {
+        if (!pendingWeeklyAutoPlanResults) return;
+        const results = pendingWeeklyAutoPlanResults;
+        pendingWeeklyAutoPlanResults = null;
+        const hasWarning = results.some(item => item.isWarning);
+        els.autoPlanStatus.className =
+          `auto-plan-status show ${hasWarning ? "warning" : "success"}`;
+        els.autoPlanStatus.innerHTML = `
+          <strong>本週批次自動套用結果</strong>
+          ${results.map(item => `
+            <div class="weekly-auto-plan-result">
+              <div><strong>${item.dayLabel}</strong></div>
+              ${item.html}
+            </div>
+          `).join("")}
+          <div>週一至週日方案皆已完成。</div>
+        `;
+      }
+
+      function applySelectedSundayPlan(choice) {
+        if (!pendingSundayPlans) return;
+        const selected = choice === "best"
+          ? pendingSundayPlans.best
+          : pendingSundayPlans.plans.find(plan => plan.type === choice);
+        if (!selected || !selected.feasible) return;
+
+        const day = state.days.sun;
+        if (selected.type === "cultivation") {
+          setResourceTaskCount(
+            "sun",
+            "petBase",
+            toInt(day.petBase) + selected.operations
+          );
+        } else if (selected.type === "egg") {
+          for (const [key, count] of Object.entries(selected.plan.counts)) {
+            if (count > 0) {
+              setResourceTaskCount("sun", key, toInt(day[key]) + count);
+            }
+          }
+        } else if (selected.type === "chest") {
+          applySundayChestPlan(selected.plan);
+        }
+
+        const finalScore = getScoresForDay("sun").marathon;
+        closeSundayPlanModal();
+        renderAll();
+
+        els.autoPlanStatus.className = "auto-plan-status show success";
+        els.autoPlanStatus.innerHTML = `
+          <strong>週日已採用「${selected.name}」方案補到馬拉松第 5 階</strong>
+          <div>
+            ${selected.detail}；共 ${format(selected.operations)} 次操作，
+            消耗 ${format(selected.resourceUsed)} ${selected.resourceLabel}。
+          </div>
+          <div>
+            追加 ${format(selected.addedScore)} 分，超出目標
+            ${format(selected.overshoot)} 分；馬拉松積分
+            ${format(finalScore)} / ${format(pendingSundayPlans.base.targetScore)}。
+          </div>
+        `;
+
+        if (pendingWeeklyAutoPlanResults) {
+          pendingWeeklyAutoPlanResults.push({
+            dayLabel: "週日",
+            isWarning: false,
+            html: els.autoPlanStatus.innerHTML
+          });
+          finishWeeklyAutoPlanWithSunday();
+        }
+
+        pendingSundayPlans = null;
+      }
+
+      function applyWeeklyAutoPlan(targetStages = STANDARD_WEEKLY_TARGETS) {
         const originalDay = state.activeDay;
         const results = [];
 
@@ -8374,45 +8806,33 @@ async function downloadChartAsImage() {
         };
 
         state.activeDay = "mon";
-        applyThirtyStarPlan();
+        applyThirtyStarPlan(targetStages.mon || STANDARD_WEEKLY_TARGETS.mon);
         captureResult("週一");
 
         state.activeDay = "tue";
-        applyTuesdayAutoPlan();
+        applyTuesdayAutoPlan(targetStages.tue || STANDARD_WEEKLY_TARGETS.tue);
         captureResult("週二");
 
         state.activeDay = "wed";
-        applyWednesdayAutoPlan();
+        applyWednesdayAutoPlan(targetStages.wed || STANDARD_WEEKLY_TARGETS.wed);
         captureResult("週三");
 
         state.activeDay = "thu";
-        applyThursdayAutoPlan();
+        applyThursdayAutoPlan(targetStages.thu || STANDARD_WEEKLY_TARGETS.thu);
         captureResult("週四");
 
         state.activeDay = "fri";
-        applyFridayAutoPlan();
+        applyFridayAutoPlan(targetStages.fri || STANDARD_WEEKLY_TARGETS.fri);
         captureResult("週五");
 
         state.activeDay = "sat";
-        applySaturdayAutoPlan();
+        applySaturdayAutoPlan(targetStages.sat || STANDARD_WEEKLY_TARGETS.sat);
         captureResult("週六");
 
+        state.activeDay = "sun";
+        pendingWeeklyAutoPlanResults = results;
+        openSundayAutoPlan();
         state.activeDay = originalDay;
-        renderAll();
-
-        const hasWarning = results.some(item => item.isWarning);
-        els.autoPlanStatus.className =
-          `auto-plan-status show ${hasWarning ? "warning" : "success"}`;
-        els.autoPlanStatus.innerHTML = `
-          <strong>本週批次自動套用結果</strong>
-          ${results.map(item => `
-            <div class="weekly-auto-plan-result">
-              <div><strong>${item.dayLabel}</strong></div>
-              ${item.html}
-            </div>
-          `).join("")}
-          <div>目前已完成週一至週六，週日加入後會一併列出。</div>
-        `;
       }
 
       function applyMinimumWednesdayFreeTasks() {
@@ -8546,7 +8966,7 @@ async function downloadChartAsImage() {
         }
       }
 
-      function applyWednesdayAutoPlan() {
+      function applyWednesdayAutoPlan(targetStage = 5) {
         applyMinimumWednesdayFreeTasks();
         const day = state.days.wed;
 
@@ -8634,7 +9054,7 @@ async function downloadChartAsImage() {
 
         els.autoPlanStatus.className = "auto-plan-status show success";
         els.autoPlanStatus.innerHTML = `
-          <strong>週三 ${modeName} 已自動補到馬拉松第 5 階</strong>
+          <strong>週三 ${modeName} 已自動補到馬拉松第 ${targetStage} 階</strong>
           <div>
             補分來源：寵物蛋抽取。先找最低可達標蛋數，
             並容許增加 1 次 ×1 以減少操作；追加開啟
@@ -8649,40 +9069,46 @@ async function downloadChartAsImage() {
         `;
       }
 
-      function applyAutoPlanForDay(dayKey) {
+      function applyAutoPlanForDay(dayKey, targetStages = STANDARD_WEEKLY_TARGETS) {
         if (dayKey === "mon") {
           state.activeDay = "mon";
-          applyThirtyStarPlan();
+          applyThirtyStarPlan(targetStages.mon || STANDARD_WEEKLY_TARGETS.mon);
           return;
         }
 
         if (dayKey === "tue") {
           state.activeDay = "tue";
-          applyTuesdayAutoPlan();
+          applyTuesdayAutoPlan(targetStages.tue || STANDARD_WEEKLY_TARGETS.tue);
           return;
         }
 
         if (dayKey === "wed") {
           state.activeDay = "wed";
-          applyWednesdayAutoPlan();
+          applyWednesdayAutoPlan(targetStages.wed || STANDARD_WEEKLY_TARGETS.wed);
           return;
         }
 
         if (dayKey === "thu") {
           state.activeDay = "thu";
-          applyThursdayAutoPlan();
+          applyThursdayAutoPlan(targetStages.thu || STANDARD_WEEKLY_TARGETS.thu);
           return;
         }
 
         if (dayKey === "fri") {
           state.activeDay = "fri";
-          applyFridayAutoPlan();
+          applyFridayAutoPlan(targetStages.fri || STANDARD_WEEKLY_TARGETS.fri);
           return;
         }
 
         if (dayKey === "sat") {
           state.activeDay = "sat";
-          applySaturdayAutoPlan();
+          applySaturdayAutoPlan(targetStages.sat || STANDARD_WEEKLY_TARGETS.sat);
+          return;
+        }
+
+        if (dayKey === "sun") {
+          state.activeDay = "sun";
+          openSundayAutoPlan();
           return;
         }
 
@@ -8692,7 +9118,7 @@ async function downloadChartAsImage() {
         `;
       }
 
-      function applyThirtyStarPlan() {
+      function applyThirtyStarPlan(targetStage = 3) {
         if (state.activeDay !== "mon") {
           els.autoPlanStatus.className = "auto-plan-status show warning";
           els.autoPlanStatus.innerHTML = `
@@ -8721,7 +9147,7 @@ async function downloadChartAsImage() {
           }
         }
 
-        const targetScore = marathonStages[2].score;
+        const targetScore = marathonStages[Math.max(0, targetStage - 1)].score;
         const currentScore = getScoresForDay("mon").marathon;
         const missingScore = Math.max(0, targetScore - currentScore);
         const requiredStamina = Math.ceil(missingScore / MARATHON_STAMINA_RATE);
@@ -8736,7 +9162,7 @@ async function downloadChartAsImage() {
           renderAll();
           els.autoPlanStatus.className = "auto-plan-status show warning";
           els.autoPlanStatus.innerHTML = `
-            <strong>持有體力不足，無法補到馬拉松第 3 階</strong>
+            <strong>持有體力不足，無法補到馬拉松第 ${targetStage} 階</strong>
             <div>
               目前 ${format(currentScore)} 分，距離 ${format(targetScore)} 分
               還差 ${format(missingScore)} 分，至少需要約
@@ -8757,7 +9183,7 @@ async function downloadChartAsImage() {
 
         els.autoPlanStatus.className = "auto-plan-status show success";
         els.autoPlanStatus.innerHTML = `
-          <strong>週一 ${modeName} 已自動補到馬拉松第 3 階</strong>
+          <strong>週一 ${modeName} 已自動補到馬拉松第 ${targetStage} 階</strong>
           <div>
             補體來源：${sourceName}。先找最低可達標體力，
             並容許增加 1 次最小體力以減少操作；追加 ${format(targetPlan.stamina)} 體，
@@ -9427,12 +9853,16 @@ async function downloadChartAsImage() {
       });
 
       document.getElementById("applyThirtyStarPlan").addEventListener("click", () => {
-        applyWeeklyAutoPlan();
+        applyWeeklyAutoPlan(STANDARD_WEEKLY_TARGETS);
+      });
+
+      document.getElementById("applyAllStageFivePlan").addEventListener("click", () => {
+        applyWeeklyAutoPlan(ALL_STAGE_FIVE_TARGETS);
       });
 
       els.dayAutoPlanButtons.forEach(button => {
         button.addEventListener("click", () => {
-          applyAutoPlanForDay(button.dataset.autoPlanDay);
+          applyAutoPlanForDay(button.dataset.autoPlanDay, STANDARD_WEEKLY_TARGETS);
         });
       });
 
@@ -9462,6 +9892,18 @@ async function downloadChartAsImage() {
         renderAll();
       });
 
+      els.closeSundayPlanTop.addEventListener("click", closeSundayPlanModal);
+      els.sundayPlanModal.addEventListener("click", event => {
+        if (event.target.hasAttribute("data-close-sunday-plan")) {
+          closeSundayPlanModal();
+        }
+      });
+      els.sundayPlanButtons.forEach(button => {
+        button.addEventListener("click", () => {
+          applySelectedSundayPlan(button.dataset.sundayChoice);
+        });
+      });
+
       els.closeChartTop.addEventListener("click", closeChartModal);
       els.closeChartModal.addEventListener("click", closeChartModal);
       els.downloadChartImage.addEventListener("click", downloadChartAsImage);
@@ -9471,6 +9913,10 @@ async function downloadChartAsImage() {
         }
       });
       document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !els.sundayPlanModal.hidden) {
+          closeSundayPlanModal();
+          return;
+        }
         if (event.key === "Escape" && !els.chartModal.hidden) {
           closeChartModal();
         }
