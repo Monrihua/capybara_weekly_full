@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v90</title>
+  <title>水豚每週活動計算機｜週一至週日 v91</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -145,6 +145,34 @@
 
     .day-tab {
       min-width: 0;
+    }
+
+    .day-auto-plan-row {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .day-auto-plan-btn {
+      min-width: 0;
+      min-height: 36px;
+      padding: 7px 8px;
+      border: 1px solid #b9c8e8;
+      border-radius: 11px;
+      background: #fff;
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1.25;
+    }
+
+    .day-auto-plan-btn:hover {
+      background: var(--blue-soft);
+    }
+
+    .day-auto-plan-placeholder {
+      min-height: 1px;
     }
 
     .app-shell {
@@ -1728,6 +1756,18 @@
         white-space: nowrap;
       }
 
+      .day-auto-plan-row {
+        gap: 3px;
+        margin-top: 5px;
+      }
+
+      .day-auto-plan-btn {
+        min-height: 34px;
+        padding: 5px 2px;
+        border-radius: 9px;
+        font-size: 10px;
+      }
+
       .weekly-summary-head-tools {
         align-items: flex-end;
         flex-direction: column;
@@ -1832,7 +1872,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v90</div>
+      <div class="prototype-badge">週一至週日 v91</div>
     </header>
 
     <div class="top-tabs-stack">
@@ -1850,6 +1890,16 @@
         <button class="day-tab" type="button" data-day="sat">週六</button>
         <button class="day-tab" type="button" data-day="sun">週日</button>
       </nav>
+
+      <div class="day-auto-plan-row" aria-label="每日自動套用">
+        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="mon">週一自動套用</button>
+        <button class="day-auto-plan-btn" type="button" data-auto-plan-day="tue">週二自動套用</button>
+        <span class="day-auto-plan-placeholder"></span>
+        <span class="day-auto-plan-placeholder"></span>
+        <span class="day-auto-plan-placeholder"></span>
+        <span class="day-auto-plan-placeholder"></span>
+        <span class="day-auto-plan-placeholder"></span>
+      </div>
     </div>
 
     <div class="app-shell">
@@ -2202,8 +2252,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v90";
+      const STORAGE_KEY = "capybara-weekly-full-v91";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v90",
         "capybara-weekly-full-v89",
         "capybara-weekly-full-v88",
         "capybara-weekly-full-v87",
@@ -2874,6 +2925,7 @@
       const els = {
         weekModeTabs: [...document.querySelectorAll(".week-mode-tab")],
         dayTabs: [...document.querySelectorAll(".day-tab")],
+        dayAutoPlanButtons: [...document.querySelectorAll("[data-auto-plan-day]")],
         sidebarCard: document.getElementById("sidebarCard"),
         sidebarHeading: document.getElementById("sidebarHeading"),
         sidebarNote: document.getElementById("sidebarNote"),
@@ -7249,6 +7301,126 @@ async function downloadChartAsImage() {
           .join("、");
       }
 
+      function applyMinimumTuesdayFreeTasks() {
+        const day = state.days.tue;
+        day.guildRaid = Math.max(toInt(day.guildRaid), 2);
+        day.arena = Math.max(toInt(day.arena), 5);
+        day.dungeonCount = Math.max(
+          toInt(day.dungeonCount),
+          getRecommendedDungeon().total
+        );
+      }
+
+      function addTuesdayPetBaseActions(additionalActions) {
+        const day = state.days.tue;
+        const current = toInt(day.petBase);
+        const requested = current + Math.max(0, toInt(additionalActions));
+        return setResourceTaskCount("tue", "petBase", requested);
+      }
+
+      function applyTuesdayAutoPlan() {
+        applyMinimumTuesdayFreeTasks();
+
+        const day = state.days.tue;
+
+        if (state.weekMode === "bounty") {
+          day.guildRaid = Math.max(toInt(day.guildRaid), 2);
+          day.arena = Math.max(toInt(day.arena), 3);
+          day.dungeonCount = Math.max(toInt(day.dungeonCount), 10);
+          day.goblin = Math.max(toInt(day.goblin), 100);
+          day.tradeShip = Math.max(toInt(day.tradeShip), 2);
+
+          const currentPet = getTuesdayPetSummary();
+          const missingSpiritForPersonal = Math.max(0, 2000 - currentPet.spiritStones);
+          const personalPetActions = Math.ceil(missingSpiritForPersonal / 200);
+
+          if (personalPetActions > 0) {
+            const before = toInt(day.petBase);
+            addTuesdayPetBaseActions(personalPetActions);
+            const actuallyAdded = toInt(day.petBase) - before;
+
+            if (actuallyAdded < personalPetActions) {
+              renderAll();
+              els.autoPlanStatus.className = "auto-plan-status show warning";
+              els.autoPlanStatus.innerHTML = `
+                <strong>靈石不足，無法完成週二懸賞個人任務</strong>
+                <div>
+                  還需要 ${format((personalPetActions - actuallyAdded) * 200)} 靈石，
+                  才能把寵物培育消耗補到 2,000。
+                </div>
+              `;
+              return;
+            }
+          }
+        }
+
+        const targetScore = marathonStages[2].score;
+        const currentScore = getScoresForDay("tue").marathon;
+        const missingScore = Math.max(0, targetScore - currentScore);
+        const requiredActions = Math.ceil(missingScore / 3000);
+
+        if (requiredActions > 0) {
+          const affordableActions = Math.floor(
+            getOwnedResourceAmount("spiritStone") / 200
+          );
+
+          if (affordableActions < requiredActions) {
+            renderAll();
+            els.autoPlanStatus.className = "auto-plan-status show warning";
+            els.autoPlanStatus.innerHTML = `
+              <strong>靈石不足，無法補到馬拉松第 3 階</strong>
+              <div>
+                目前 ${format(currentScore)} 分，距離 ${format(targetScore)} 分
+                還差 ${format(missingScore)} 分，需要再做
+                ${format(requiredActions)} 次「寵物培育｜不鎖定詞綴」，
+                共需 ${format(requiredActions * 200)} 靈石。
+              </div>
+            `;
+            return;
+          }
+
+          addTuesdayPetBaseActions(requiredActions);
+        }
+
+        const finalScore = getScoresForDay("tue").marathon;
+        const finalPet = getTuesdayPetSummary();
+        const modeName = state.weekMode === "bounty" ? "懸賞週" : "考古週";
+
+        renderAll();
+
+        els.autoPlanStatus.className = "auto-plan-status show success";
+        els.autoPlanStatus.innerHTML = `
+          <strong>週二 ${modeName} 已自動補到馬拉松第 3 階</strong>
+          <div>
+            補分只使用「寵物培育｜不鎖定詞綴」。
+            目前共 ${format(day.petBase)} 次，消耗
+            ${format(finalPet.spiritStones)} 靈石。
+          </div>
+          <div>
+            馬拉松積分 ${format(finalScore)} / ${format(targetScore)}。
+          </div>
+        `;
+      }
+
+      function applyAutoPlanForDay(dayKey) {
+        if (dayKey === "mon") {
+          state.activeDay = "mon";
+          applyThirtyStarPlan();
+          return;
+        }
+
+        if (dayKey === "tue") {
+          state.activeDay = "tue";
+          applyTuesdayAutoPlan();
+          return;
+        }
+
+        els.autoPlanStatus.className = "auto-plan-status show warning";
+        els.autoPlanStatus.innerHTML = `
+          <strong>這一天的自動套用尚未完成</strong>
+        `;
+      }
+
       function applyThirtyStarPlan() {
         if (state.activeDay !== "mon") {
           els.autoPlanStatus.className = "auto-plan-status show warning";
@@ -7984,7 +8156,13 @@ async function downloadChartAsImage() {
       });
 
       document.getElementById("applyThirtyStarPlan").addEventListener("click", () => {
-        applyThirtyStarPlan();
+        applyAutoPlanForDay(state.activeDay);
+      });
+
+      els.dayAutoPlanButtons.forEach(button => {
+        button.addEventListener("click", () => {
+          applyAutoPlanForDay(button.dataset.autoPlanDay);
+        });
       });
 
       document.getElementById("applyDailyDefaults").addEventListener("click", () => {
