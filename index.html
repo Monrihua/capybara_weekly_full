@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v89</title>
+  <title>水豚每週活動計算機｜週一至週日 v90</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1832,7 +1832,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v89</div>
+      <div class="prototype-badge">週一至週日 v90</div>
     </header>
 
     <div class="top-tabs-stack">
@@ -2202,8 +2202,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v89";
+      const STORAGE_KEY = "capybara-weekly-full-v90";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v89",
         "capybara-weekly-full-v88",
         "capybara-weekly-full-v87",
         "capybara-weekly-full-v86",
@@ -2572,8 +2573,6 @@
           guildRaid: 2,
           arena: 5,
           emeraldPack: 0,
-          tueBountyStamina: 0,
-          tueBountyGuruTicket: 0,
           tueGbArenaWhite: 0,
           tueGbDungeonWhite: 0,
           tueGbDungeonPurple: 0,
@@ -4212,23 +4211,21 @@
         const day = state.days.tue;
         const pet = getTuesdayPetSummary();
         const activity = {
+          guildRaid: toInt(day.guildRaid),
           arena: toInt(day.arena),
           dungeon: toInt(day.dungeonCount),
           trade: toInt(day.tradeShip),
           goblin: toInt(day.goblin),
-          stamina: toInt(day.tueBountyStamina),
-          guru: toInt(day.tueBountyGuruTicket),
-          spirit: toInt(pet.spiritStones),
-          treasure: toInt(day.treasureDraw)
+          spirit: toInt(pet.spiritStones)
         };
 
         const personal = [
-          { name: "個人貿易發送 2 艘 UR／閃金商船", current: activity.trade, need: 2, score: 100 },
+          { name: "挑戰 2 次公會討伐", current: activity.guildRaid, need: 2, score: 50 },
+          { name: "參與 3 次競技場", current: activity.arena, need: 3, score: 50 },
+          { name: "挑戰 10 次任意副本", current: activity.dungeon, need: 10, score: 100 },
           { name: "哥布林礦工挖礦 100 次", current: activity.goblin, need: 100, score: 100 },
-          { name: "消耗 100 點體力", current: activity.stamina, need: 100, score: 100 },
-          { name: "消耗 2 張咕嚕礦場門票", current: activity.guru, need: 2, score: 100 },
-          { name: "通過寵物培育消耗 2,000 個靈石", current: activity.spirit, need: 2000, score: 100 },
-          { name: "在珍寶商店中抽取 10 次秘寶寶箱", current: activity.treasure, need: 10, score: 100 }
+          { name: "個人貿易發送 2 艘 UR／閃金商船", current: activity.trade, need: 2, score: 100 },
+          { name: "通過寵物培育消耗 2,000 個靈石", current: activity.spirit, need: 2000, score: 100 }
         ].map(item => ({
           ...item,
           done: item.current >= item.need,
@@ -4558,22 +4555,7 @@
 
             <div class="task-block-title" style="margin-top:12px;">
               <strong>個人任務自動判斷</strong>
-              <span>貿易、挖礦、靈石與秘寶抽取同步讀取週二既有進度</span>
-            </div>
-
-            <div class="task-list" style="margin-bottom:10px;">
-              ${taskRow({
-                key: "tueBountyStamina",
-                name: "懸賞個人任務｜消耗體力",
-                meta: "週二目前沒有其他體力任務，請輸入實際消耗量",
-                scoreHtml: `<span>目前 ${format(day.tueBountyStamina)} / 100 點</span>`
-              })}
-              ${taskRow({
-                key: "tueBountyGuruTicket",
-                name: "懸賞個人任務｜消耗咕嚕礦場門票",
-                meta: "請輸入週二實際消耗的門票數",
-                scoreHtml: `<span>目前 ${format(day.tueBountyGuruTicket)} / 2 張</span>`
-              })}
+              <span>全部同步讀取週二既有任務進度</span>
             </div>
 
             <div class="personal-task-status">
