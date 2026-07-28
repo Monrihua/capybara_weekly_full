@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v99</title>
+  <title>水豚每週活動計算機｜週一至週日 v100</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1882,7 +1882,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v99</div>
+      <div class="prototype-badge">週一至週日 v100</div>
     </header>
 
     <div class="top-tabs-stack">
@@ -2262,8 +2262,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v99";
+      const STORAGE_KEY = "capybara-weekly-full-v100";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v99",
         "capybara-weekly-full-v98",
         "capybara-weekly-full-v97",
         "capybara-weekly-full-v96",
@@ -4263,12 +4264,12 @@
         { key: "wedGbStaminaPurple", type: "stamina", name: "消耗體力", action: "消耗", color: "purple", need: 100, unit: "點", score: 100 },
         { key: "wedGbGuruWhite", type: "guru", name: "消耗咕嚕礦場門票", action: "消耗", color: "white", need: 1, unit: "張", score: 50 },
         { key: "wedGbGuruPurple", type: "guru", name: "消耗咕嚕礦場門票", action: "消耗", color: "purple", need: 2, unit: "張", score: 100 },
-        { key: "wedGbPetEggWhite", type: "petEgg", name: "抽取寵物蛋", action: "抽取", color: "white", need: 50, unit: "顆", score: 50 },
-        { key: "wedGbPetEggPurple", type: "petEgg", name: "抽取寵物蛋", action: "抽取", color: "purple", need: 100, unit: "顆", score: 100 },
-        { key: "wedGbPetEggGold", type: "petEgg", name: "抽取寵物蛋", action: "抽取", color: "gold", need: 500, unit: "顆", score: 300 },
-        { key: "wedGbBrandWhite", type: "brand", name: "祈願／限時祈願 抽取烙印", action: "抽取", color: "white", need: 1, unit: "次", score: 50 },
-        { key: "wedGbBrandPurple", type: "brand", name: "祈願／限時祈願 抽取烙印", action: "抽取", color: "purple", need: 2, unit: "次", score: 100 },
-        { key: "wedGbBrandGold", type: "brand", name: "祈願／限時祈願 抽取烙印", action: "抽取", color: "gold", need: 10, unit: "次", score: 300 }
+        { key: "wedGbPetEggWhite", type: "petEgg", name: "抽取寵物蛋", action: "抽取", color: "white", need: 250, unit: "顆", score: 50 },
+        { key: "wedGbPetEggPurple", type: "petEgg", name: "抽取寵物蛋", action: "抽取", color: "purple", need: 500, unit: "顆", score: 100 },
+        { key: "wedGbPetEggGold", type: "petEgg", name: "抽取寵物蛋", action: "抽取", color: "gold", need: 1000, unit: "顆", score: 300 },
+        { key: "wedGbBrandWhite", type: "brand", name: "祈願／限時祈願 抽取烙印", action: "抽取", color: "white", need: 5, unit: "次", score: 50 },
+        { key: "wedGbBrandPurple", type: "brand", name: "祈願／限時祈願 抽取烙印", action: "抽取", color: "purple", need: 10, unit: "次", score: 100 },
+        { key: "wedGbBrandGold", type: "brand", name: "祈願／限時祈願 抽取烙印", action: "抽取", color: "gold", need: 30, unit: "次", score: 300 }
       ];
 
       const thursdayGuildBountyDefinitions = [
@@ -4283,12 +4284,12 @@
         { key: "thuGbStaminaPurple", type: "stamina", name: "消耗體力", action: "消耗", color: "purple", need: 100, unit: "點", score: 100 },
         { key: "thuGbGuruWhite", type: "guru", name: "消耗咕嚕礦場門票", action: "消耗", color: "white", need: 1, unit: "張", score: 50 },
         { key: "thuGbGuruPurple", type: "guru", name: "消耗咕嚕礦場門票", action: "消耗", color: "purple", need: 2, unit: "張", score: 100 },
-        { key: "thuGbChestWhite", type: "chestPoints", name: "從開啟寶箱獲得寶箱積分", action: "獲得", color: "white", need: 100, unit: "分", score: 50 },
-        { key: "thuGbChestPurple", type: "chestPoints", name: "從開啟寶箱獲得寶箱積分", action: "獲得", color: "purple", need: 200, unit: "分", score: 100 },
-        { key: "thuGbChestGold", type: "chestPoints", name: "從開啟寶箱獲得寶箱積分", action: "獲得", color: "gold", need: 650, unit: "分", score: 300 },
-        { key: "thuGbTreasureWhite", type: "treasure", name: "珍寶商店 抽 1 次秘寶", action: "抽取", color: "white", need: 1, unit: "次", score: 50 },
-        { key: "thuGbTreasurePurple", type: "treasure", name: "珍寶商店 抽 1 次秘寶", action: "抽取", color: "purple", need: 2, unit: "次", score: 100 },
-        { key: "thuGbTreasureGold", type: "treasure", name: "珍寶商店 抽 1 次秘寶", action: "抽取", color: "gold", need: 6, unit: "次", score: 300 }
+        { key: "thuGbChestWhite", type: "chestPoints", name: "從開啟寶箱獲得寶箱積分", action: "獲得", color: "white", need: 325, unit: "分", score: 50 },
+        { key: "thuGbChestPurple", type: "chestPoints", name: "從開啟寶箱獲得寶箱積分", action: "獲得", color: "purple", need: 650, unit: "分", score: 100 },
+        { key: "thuGbChestGold", type: "chestPoints", name: "從開啟寶箱獲得寶箱積分", action: "獲得", color: "gold", need: 1950, unit: "分", score: 300 },
+        { key: "thuGbTreasureWhite", type: "treasure", name: "珍寶商店 抽 1 次秘寶", action: "抽取", color: "white", need: 5, unit: "次", score: 50 },
+        { key: "thuGbTreasurePurple", type: "treasure", name: "珍寶商店 抽 1 次秘寶", action: "抽取", color: "purple", need: 10, unit: "次", score: 100 },
+        { key: "thuGbTreasureGold", type: "treasure", name: "珍寶商店 抽 1 次秘寶", action: "抽取", color: "gold", need: 30, unit: "次", score: 300 }
       ];
 
       const fridayGuildBountyDefinitions = [
@@ -4303,9 +4304,9 @@
         { key: "friGbStaminaPurple", type: "stamina", name: "消耗體力", action: "消耗", color: "purple", need: 100, unit: "點", score: 100 },
         { key: "friGbGuruWhite", type: "guru", name: "消耗咕嚕礦場門票", action: "消耗", color: "white", need: 1, unit: "張", score: 50 },
         { key: "friGbGuruPurple", type: "guru", name: "消耗咕嚕礦場門票", action: "消耗", color: "purple", need: 2, unit: "張", score: 100 },
-        { key: "friGbGemWhite", type: "gem", name: "珍寶商店 抽 1 次寶石", action: "抽取", color: "white", need: 1, unit: "次", score: 50 },
-        { key: "friGbGemPurple", type: "gem", name: "珍寶商店 抽 1 次寶石", action: "抽取", color: "purple", need: 2, unit: "次", score: 100 },
-        { key: "friGbGemGold", type: "gem", name: "珍寶商店 抽 1 次寶石", action: "抽取", color: "gold", need: 6, unit: "次", score: 300 },
+        { key: "friGbGemWhite", type: "gem", name: "珍寶商店 抽 1 次寶石", action: "抽取", color: "white", need: 5, unit: "次", score: 50 },
+        { key: "friGbGemPurple", type: "gem", name: "珍寶商店 抽 1 次寶石", action: "抽取", color: "purple", need: 10, unit: "次", score: 100 },
+        { key: "friGbGemGold", type: "gem", name: "珍寶商店 抽 1 次寶石", action: "抽取", color: "gold", need: 30, unit: "次", score: 300 },
         { key: "friGbReagentWhite", type: "reagent", name: "寶石洗煉消耗高級煉金試劑", action: "消耗", color: "white", need: 2, unit: "個", score: 50 },
         { key: "friGbReagentPurple", type: "reagent", name: "寶石洗煉消耗高級煉金試劑", action: "消耗", color: "purple", need: 5, unit: "個", score: 100 },
         { key: "friGbReagentGold", type: "reagent", name: "寶石洗煉消耗高級煉金試劑", action: "消耗", color: "gold", need: 10, unit: "個", score: 300 }
@@ -4323,12 +4324,12 @@
         { key: "satGbStaminaPurple", type: "stamina", name: "消耗體力", action: "消耗", color: "purple", need: 100, unit: "點", score: 100 },
         { key: "satGbGuruWhite", type: "guru", name: "消耗咕嚕礦場門票", action: "消耗", color: "white", need: 1, unit: "張", score: 50 },
         { key: "satGbGuruPurple", type: "guru", name: "消耗咕嚕礦場門票", action: "消耗", color: "purple", need: 2, unit: "張", score: 100 },
-        { key: "satGbHorseshoeWhite", type: "horseshoe", name: "坐騎升級 消耗金蹄鐵", action: "消耗", color: "white", need: 100, unit: "個", score: 50 },
-        { key: "satGbHorseshoePurple", type: "horseshoe", name: "坐騎升級 消耗金蹄鐵", action: "消耗", color: "purple", need: 200, unit: "個", score: 100 },
-        { key: "satGbHorseshoeGold", type: "horseshoe", name: "坐騎升級 消耗金蹄鐵", action: "消耗", color: "gold", need: 1000, unit: "個", score: 300 },
-        { key: "satGbBrandWhite", type: "brand", name: "祈願／限時祈願 抽 1 次烙印", action: "抽取", color: "white", need: 1, unit: "次", score: 50 },
-        { key: "satGbBrandPurple", type: "brand", name: "祈願／限時祈願 抽 1 次烙印", action: "抽取", color: "purple", need: 2, unit: "次", score: 100 },
-        { key: "satGbBrandGold", type: "brand", name: "祈願／限時祈願 抽 1 次烙印", action: "抽取", color: "gold", need: 1, unit: "次", score: 300 }
+        { key: "satGbHorseshoeWhite", type: "horseshoe", name: "坐騎升級 消耗金蹄鐵", action: "消耗", color: "white", need: 500, unit: "個", score: 50 },
+        { key: "satGbHorseshoePurple", type: "horseshoe", name: "坐騎升級 消耗金蹄鐵", action: "消耗", color: "purple", need: 1000, unit: "個", score: 100 },
+        { key: "satGbHorseshoeGold", type: "horseshoe", name: "坐騎升級 消耗金蹄鐵", action: "消耗", color: "gold", need: 2000, unit: "個", score: 300 },
+        { key: "satGbBrandWhite", type: "brand", name: "祈願／限時祈願 抽 1 次烙印", action: "抽取", color: "white", need: 5, unit: "次", score: 50 },
+        { key: "satGbBrandPurple", type: "brand", name: "祈願／限時祈願 抽 1 次烙印", action: "抽取", color: "purple", need: 10, unit: "次", score: 100 },
+        { key: "satGbBrandGold", type: "brand", name: "祈願／限時祈願 抽 1 次烙印", action: "抽取", color: "gold", need: 30, unit: "次", score: 300 }
       ];
 
       const guildBountyKeys = new Set(
