@@ -2,8 +2,11 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v116</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+  <title>水豚每週活動計算機｜週一至週日 v117</title>
+  <script>
+    document.documentElement.classList.add("viewport-ready");
+  </script>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -25,10 +28,20 @@
 
     * { box-sizing: border-box; }
 
-    html, body {
+    html {
+      width: 100%;
+      max-width: 100%;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      background: var(--bg);
+    }
+
+    body {
+      width: 100%;
+      max-width: 100%;
       margin: 0;
       min-height: 100%;
-      overflow-x: clip;
+      overflow-x: hidden;
       background: var(--bg);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC",
@@ -36,7 +49,7 @@
     }
 
     body { padding: 16px clamp(10px, 1.2vw, 22px) 36px; }
-    button, input { font: inherit; }
+    button, input, select, textarea { font: inherit; }
 
     button {
       border: 0;
@@ -1292,6 +1305,8 @@
 
     .mobile-bottom-nav {
       display: none;
+      width: 100%;
+      max-width: 100vw;
     }
 
     .mobile-nav-btn {
@@ -1865,7 +1880,36 @@
     }
 
     @media (max-width: 600px) {
-      body { padding: 10px 8px calc(110px + env(safe-area-inset-bottom)); }
+      html,
+      body {
+        width: 100%;
+        max-width: 100vw;
+        min-width: 0;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+
+      body {
+        padding: 10px 8px calc(110px + env(safe-area-inset-bottom));
+        overflow-x: hidden;
+      }
+
+      input,
+      select,
+      textarea {
+        font-size: 16px;
+      }
+
+      .page,
+      .app-shell,
+      .main,
+      .top-tabs-stack,
+      .card,
+      .section-card {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+      }
 
       .top-tabs-stack {
         position: sticky;
@@ -1914,9 +1958,13 @@
 
       .day-auto-plan-btn {
         min-height: 38px;
+        min-width: 0;
+        max-width: 100%;
         padding: 7px 10px;
         border-radius: 10px;
         font-size: 12px;
+        white-space: normal;
+        overflow-wrap: anywhere;
       }
 
       .weekly-summary-head-tools {
@@ -2157,7 +2205,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v116</div>
+      <div class="prototype-badge">週一至週日 v117</div>
     </header>
 
     <div class="app-shell">
@@ -2577,8 +2625,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v116";
+      const STORAGE_KEY = "capybara-weekly-full-v117";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v116",
         "capybara-weekly-full-v115",
         "capybara-weekly-full-v114",
         "capybara-weekly-full-v113",
