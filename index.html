@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>水豚每週活動計算機｜週一至週日 v95</title>
+  <title>水豚每週活動計算機｜週一至週日 v96</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -1872,7 +1872,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v95</div>
+      <div class="prototype-badge">週一至週日 v96</div>
     </header>
 
     <div class="top-tabs-stack">
@@ -2252,8 +2252,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v95";
+      const STORAGE_KEY = "capybara-weekly-full-v96";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v95",
         "capybara-weekly-full-v94",
         "capybara-weekly-full-v93",
         "capybara-weekly-full-v92",
@@ -5311,6 +5312,8 @@
               })}
             </div>
           </div>
+
+          ${state.weekMode === "bounty" ? renderWednesdayGuildBounty() : ""}
         `;
       }
 
@@ -5351,7 +5354,6 @@
             </div>
           </div>
 
-          ${state.weekMode === "bounty" ? renderWednesdayGuildBounty() : ""}
         `;
       }
 
@@ -7762,12 +7764,14 @@ async function downloadChartAsImage() {
 
         if (state.weekMode === "bounty") {
           day.goblin = Math.max(toInt(day.goblin), 100);
+
           const currentStamina = getWednesdayStaminaSummary().stamina;
           if (currentStamina < 100) {
             const staminaPlan = findMinimumActionStaminaPlan(
               100 - currentStamina,
               getOwnedStaminaAmount()
             );
+
             if (!staminaPlan) {
               renderAll();
               els.autoPlanStatus.className = "auto-plan-status show warning";
@@ -7776,6 +7780,7 @@ async function downloadChartAsImage() {
               `;
               return;
             }
+
             for (const [key, count] of Object.entries(staminaPlan.counts)) {
               setStaminaCount(
                 "wed",
@@ -7784,58 +7789,66 @@ async function downloadChartAsImage() {
               );
             }
           }
-
-          const currentEggs = getWednesdayPetEggSummary();
-          const missingPersonalEggs = Math.max(0, 500 - currentEggs.openedEggs);
-          if (missingPersonalEggs > 0) {
-            const personalPlan = findWednesdayEggBundlePlan(
-              missingPersonalEggs,
-              getOwnedResourceAmount("petEgg")
-            );
-            if (!personalPlan) {
-              renderAll();
-              els.autoPlanStatus.className = "auto-plan-status show warning";
-              els.autoPlanStatus.innerHTML = `
-                <strong>寵物蛋不足，無法完成週三懸賞個人任務</strong>
-                <div>還需要抽取 ${format(missingPersonalEggs)} 顆寵物蛋。</div>
-              `;
-              return;
-            }
-            applyWednesdayEggPlan(personalPlan);
-          }
         }
 
         const targetScore = marathonStages[4].score;
         const currentScore = getScoresForDay("wed").marathon;
+        const currentEggSummary = getWednesdayPetEggSummary();
+
         const missingScore = Math.max(0, targetScore - currentScore);
-        const requiredOpenedEggs = Math.ceil(missingScore / 60);
-        const availableEggs = getOwnedResourceAmount("petEgg");
-        const plan = findWednesdayEggBundlePlan(requiredOpenedEggs, availableEggs);
+        const scoreRequiredEggs = Math.ceil(missingScore / 60);
+        const personalRequiredEggs =
+          state.weekMode === "bounty"
+            ? Math.max(0, 500 - currentEggSummary.openedEggs)
+            : 0;
+
+        const requiredOpenedEggs = Math.max(
+          scoreRequiredEggs,
+          personalRequiredEggs
+        );
+
+        const plan = findWednesdayEggBundlePlan(
+          requiredOpenedEggs,
+          getOwnedResourceAmount("petEgg")
+        );
 
         if (!plan) {
           renderAll();
           els.autoPlanStatus.className = "auto-plan-status show warning";
           els.autoPlanStatus.innerHTML = `
-            <strong>寵物蛋不足，無法補到馬拉松第 5 階</strong>
+            <strong>寵物蛋不足，無法完成週三自動方案</strong>
             <div>
-              目前 ${format(currentScore)} 分，還差 ${format(missingScore)} 分，
-              至少需要再開啟約 ${format(requiredOpenedEggs)} 顆寵物蛋。
+              馬拉松還差 ${format(missingScore)} 分；
+              本次至少需要再開啟 ${format(requiredOpenedEggs)} 顆寵物蛋。
             </div>
           `;
           return;
         }
 
         applyWednesdayEggPlan(plan);
+
         const finalScore = getScoresForDay("wed").marathon;
         const finalEggs = getWednesdayPetEggSummary();
+        const planParts = [
+          ["petEggBundle10", "×10"],
+          ["petEggBundle5", "×5"],
+          ["petEggBundle3", "×3"],
+          ["petEggBundle1", "×1"]
+        ]
+          .filter(([key]) => toInt(plan.counts[key]) > 0)
+          .map(([key, label]) => `${label} ${format(plan.counts[key])} 次`)
+          .join("、");
+
         renderAll();
 
         els.autoPlanStatus.className = "auto-plan-status show success";
         els.autoPlanStatus.innerHTML = `
           <strong>週三已自動補到馬拉松第 5 階</strong>
+          <div>${planParts || "不需追加寵物蛋操作"}</div>
           <div>
-            追加開啟 ${format(plan.opened)} 顆，消耗 ${format(plan.consumed)} 顆持有寵物蛋，
-            共 ${format(plan.actions)} 次操作。
+            追加開啟 ${format(plan.opened)} 顆，消耗
+            ${format(plan.consumed)} 顆持有寵物蛋，共
+            ${format(plan.actions)} 次操作。
           </div>
           <div>
             目前計分開啟 ${format(finalEggs.openedEggs)} 顆，
