@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v125</title>
+  <title>水豚每週活動計算機｜週一至週日 v126</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -2395,7 +2395,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v125</div>
+      <div class="prototype-badge">週一至週日 v126</div>
     </header>
 
     <div class="app-shell">
@@ -2811,8 +2811,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v125";
+      const STORAGE_KEY = "capybara-weekly-full-v126";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v125",
         "capybara-weekly-full-v124",
         "capybara-weekly-full-v123",
         "capybara-weekly-full-v122",
@@ -4071,7 +4072,7 @@
 
       function mondayArchaeologyStaminaScore(stamina) {
         return Math.min(stamina, 200) * 100 +
-          Math.max(0, stamina - 200) * 1;
+          Math.max(0, stamina - 200) * 10;
       }
 
       function wednesdayArchaeologyStaminaScore(stamina) {
@@ -4787,7 +4788,7 @@
                           ${isMonday ? `
                             <span class="score-chip marathon">馬拉松 ${format(option.stamina * 75)}／次</span>
                             <span class="score-chip archaeology">考古 ${format(option.stamina * 100)}／次（200 體內）</span>
-                            <span class="score-chip reduced">考古 ${format(option.stamina * 1)}／次（超過 200 體）</span>
+                            <span class="score-chip reduced">考古 ${format(option.stamina * 10)}／次（超過 200 體）</span>
                           ` : `
                             <span class="score-chip archaeology">考古 ${format(option.stamina * 200)}／次（200 體內）</span>
                             <span class="score-chip reduced">考古 ${format(option.stamina * 20)}／次（超過 200 體）</span>
@@ -5830,7 +5831,7 @@
 
             <div class="task-block-title">
               <strong>消耗體力</strong>
-              <span>考古前 200 體每點 100 分，超過後每點 1 分</span>
+              <span>考古前 200 體每點 100 分，超過後每點 10 分</span>
             </div>
 
             <div class="stamina-summary">
