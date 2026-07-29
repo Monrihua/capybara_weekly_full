@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v126</title>
+  <title>水豚每週活動計算機｜週一至週日 v127</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -2395,7 +2395,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v126</div>
+      <div class="prototype-badge">週一至週日 v127</div>
     </header>
 
     <div class="app-shell">
@@ -2582,8 +2582,9 @@
         <div id="mobileActionsPanel">
           <div class="actions sidebar-actions" aria-label="操作按鈕">
           <button class="action-btn action-confirm" id="confirmGenerateCharts" type="button">確認並產出圖表</button>
-          <button class="action-btn action-plan" id="applyThirtyStarPlan" type="button">補滿本周剩餘積分｜目標 30 星／14 卡皮幣</button>
-          <button class="action-btn action-plan" id="applyAllStageFivePlan" type="button">補滿本周剩餘積分｜目標 全週 5 階</button>
+          <button class="action-btn action-plan" id="applyThirtyStarPlan" type="button">永續省資源｜只補馬拉松 30 星／14 卡皮幣</button>
+          <button class="action-btn action-plan" id="applyAllStageFivePlan" type="button">永續省資源｜只補馬拉松全週 5 階</button>
+          <button class="action-btn action-plan" id="applyActivityPushPlan" type="button">資源充足｜優先衝考古／懸賞＋兼顧馬拉松</button>
           <button class="action-btn action-primary" id="applyDailyDefaults" type="button">重套當日無消耗型任務</button>
           <button class="action-btn action-secondary" id="clearCurrentDay" type="button">當日全部歸零＋重套無消耗型任務</button>
           <button class="action-btn action-warning" id="resetAllDaysDefaults" type="button">本週全部歸零＋重套無消耗型任務</button>
@@ -2811,8 +2812,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v126";
+      const STORAGE_KEY = "capybara-weekly-full-v127";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v126",
         "capybara-weekly-full-v125",
         "capybara-weekly-full-v124",
         "capybara-weekly-full-v123",
@@ -9494,6 +9496,359 @@ async function downloadChartAsImage() {
         pendingSundayPlans = null;
       }
 
+      const ACTIVITY_PUSH_ARCHAEOLOGY_TARGET = 320000;
+      const ACTIVITY_PUSH_BOUNTY_TARGET = 3200;
+
+      function getGuildBountyDefinitionsForDay(dayKey) {
+        if (dayKey === "tue") return tuesdayGuildBountyDefinitions;
+        if (dayKey === "wed") return wednesdayGuildBountyDefinitions;
+        if (dayKey === "thu") return thursdayGuildBountyDefinitions;
+        if (dayKey === "fri") return fridayGuildBountyDefinitions;
+        if (dayKey === "sat") return saturdayGuildBountyDefinitions;
+        return guildBountyDefinitions;
+      }
+
+      function getPreferredDualBountyType(dayKey) {
+        return {
+          mon: "equipBox",
+          tue: "spirit",
+          wed: "petEgg",
+          thu: "chestPoints",
+          fri: "gem",
+          sat: "horseshoe"
+        }[dayKey] || "dungeon";
+      }
+
+      function getPreferredBountyMarathonGain(dayKey, amount) {
+        const total = Math.max(0, toInt(amount));
+        if (dayKey === "mon") return total * 3000;
+        if (dayKey === "tue") return Math.floor(total / 200) * 3000;
+        if (dayKey === "wed") return total * 60;
+        if (dayKey === "thu") return total * 48;
+        if (dayKey === "fri") return total * 3000;
+        if (dayKey === "sat") return total * 32;
+        return 0;
+      }
+
+      function findBountyColorPlan(remainingScore, availableSlots) {
+        const remaining = Math.max(0, toInt(remainingScore));
+        const slots = Math.max(0, toInt(availableSlots));
+        if (remaining <= 0) {
+          return { gold: 0, purple: 0, white: 0, score: 0, count: 0, excess: 0 };
+        }
+
+        let best = null;
+        for (let gold = 0; gold <= slots; gold++) {
+          for (let purple = 0; purple <= slots - gold; purple++) {
+            for (let white = 0; white <= slots - gold - purple; white++) {
+              const count = gold + purple + white;
+              if (!count) continue;
+              const score = gold * 300 + purple * 100 + white * 50;
+              if (score < remaining) continue;
+              const candidate = {
+                gold,
+                purple,
+                white,
+                score,
+                count,
+                excess: score - remaining
+              };
+              if (
+                !best ||
+                candidate.count < best.count ||
+                (candidate.count === best.count && candidate.excess < best.excess) ||
+                (candidate.count === best.count && candidate.excess === best.excess && candidate.gold > best.gold) ||
+                (candidate.count === best.count && candidate.excess === best.excess && candidate.gold === best.gold && candidate.purple > best.purple)
+              ) {
+                best = candidate;
+              }
+            }
+          }
+        }
+        return best;
+      }
+
+      function ensureStaminaForDay(dayKey, minimumStamina) {
+        const summary = dayKey === "mon"
+          ? getMondayStaminaSummary()
+          : dayKey === "wed"
+            ? getWednesdayStaminaSummary()
+            : getSaturdayStaminaSummary();
+        const missing = Math.max(0, minimumStamina - summary.stamina);
+        if (missing <= 0) return { ok: true, added: 0 };
+
+        const plan = findMinimumActionStaminaPlan(
+          missing,
+          getOwnedStaminaAmount()
+        );
+        if (!plan) return { ok: false, added: 0 };
+
+        const day = state.days[dayKey];
+        for (const [key, count] of Object.entries(plan.counts)) {
+          setStaminaCount(
+            dayKey,
+            key,
+            toInt(day.staminaCounts[key]) + toInt(count)
+          );
+        }
+        return { ok: true, added: plan.stamina };
+      }
+
+      function ensureBountyPersonalTasks(dayKey) {
+        const day = state.days[dayKey];
+        day.guildRaid = Math.max(toInt(day.guildRaid), 2);
+        day.arena = Math.max(toInt(day.arena), 3);
+        day.dungeonCount = Math.max(toInt(day.dungeonCount), 10);
+        day.goblin = Math.max(toInt(day.goblin), 100);
+
+        if (dayKey === "mon") {
+          day.equipBox = Math.max(toInt(day.equipBox), 10);
+          return ensureStaminaForDay("mon", 100).ok;
+        }
+
+        if (dayKey === "tue") {
+          day.tradeShip = Math.max(toInt(day.tradeShip), 2);
+          const currentPet = getTuesdayPetSummary();
+          const missingSpirit = Math.max(0, 2000 - currentPet.spiritStones);
+          const actions = Math.ceil(missingSpirit / 200);
+          if (actions > 0) {
+            const before = toInt(day.petBase);
+            setResourceTaskCount("tue", "petBase", before + actions);
+            if (toInt(day.petBase) - before < actions) return false;
+          }
+          return true;
+        }
+
+        if (dayKey === "wed") {
+          if (!ensureStaminaForDay("wed", 100).ok) return false;
+          const eggs = getWednesdayPetEggSummary();
+          const missingEggs = Math.max(0, 500 - eggs.openedEggs);
+          if (missingEggs > 0) {
+            const plan = findWednesdayEggBundlePlan(
+              missingEggs,
+              getOwnedResourceAmount("petEgg")
+            );
+            if (!plan) return false;
+            applyWednesdayEggPlan(plan);
+          }
+          return true;
+        }
+
+        if (dayKey === "thu") {
+          day.tradeShip = Math.max(toInt(day.tradeShip), 2);
+          const chestPoints = getChestSummary("thu").chestPoints;
+          const missingPoints = Math.max(0, 650 - chestPoints);
+          if (missingPoints > 0) {
+            const plan = findThursdayChestPlan(missingPoints);
+            if (!plan) return false;
+            applyThursdayChestPlan(plan);
+          }
+          return true;
+        }
+
+        if (dayKey === "fri") {
+          day.guruTicket = Math.max(toInt(day.guruTicket), 2);
+          day.treasureDraw = Math.max(toInt(day.treasureDraw), 1);
+          return true;
+        }
+
+        if (dayKey === "sat") {
+          day.horseshoe = Math.max(toInt(day.horseshoe), 1000);
+          return ensureStaminaForDay("sat", 100).ok;
+        }
+
+        return true;
+      }
+
+      function buildBountyPushRecommendation(dayKey) {
+        const summary = getGuildBountySummaryForDay(dayKey);
+        const remaining = Math.max(
+          0,
+          ACTIVITY_PUSH_BOUNTY_TARGET - summary.totalScore
+        );
+        const plan = findBountyColorPlan(
+          remaining,
+          summary.acceptsRemaining
+        );
+
+        if (remaining <= 0) {
+          return {
+            ok: true,
+            html: `目前 ${format(summary.totalScore)} 分，已拿滿 9 階獎勵。`
+          };
+        }
+
+        if (!plan) {
+          return {
+            ok: false,
+            html: `目前 ${format(summary.totalScore)} 分，還差 ${format(remaining)} 分；剩餘 ${format(summary.acceptsRemaining)} 次接取額度不足。`
+          };
+        }
+
+        const definitions = getGuildBountyDefinitionsForDay(dayKey);
+        const preferredType = getPreferredDualBountyType(dayKey);
+        const colorConfig = [
+          ["gold", "金色", plan.gold],
+          ["purple", "紫色", plan.purple],
+          ["white", "白色", plan.white]
+        ];
+        const taskParts = [];
+        let preferredActivityAmount = 0;
+
+        for (const [color, label, count] of colorConfig) {
+          if (!count) continue;
+          const preferred = definitions.find(
+            item => item.color === color && item.type === preferredType
+          ) || definitions.find(item => item.color === color);
+          if (!preferred) continue;
+          const totalNeed = preferred.need * count;
+          preferredActivityAmount += totalNeed;
+          taskParts.push(
+            `${label} ×${format(count)}：優先接「${preferred.name}」，合計${preferred.action}${format(totalNeed)}${preferred.unit}`
+          );
+        }
+
+        const marathonGain = getPreferredBountyMarathonGain(
+          dayKey,
+          preferredActivityAmount
+        );
+
+        return {
+          ok: true,
+          html: `
+            個人任務 ${format(summary.personalScore)} / 500 分；公會任務目前 ${format(summary.guildScore)} / 4,500 分。<br>
+            建議 ${taskParts.join("；")}。<br>
+            此組合增加 ${format(plan.score)} 懸賞分，${plan.excess > 0 ? `超出目標 ${format(plan.excess)} 分` : "剛好達標"}；推薦任務本身約可同時帶來 ${format(marathonGain)} 馬拉松分。
+          `
+        };
+      }
+
+      function applyArchaeologyPushDay(dayKey) {
+        state.activeDay = dayKey;
+        const day = state.days[dayKey];
+
+        if (dayKey === "mon") applyMinimumMondayFreeTasks();
+        if (dayKey === "tue") applyMinimumTuesdayFreeTasks();
+        if (dayKey === "wed") applyMinimumWednesdayFreeTasks();
+        if (dayKey === "thu") applyMinimumThursdayFreeTasks();
+        if (dayKey === "fri") applyMinimumFridayFreeTasks();
+        if (dayKey === "sat") applyMinimumSaturdayFreeTasks();
+
+        let current = getScoresForDay(dayKey).archaeology;
+        let missing = Math.max(0, ACTIVITY_PUSH_ARCHAEOLOGY_TARGET - current);
+        let sourceText = "不需追加";
+        let ok = true;
+
+        if (missing > 0 && dayKey === "mon") {
+          const added = Math.ceil(missing / 1000);
+          day.equipBox = toInt(day.equipBox) + added;
+          sourceText = `限定秘藏箱／傳說秘寶箱 × ${format(added)}`;
+        } else if (missing > 0 && dayKey === "tue") {
+          const neededActions = Math.ceil(missing / 1000);
+          const before = toInt(day.petBase);
+          setResourceTaskCount("tue", "petBase", before + neededActions);
+          const added = toInt(day.petBase) - before;
+          ok = added >= neededActions;
+          sourceText = `寵物培育｜不鎖定詞綴 × ${format(added)}`;
+        } else if (missing > 0 && dayKey === "wed") {
+          const requiredEggs = Math.ceil(missing / 20);
+          const plan = findWednesdayEggBundlePlan(
+            requiredEggs,
+            getOwnedResourceAmount("petEgg")
+          );
+          if (!plan) {
+            ok = false;
+            sourceText = `寵物蛋不足，至少還需開啟 ${format(requiredEggs)} 顆`;
+          } else {
+            applyWednesdayEggPlan(plan);
+            sourceText = `開啟寵物蛋 ${format(plan.opened)} 顆，共 ${format(plan.actions)} 次操作`;
+          }
+        } else if (missing > 0 && dayKey === "thu") {
+          const requiredChestPoints = Math.ceil(missing / 15);
+          const plan = findThursdayChestPlan(requiredChestPoints);
+          if (!plan) {
+            ok = false;
+            sourceText = `持有寶箱不足，至少還需 ${format(requiredChestPoints)} 寶箱積分`;
+          } else {
+            applyThursdayChestPlan(plan);
+            sourceText = `開啟 ${format(plan.openedBoxes)} 個寶箱，取得 ${format(plan.chestPoints)} 寶箱積分`;
+          }
+        } else if (missing > 0 && dayKey === "fri") {
+          day.guruTicket = Math.max(toInt(day.guruTicket), 10);
+          current = getScoresForDay(dayKey).archaeology;
+          missing = Math.max(0, ACTIVITY_PUSH_ARCHAEOLOGY_TARGET - current);
+          const addedGemDraws = Math.ceil(missing / 1000);
+          day.gemDraw = toInt(day.gemDraw) + addedGemDraws;
+          sourceText = `咕嚕礦場門票補至 10 張，再抽寶石 ${format(addedGemDraws)} 次`;
+        } else if (missing > 0 && dayKey === "sat") {
+          const addedHorseshoes = Math.ceil(missing / 10);
+          day.horseshoe = toInt(day.horseshoe) + addedHorseshoes;
+          sourceText = `坐騎升級消耗金蹄鐵 ${format(addedHorseshoes)} 個`;
+        }
+
+        const finalScores = getScoresForDay(dayKey);
+        const stars = getMarathonStars(finalScores.marathon);
+        if (finalScores.archaeology < ACTIVITY_PUSH_ARCHAEOLOGY_TARGET) ok = false;
+
+        return {
+          dayLabel: shortDayLabels[dayKey],
+          isWarning: !ok,
+          html: `
+            <strong>${shortDayLabels[dayKey]}｜優先衝聯合考古</strong>
+            <div>${sourceText}</div>
+            <div>考古 ${format(finalScores.archaeology)} / ${format(ACTIVITY_PUSH_ARCHAEOLOGY_TARGET)} 分；馬拉松 ${format(finalScores.marathon)} 分、${format(stars)} / 6 星。</div>
+          `
+        };
+      }
+
+      function applyActivityPushPlan() {
+        const originalDay = state.activeDay;
+        const results = [];
+
+        if (state.weekMode === "archaeology") {
+          for (const dayKey of ["mon", "tue", "wed", "thu", "fri", "sat"]) {
+            results.push(applyArchaeologyPushDay(dayKey));
+          }
+          state.activeDay = "sun";
+          pendingWeeklyAutoPlanResults = results;
+          openSundayAutoPlan();
+          state.activeDay = originalDay;
+          return;
+        }
+
+        for (const dayKey of ["mon", "tue", "wed", "thu", "fri", "sat"]) {
+          state.activeDay = dayKey;
+          const personalOk = ensureBountyPersonalTasks(dayKey);
+          const recommendation = buildBountyPushRecommendation(dayKey);
+          const summary = getGuildBountySummaryForDay(dayKey);
+          const marathon = getScoresForDay(dayKey).marathon;
+          results.push({
+            dayLabel: shortDayLabels[dayKey],
+            isWarning: !personalOk || !recommendation.ok,
+            html: `
+              <strong>${shortDayLabels[dayKey]}｜優先衝公會懸賞</strong>
+              <div>${personalOk ? `個人任務已補到 ${format(summary.personalScore)} / 500 分。` : "資源不足，個人任務尚未補滿。"}</div>
+              <div>${recommendation.html}</div>
+              <div>目前馬拉松 ${format(marathon)} 分、${format(getMarathonStars(marathon))} / 6 星。</div>
+            `
+          });
+        }
+
+        state.activeDay = originalDay;
+        renderAll();
+        const hasWarning = results.some(item => item.isWarning);
+        els.autoPlanStatus.className = `auto-plan-status show ${hasWarning ? "warning" : "success"}`;
+        els.autoPlanStatus.innerHTML = `
+          <strong>資源充足方案｜懸賞優先規劃結果</strong>
+          <div>懸賞板任務隨機出現，因此不會自動填寫「已完成公會任務」件數；請依下列順序優先接取，完成後再手動登錄。</div>
+          ${results.map(item => `
+            <div class="weekly-auto-plan-result">
+              ${item.html}
+            </div>
+          `).join("")}
+        `;
+      }
+
       function applyWeeklyAutoPlan(targetStages = STANDARD_WEEKLY_TARGETS) {
         const originalDay = state.activeDay;
         const results = [];
@@ -10573,6 +10928,10 @@ async function downloadChartAsImage() {
 
       document.getElementById("applyAllStageFivePlan").addEventListener("click", () => {
         applyWeeklyAutoPlan(ALL_STAGE_FIVE_TARGETS);
+      });
+
+      document.getElementById("applyActivityPushPlan").addEventListener("click", () => {
+        applyActivityPushPlan();
       });
 
       els.dailyAutoPlanButton.addEventListener("click", () => {
