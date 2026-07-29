@@ -1442,6 +1442,8 @@
     .report-summary-label { color:#4b5563; font-size:12px; font-weight:700; }
     .report-summary-value { color:#0f172a; font-size:16px; font-weight:900; }
     .report-summary-value.ok { color:#1d7a45; }
+    .report-day-mini-status { display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; background:#eef3fb; color:#64748b; font-size:11px; font-weight:900; }
+    .report-day-mini-status.ok { background:#e7f7ed; color:#1d7a45; }
     .report-day-card, .report-resource-card { margin-bottom:10px; padding:12px 14px; border:1px solid #d9e2f1; border-radius:16px; background:#fff; }
     .report-day-head { display:flex; flex-wrap:wrap; gap:6px; align-items:baseline; margin-bottom:8px; font-size:12px; font-weight:900; color:#2563eb; }
     .report-day-head .status-ok { color:#1d7a45; }
@@ -7531,14 +7533,94 @@ function getDayRewardTotals(dayKey) {
   return totals;
 }
 
-function formatTotalsAsList(totals) {
-  return Object.entries(totals)
-    .filter(([, amount]) => toInt(amount) > 0)
-    .sort(([nameA], [nameB]) => {
-      const indexDifference = rewardSortIndex(nameA) - rewardSortIndex(nameB);
-      return indexDifference || nameA.localeCompare(nameB, "zh-Hant");
-    })
-    .map(([name, amount]) => `${name}*${format(amount)}`);
+function mergeRewardTotals(...sources) {
+  const totals = {};
+  sources.forEach(source => {
+    if (!source) return;
+    Object.entries(source).forEach(([name, amount]) => {
+      totals[name] = toInt(totals[name]) + toInt(amount);
+    });
+  });
+  return totals;
+}
+
+function getDaySecondaryRewardTotals(dayKey) {
+  if (state.weekMode === "bounty") {
+    if (dayKey === "sun") return {};
+
+    const bounty = getGuildBountySummaryForDay(dayKey);
+    const totals = {};
+    guildBountyStages.forEach(stage => {
+      if (bounty.totalScore < stage.score) return;
+      totals["寵物武裝令牌"] = toInt(totals["寵物武裝令牌"]) + toInt(stage.token);
+      totals["功勳幣"] = toInt(totals["功勳幣"]) + toInt(stage.merit);
+    });
+    return totals;
+  }
+
+  if (dayKey === "sun") return {};
+
+  const scores = getScoresForDay(dayKey);
+  const pickaxes = getArchaeologyPickaxes(scores.archaeology);
+  return pickaxes > 0 ? { "幸運礦鎬": pickaxes } : {};
+}
+
+function getDayActivitySnapshot(dayKey) {
+  const scores = getScoresForDay(dayKey);
+  const marathonScore = scores.marathon;
+  const marathonStars = getMarathonStars(marathonScore);
+
+  const snapshot = {
+    marathonScore,
+    marathonStars,
+    marathonStatus: marathonStars >= 6 ? "達成" : "未達成",
+    marathonRemaining: Math.max(0, MARATHON_STAGE_TARGETS[5].score - marathonScore)
+  };
+
+  if (state.weekMode === "bounty") {
+    if (dayKey === "sun") {
+      return {
+        ...snapshot,
+        secondaryTitle: "公會懸賞",
+        secondaryScoreText: "休息",
+        secondaryStatus: "休息",
+        secondaryMetaText: "已達階段：—｜距離滿階：—",
+        secondaryAchieved: false
+      };
+    }
+
+    const bounty = getGuildBountySummaryForDay(dayKey);
+    const stageCount = guildBountyStages.filter(stage => bounty.totalScore >= stage.score).length;
+    return {
+      ...snapshot,
+      secondaryTitle: "公會懸賞",
+      secondaryScoreText: `${format(bounty.totalScore)} / 5,000 分`,
+      secondaryStatus: `${stageCount} / 9 階`,
+      secondaryMetaText: `個人 ${format(bounty.personalScore)} / 500｜公會 ${format(bounty.guildScore)} / 4,500｜距離滿階 ${format(Math.max(0, GUILD_BOUNTY_TOTAL_MAX - bounty.totalScore))}`,
+      secondaryAchieved: stageCount >= 9
+    };
+  }
+
+  if (dayKey === "sun") {
+    return {
+      ...snapshot,
+      secondaryTitle: "聯合考古",
+      secondaryScoreText: "休息",
+      secondaryStatus: "休息",
+      secondaryMetaText: "幸運礦鎬：—｜距離滿階：—",
+      secondaryAchieved: false
+    };
+  }
+
+  const pickaxes = getArchaeologyPickaxes(scores.archaeology);
+  return {
+    ...snapshot,
+    secondaryTitle: "聯合考古",
+    secondaryScoreText: `${format(scores.archaeology)} 分`,
+    secondaryStatus: `${pickaxes} / 56 礦鎬`,
+    secondaryMetaText: `距離滿階 ${format(Math.max(0, ARCHAEOLOGY_TARGET - scores.archaeology))}`,
+    secondaryAchieved: pickaxes >= 56
+  };
 }
 
 function buildReportTaskLines(dayKey) {
@@ -7572,7 +7654,7 @@ function buildReportTaskLines(dayKey) {
     const chestLines = [];
     for (const [key, config] of Object.entries(chestConfigs)) {
       const count = toInt(day[key]);
-      if (count > 0) chestLines.push(`${config.label}${format(count)} 個`);
+      if (count > 0) chestLines.push(`${config.name}${format(count)} 個`);
     }
     if (chestLines.length > 0) lines.push(`開啟寶箱：${chestLines.join("、")}`);
     if (day.tradeShip > 0) lines.push(`卡皮貿易 ${format(day.tradeShip)} 次`);
@@ -7595,7 +7677,7 @@ function buildReportTaskLines(dayKey) {
     const chestLines = [];
     for (const [key, config] of Object.entries(chestConfigs)) {
       const count = toInt(day[key]);
-      if (count > 0) chestLines.push(`${config.label}${format(count)} 個`);
+      if (count > 0) chestLines.push(`${config.name}${format(count)} 個`);
     }
     if (chestLines.length > 0) lines.push(`開啟寶箱：${chestLines.join("、")}`);
     if (day.horseshoe > 0) lines.push(`坐騎升級 消耗金蹄鐵 ${format(day.horseshoe)} 個`);
@@ -7622,7 +7704,14 @@ function buildWeeklyResourceFlow() {
   for (const [name, amount] of Object.entries(summary.weeklyRewards)) {
     gains[name] = toInt(gains[name]) + toInt(amount);
   }
-  gains["幸運礦鎬"] = summary.totalPickaxes;
+
+  if (state.weekMode === "bounty") {
+    for (const [name, amount] of Object.entries(summary.bountyRewards)) {
+      gains[name] = toInt(gains[name]) + toInt(amount);
+    }
+  } else {
+    gains["幸運礦鎬"] = summary.totalPickaxes;
+  }
 
   const tuePet = getTuesdayPetSummary();
   const wedEgg = getWednesdayPetEggSummary();
@@ -7641,7 +7730,7 @@ function buildWeeklyResourceFlow() {
 
   const boxKeys = ["bronzeBox", "silverBox", "goldBox", "petBox"];
   for (const key of boxKeys) {
-    const name = chestConfigs[key].label;
+    const name = chestConfigs[key].name;
     consume[name] = toInt(state.days.thu[key]) + toInt(state.days.sun[key]);
   }
 
@@ -7657,43 +7746,6 @@ function buildWeeklyResourceFlow() {
   return { gains, consume };
 }
 
-function renderReportFlowTable(resources, flow) {
-  const cells = resources.map(name => {
-    const gain = toInt(flow.gains[name]);
-    const cost = toInt(flow.consume[name]);
-    const net = gain - cost;
-    const netClass = net > 0 ? "positive" : net < 0 ? "negative" : "";
-    return { name, gain, cost, net, netText: `${net > 0 ? "+" : ""}${format(net)}`, netClass };
-  });
-
-  return `
-    <div class="report-table-wrap">
-      <table class="report-table">
-        <thead>
-          <tr>
-            <th>資源</th>
-            ${cells.map(item => `<th>${item.name}</th>`).join("")}
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="report-row-gain">
-            <th>獲得</th>
-            ${cells.map(item => `<td>${format(item.gain)}</td>`).join("")}
-          </tr>
-          <tr class="report-row-consume">
-            <th>消耗</th>
-            ${cells.map(item => `<td>${format(item.cost)}</td>`).join("")}
-          </tr>
-          <tr class="report-row-net">
-            <th>淨流入／出</th>
-            ${cells.map(item => `<td class="${item.netClass}">${item.netText}</td>`).join("")}
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  `;
-}
-
 function formatReportTime() {
   const now = new Date();
   const pad = number => String(number).padStart(2, "0");
@@ -7703,29 +7755,61 @@ function formatReportTime() {
 function buildWeeklyReportHtml() {
   const summary = getWeeklyMarathonSummary();
   const weeklyTotalScore = dayOrder.reduce((sum, dayKey) => sum + getScoresForDay(dayKey).marathon, 0);
-  const achievedBigPrize = summary.totalStars >= 30 ? "已達成" : "未達成";
   const flow = buildWeeklyResourceFlow();
+  const isBountyWeek = state.weekMode === "bounty";
+  const modeLabel = isBountyWeek ? "公會懸賞" : "聯合考古";
+  const reportTitle = isBountyWeek
+    ? "水豚馬拉松＋公會懸賞｜本週任務配置圖表"
+    : "水豚馬拉松＋聯合考古｜本週任務配置圖表";
+  const secondSummaryText = isBountyWeek
+    ? `${format(summary.totalBountyScore)} / 30,000 分`
+    : `${format(summary.totalPickaxes)} / 336 礦鎬`;
+  const secondSummarySubText = isBountyWeek
+    ? `每日 5,000 分 × 6 天｜已達 ${format(summary.totalBountyStages)} / 54 階`
+    : `每日最多 56 礦鎬 × 6 天`;
+
+  const combinedRewardTotals = mergeRewardTotals(
+    summary.dailyRewards,
+    summary.weeklyRewards,
+    isBountyWeek ? summary.bountyRewards : { "幸運礦鎬": summary.totalPickaxes }
+  );
+  const combinedRewardLines = formatTotalsAsList(combinedRewardTotals);
 
   const dayCardsHtml = dayOrder.map(dayKey => {
-    const score = getScoresForDay(dayKey).marathon;
-    const stars = getMarathonStars(score);
-    const achieved = stars >= 6;
+    const snapshot = getDayActivitySnapshot(dayKey);
     const taskLines = buildReportTaskLines(dayKey);
-    const rewardLines = formatTotalsAsList(getDayRewardTotals(dayKey));
+    const rewardLines = formatTotalsAsList(
+      mergeRewardTotals(getDayRewardTotals(dayKey), getDaySecondaryRewardTotals(dayKey))
+    );
 
     return `
       <section class="report-day-card">
         <div class="report-day-head">
-          <span>${shortDayLabels[dayKey]}｜${format(score)} 分｜${format(stars)}/6 星｜</span>
-          <span class="${achieved ? "status-ok" : "status-warn"}">${achieved ? "達成" : "未達成"}</span>
+          <span>${shortDayLabels[dayKey]}</span>
+        </div>
+        <div class="report-summary-strip" style="margin-bottom:10px;">
+          <div class="report-summary-item">
+            <span class="report-summary-label">馬拉松</span>
+            <strong class="report-summary-value">${format(snapshot.marathonScore)} 分｜${format(snapshot.marathonStars)}/6 星</strong>
+            <span class="report-day-mini-status ${snapshot.marathonStars >= 6 ? "ok" : ""}">${snapshot.marathonStatus}</span>
+          </div>
+          <div class="report-summary-item">
+            <span class="report-summary-label">${snapshot.secondaryTitle}</span>
+            <strong class="report-summary-value">${snapshot.secondaryScoreText}</strong>
+            <span class="report-day-mini-status ${snapshot.secondaryAchieved ? "ok" : ""}">${snapshot.secondaryStatus}</span>
+          </div>
+          <div class="report-summary-item">
+            <span class="report-summary-label">補充資訊</span>
+            <strong class="report-summary-value" style="font-size:13px;">${snapshot.secondaryMetaText}</strong>
+          </div>
         </div>
         <div class="report-day-grid">
           <div>
-            <div class="report-block-title">任務</div>
+            <div class="report-block-title">共用任務配置</div>
             ${taskLines.length > 0 ? `<ul class="report-list">${taskLines.map(item => `<li>${item}</li>`).join("")}</ul>` : `<div class="report-empty">尚未設定任務</div>`}
           </div>
           <div>
-            <div class="report-block-title">預期獎勵</div>
+            <div class="report-block-title">整合獎勵統計（馬拉松＋${modeLabel}）</div>
             ${rewardLines.length > 0 ? `<ul class="report-list report-reward-list">${rewardLines.map(item => `<li>${item}</li>`).join("")}</ul>` : `<div class="report-empty">尚未達成獎勵階段</div>`}
           </div>
         </div>
@@ -7736,19 +7820,23 @@ function buildWeeklyReportHtml() {
   return `
     <div class="report-print-area">
       <header class="report-header">
-        <h2 class="report-title">水豚馬拉松｜本週任務配置圖表</h2>
+        <h2 class="report-title">${reportTitle}</h2>
         <div class="report-time">${formatReportTime()}</div>
       </header>
       <section class="report-summary-strip">
-        <div class="report-summary-item"><span class="report-summary-label">本週總積分：</span><strong class="report-summary-value">${format(weeklyTotalScore)}</strong></div>
-        <div class="report-summary-item"><span class="report-summary-label">本週星星：</span><strong class="report-summary-value">${format(summary.totalStars)}/30</strong></div>
-        <div class="report-summary-item"><span class="report-summary-label">每週大獎：</span><strong class="report-summary-value ${summary.totalStars >= 30 ? "ok" : ""}">${achievedBigPrize}</strong></div>
+        <div class="report-summary-item"><span class="report-summary-label">本週模式</span><strong class="report-summary-value">${state.weekMode === "bounty" ? "懸賞週" : "考古週"}</strong></div>
+        <div class="report-summary-item"><span class="report-summary-label">馬拉松</span><strong class="report-summary-value">${format(weeklyTotalScore)} 分｜${format(summary.totalStars)}/30 星</strong></div>
+        <div class="report-summary-item"><span class="report-summary-label">${modeLabel}</span><strong class="report-summary-value">${secondSummaryText}</strong><span class="report-summary-label">${secondSummarySubText}</span></div>
+      </section>
+      <section class="report-day-card">
+        <div class="report-block-title">本週整合獎勵總覽</div>
+        ${combinedRewardLines.length > 0 ? `<ul class="report-list report-reward-list">${combinedRewardLines.map(item => `<li>${item}</li>`).join("")}</ul>` : `<div class="report-empty">尚未達成獎勵階段</div>`}
       </section>
       ${dayCardsHtml}
       <section class="report-resource-card">
-        <h3 class="report-section-title">本週資源彙整</h3>
-        ${renderReportFlowTable(["紫寶石", "神威錘", "卡皮機銀幣", "暗月銀券", "暗月金卷", "幸運礦鎬"], flow)}
-        ${renderReportFlowTable(["靈石", "不變石", "寵物蛋", "高級煉金試劑", "金蹄鐵", "咕嚕票券"], flow)}
+        <h3 class="report-section-title">本週資源彙整（馬拉松＋${modeLabel}）</h3>
+        ${renderReportFlowTable(["紫寶石", "神威錘", "卡皮機銀幣", "暗月銀券", "暗月金卷", isBountyWeek ? "寵物武裝令牌" : "幸運礦鎬"], flow)}
+        ${renderReportFlowTable([isBountyWeek ? "功勳幣" : "靈石", isBountyWeek ? "靈石" : "不變石", isBountyWeek ? "不變石" : "寵物蛋", isBountyWeek ? "寵物蛋" : "高級煉金試劑", isBountyWeek ? "高級煉金試劑" : "金蹄鐵", isBountyWeek ? "金蹄鐵" : "咕嚕票券"], flow)}
         ${renderReportFlowTable(["青銅寶箱", "白銀寶箱", "黃金寶箱", "寵物寶箱", "寶石鑰匙", "傳說鑰匙"], flow)}
       </section>
     </div>
