@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v124</title>
+  <title>水豚每週活動計算機｜週一至週日 v125</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -2395,7 +2395,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v124</div>
+      <div class="prototype-badge">週一至週日 v125</div>
     </header>
 
     <div class="app-shell">
@@ -2811,8 +2811,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v124";
+      const STORAGE_KEY = "capybara-weekly-full-v125";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v124",
         "capybara-weekly-full-v123",
         "capybara-weekly-full-v122",
         "capybara-weekly-full-v121",
@@ -7758,6 +7759,50 @@ function buildWeeklyResourceFlow() {
   consume["紫寶石"] = toInt(consume["紫寶石"]) + arenaGemCost;
 
   return { gains, consume };
+}
+
+function renderReportFlowTable(resources, flow) {
+  const cells = resources.map(name => {
+    const gain = toInt(flow?.gains?.[name]);
+    const cost = toInt(flow?.consume?.[name]);
+    const net = gain - cost;
+    const netClass = net > 0 ? "positive" : net < 0 ? "negative" : "";
+
+    return {
+      name,
+      gain,
+      cost,
+      netText: `${net > 0 ? "+" : ""}${format(net)}`,
+      netClass
+    };
+  });
+
+  return `
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th>資源</th>
+            ${cells.map(item => `<th>${item.name}</th>`).join("")}
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="report-row-gain">
+            <th>獲得</th>
+            ${cells.map(item => `<td>${format(item.gain)}</td>`).join("")}
+          </tr>
+          <tr class="report-row-consume">
+            <th>消耗</th>
+            ${cells.map(item => `<td>${format(item.cost)}</td>`).join("")}
+          </tr>
+          <tr class="report-row-net">
+            <th>淨流入／出</th>
+            ${cells.map(item => `<td class="${item.netClass}">${item.netText}</td>`).join("")}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 function formatReportTime() {
