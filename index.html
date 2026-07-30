@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v128</title>
+  <title>水豚每週活動計算機｜週一至週日 v129</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -1529,6 +1529,37 @@
       touch-action:pan-y;
       background:#f3f6fb;
     }
+    .plan-choice-controls {
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      margin-bottom:12px;
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius:15px;
+      background:#fff;
+    }
+    .plan-choice-controls[hidden] { display:none !important; }
+    .plan-choice-control { display:grid; gap:5px; min-width:0; }
+    .plan-choice-control span { color:var(--sub); font-size:11px; font-weight:900; }
+    .plan-choice-control select {
+      width:100%;
+      min-width:0;
+      min-height:40px;
+      padding:7px 10px;
+      border:1px solid #b8c6df;
+      border-radius:10px;
+      background:#fff;
+      color:var(--text);
+      font-size:14px;
+      font-weight:900;
+    }
+    .plan-choice-control-note {
+      grid-column:1 / -1;
+      color:var(--sub);
+      font-size:11px;
+      line-height:1.55;
+    }
     .plan-choice-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
     .plan-choice-card { border:1px solid var(--line); border-radius:16px; background:#fff; padding:13px; }
     .plan-choice-card.best { border-color:#7eb69b; box-shadow:0 0 0 2px rgba(52,133,91,.10); }
@@ -1577,6 +1608,8 @@
         padding-top:calc(14px + env(safe-area-inset-top));
       }
 
+      .plan-choice-controls { grid-template-columns:1fr; }
+      .plan-choice-control-note { grid-column:auto; }
       .plan-choice-grid { grid-template-columns:1fr; }
       .plan-choice-actions { grid-template-columns:1fr 1fr; }
       .plan-choice-btn { min-height:48px; font-size:16px; }
@@ -2396,7 +2429,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v128</div>
+      <div class="prototype-badge">週一至週日 v129</div>
     </header>
 
     <div class="app-shell">
@@ -2585,7 +2618,7 @@
           <button class="action-btn action-confirm" id="confirmGenerateCharts" type="button">確認並產出圖表</button>
           <button class="action-btn action-plan" id="applyThirtyStarPlan" type="button">永續省資源｜只補馬拉松 30 星／14 卡皮幣</button>
           <button class="action-btn action-plan" id="applyAllStageFivePlan" type="button">永續省資源｜只補馬拉松全週 5 階</button>
-          <button class="action-btn action-plan" id="applyActivityPushPlan" type="button">資源充足｜優先衝考古／懸賞＋兼顧馬拉松</button>
+          <button class="action-btn action-plan" id="applyActivityPushPlan" type="button">資源充足｜逐日考古／懸賞方案（目前週一）</button>
           <button class="action-btn action-primary" id="applyDailyDefaults" type="button">重套當日無消耗型任務</button>
           <button class="action-btn action-secondary" id="clearCurrentDay" type="button">當日全部歸零＋重套無消耗型任務</button>
           <button class="action-btn action-warning" id="resetAllDaysDefaults" type="button">本週全部歸零＋重套無消耗型任務</button>
@@ -2798,6 +2831,7 @@
         <button class="chart-close-btn" id="closeDailyPlanTop" type="button">關閉</button>
       </div>
       <div class="plan-choice-body">
+        <div class="plan-choice-controls" id="dailyPlanControls" hidden></div>
         <div class="plan-choice-grid" id="dailyPlanResults"></div>
       </div>
       <div class="plan-choice-actions" id="dailyPlanActions"></div>
@@ -2808,8 +2842,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v128";
+      const STORAGE_KEY = "capybara-weekly-full-v129";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v128",
         "capybara-weekly-full-v127",
         "capybara-weekly-full-v126",
         "capybara-weekly-full-v125",
@@ -3694,6 +3729,7 @@
         dailyPlanModal: document.getElementById("dailyPlanModal"),
         dailyPlanTitle: document.getElementById("dailyPlanTitle"),
         dailyPlanSubtitle: document.getElementById("dailyPlanSubtitle"),
+        dailyPlanControls: document.getElementById("dailyPlanControls"),
         dailyPlanResults: document.getElementById("dailyPlanResults"),
         dailyPlanActions: document.getElementById("dailyPlanActions"),
         closeDailyPlanTop: document.getElementById("closeDailyPlanTop")
@@ -8088,8 +8124,11 @@ async function downloadChartAsImage() {
       function updateDailyAutoPlanButton() {
         if (!els.dailyAutoPlanButton) return;
         els.dailyAutoPlanButton.dataset.activeDay = state.activeDay;
-        els.dailyAutoPlanButton.textContent =
-          "比較本日多方案並選擇";
+        els.dailyAutoPlanButton.textContent = state.activeDay === "mon"
+          ? "比較週一考古／懸賞目標與搭配方案"
+          : state.activeDay === "sun"
+            ? "比較週日資源方案"
+            : "資源充足方案｜將逐日補上";
       }
 
       function getGuildBountySummaryForDay(dayKey) {
@@ -9366,9 +9405,11 @@ async function downloadChartAsImage() {
         )[0];
       }
 
-      function renderPlanComparisonModal({ title, subtitle, plans, buttons }) {
+      function renderPlanComparisonModal({ title, subtitle, plans, buttons, controlsHtml = "" }) {
         els.dailyPlanTitle.textContent = title;
         els.dailyPlanSubtitle.textContent = subtitle;
+        els.dailyPlanControls.hidden = !controlsHtml;
+        els.dailyPlanControls.innerHTML = controlsHtml;
         els.dailyPlanResults.innerHTML = plans.map(plan => `
           <div class="plan-choice-card ${plan.highlight ? "best" : ""} ${plan.feasible ? "" : "unavailable"}">
             <h4>
@@ -9431,6 +9472,602 @@ async function downloadChartAsImage() {
             { key: "best", label: "採用最佳方案", disabled: !best, highlight: true }
           ]
         });
+      }
+
+
+      function getMondayActivityTargetScore(stageNumber) {
+        const stages = state.weekMode === "bounty"
+          ? guildBountyStages
+          : archaeologyStages;
+        const stage = stages[clamp(toInt(stageNumber), 1, stages.length) - 1];
+        return stage?.score || 0;
+      }
+
+      function getMondayActivityTargetReward(stageNumber) {
+        const targetStage = clamp(toInt(stageNumber), 1, 9);
+        if (state.weekMode === "bounty") {
+          const totals = guildBountyStages
+            .slice(0, targetStage)
+            .reduce((acc, stage) => ({
+              token: acc.token + toInt(stage.token),
+              merit: acc.merit + toInt(stage.merit)
+            }), { token: 0, merit: 0 });
+          return `寵物武裝令牌 ${format(totals.token)}、功勳幣 ${format(totals.merit)}`;
+        }
+
+        const pickaxes = archaeologyStages
+          .slice(0, targetStage)
+          .reduce((sum, stage) => sum + toInt(stage.pickaxes), 0);
+        return `累計幸運礦鎬 ${format(pickaxes)} / 56`;
+      }
+
+      function getRequiredAdditionalMondayStaminaForArchaeology(baseStamina, requiredScore) {
+        const need = Math.max(0, Math.ceil(requiredScore));
+        if (need <= 0) return 0;
+
+        const baseScore = mondayArchaeologyStaminaScore(baseStamina);
+        const delta = added =>
+          mondayArchaeologyStaminaScore(baseStamina + added) - baseScore;
+
+        let high = 5;
+        while (delta(high) < need && high < 1000000) high *= 2;
+        if (delta(high) < need) return Number.POSITIVE_INFINITY;
+
+        let low = 0;
+        while (low < high) {
+          const middle = Math.floor((low + high) / 2);
+          if (delta(middle) >= need) high = middle;
+          else low = middle + 1;
+        }
+        return low;
+      }
+
+      function makeFixedMondayStaminaPlan(counts) {
+        let stamina = 0;
+        let actions = 0;
+        const normalized = {};
+        for (const [id, rawCount] of Object.entries(counts || {})) {
+          const option = optionMap.get(id);
+          const count = Math.max(0, toInt(rawCount));
+          if (!option || count <= 0) continue;
+          normalized[id] = count;
+          stamina += option.stamina * count;
+          actions += count;
+        }
+        return { stamina, actions, counts: normalized };
+      }
+
+      function getMondayHighYieldSeedPlans() {
+        const seeds = [];
+        if (state.settings.monthlyCard) {
+          seeds.push({
+            key: "seed-monthly50",
+            name: "前 200 體高收益｜遊歷 ×50 起手",
+            plan: makeFixedMondayStaminaPlan({ travel50: 1 })
+          });
+        }
+        if (state.settings.weeklyCard) {
+          seeds.push({
+            key: "seed-hard20",
+            name: "前 200 體高收益｜困難 ×20 起手",
+            plan: makeFixedMondayStaminaPlan({ hard20: 1 })
+          });
+          seeds.push({
+            key: "seed-hard15",
+            name: "前 200 體高收益｜困難 ×10＋×5 起手",
+            plan: makeFixedMondayStaminaPlan({ hard10: 1, hard5: 1 })
+          });
+        }
+        if (!state.settings.monthlyCard && !state.settings.weeklyCard) {
+          seeds.push({
+            key: "seed-travel40",
+            name: "前 200 體高收益｜遊歷 ×20 兩次",
+            plan: makeFixedMondayStaminaPlan({ travel20: 2 })
+          });
+        }
+        return seeds;
+      }
+
+      function calculateMondayActivityOutcome(base, staminaPlan, equipAdd = 0, cubeAdd = 0) {
+        const addedStamina = toInt(staminaPlan?.stamina);
+        const finalStamina = base.stamina + addedStamina;
+        const staminaArchaeologyGain =
+          mondayArchaeologyStaminaScore(finalStamina) -
+          mondayArchaeologyStaminaScore(base.stamina);
+        const marathon =
+          base.marathon + addedStamina * MARATHON_STAMINA_RATE + equipAdd * 3000;
+        const archaeology =
+          base.archaeology + staminaArchaeologyGain + equipAdd * 1000 + cubeAdd * 5000;
+        return {
+          marathon,
+          archaeology,
+          stars: getMarathonStars(marathon),
+          stamina: finalStamina,
+          addedStamina,
+          staminaArchaeologyGain,
+          operations: toInt(staminaPlan?.actions) + equipAdd + cubeAdd
+        };
+      }
+
+      function createMondayArchaeologyPlan(base, config) {
+        const staminaPlan = config.staminaPlan || { stamina: 0, actions: 0, counts: {} };
+        const outcome = calculateMondayActivityOutcome(
+          base,
+          staminaPlan,
+          toInt(config.equipAdd),
+          toInt(config.cubeAdd)
+        );
+        const staminaNeeded = toInt(staminaPlan.stamina);
+        const staminaFeasible = staminaNeeded <= base.availableStamina;
+        const meetsMarathon = outcome.marathon >= base.marathonTargetScore;
+        const meetsActivity = outcome.archaeology >= base.activityTargetScore;
+        const feasible = staminaFeasible && meetsMarathon && meetsActivity;
+        const sourceParts = [];
+        if (staminaPlan.actions > 0) sourceParts.push(formatStaminaPlan(staminaPlan));
+        if (config.equipAdd > 0) sourceParts.push(`抽裝備 × ${format(config.equipAdd)}`);
+        if (config.cubeAdd > 0) sourceParts.push(`神兵魔方 × ${format(config.cubeAdd)}`);
+        if (!sourceParts.length) sourceParts.push("目前進度已達標");
+
+        return {
+          key: config.key,
+          name: config.name,
+          badge: config.badge || "考古方案",
+          feasible,
+          highlight: Boolean(config.highlight),
+          application: {
+            staminaPlan,
+            equipAdd: toInt(config.equipAdd),
+            cubeAdd: toInt(config.cubeAdd)
+          },
+          metrics: [
+            { label: "可執行", value: feasible ? "是" : staminaFeasible ? "否／目標未達" : "否／持有體力不足" },
+            { label: "總操作次數", value: format(outcome.operations) },
+            { label: "追加體力", value: `${format(staminaNeeded)}（${format(staminaPlan.actions)} 次）` },
+            { label: "追加抽裝備", value: `${format(config.equipAdd)} 次` },
+            { label: "追加神兵魔方", value: `${format(config.cubeAdd)} 個` },
+            { label: "馬拉松結果", value: `${format(outcome.marathon)} 分・${format(outcome.stars)} / 6 星` },
+            { label: "考古結果", value: `${format(outcome.archaeology)} / ${format(base.activityTargetScore)} 分` }
+          ],
+          detail: `${config.description || ""}${config.description ? "<br>" : ""}${sourceParts.join("；")}。`,
+          outcome
+        };
+      }
+
+      function getMondayPlanForRequiredStamina(requiredStamina, availableStamina) {
+        const need = Math.max(0, Math.ceil(requiredStamina));
+        if (need <= 0) return { stamina: 0, actions: 0, counts: {} };
+        return findMinimumActionStaminaPlan(need, availableStamina);
+      }
+
+      function calculateMondayRequiredStamina(base, equipAdd = 0, marathonOnly = false) {
+        const marathonNeed = Math.max(
+          0,
+          base.marathonTargetScore - (base.marathon + equipAdd * 3000)
+        );
+        const staminaForMarathon = Math.ceil(marathonNeed / MARATHON_STAMINA_RATE);
+        if (marathonOnly) return staminaForMarathon;
+
+        const archaeologyNeed = Math.max(
+          0,
+          base.activityTargetScore - (base.archaeology + equipAdd * 1000)
+        );
+        const staminaForArchaeology =
+          getRequiredAdditionalMondayStaminaForArchaeology(
+            base.stamina,
+            archaeologyNeed
+          );
+        return Math.max(staminaForMarathon, staminaForArchaeology);
+      }
+
+      function findBestMondayStaminaEquipPlan(base) {
+        const maxEquip = Math.max(
+          0,
+          Math.ceil(Math.max(
+            base.marathonTargetScore - base.marathon,
+            base.activityTargetScore - base.archaeology
+          ) / 1000) + 5
+        );
+        let best = null;
+
+        for (let equipAdd = 0; equipAdd <= maxEquip; equipAdd++) {
+          const requiredStamina = calculateMondayRequiredStamina(base, equipAdd, false);
+          const staminaPlan = getMondayPlanForRequiredStamina(
+            requiredStamina,
+            base.availableStamina
+          );
+          if (!staminaPlan) continue;
+          if (equipAdd <= 0 || staminaPlan.actions <= 0) continue;
+
+          const outcome = calculateMondayActivityOutcome(base, staminaPlan, equipAdd, 0);
+          if (
+            outcome.marathon < base.marathonTargetScore ||
+            outcome.archaeology < base.activityTargetScore
+          ) continue;
+
+          const excess =
+            outcome.marathon - base.marathonTargetScore +
+            outcome.archaeology - base.activityTargetScore;
+          const candidate = { staminaPlan, equipAdd, outcome, excess };
+          if (
+            !best ||
+            outcome.operations < best.outcome.operations ||
+            (outcome.operations === best.outcome.operations && excess < best.excess) ||
+            (outcome.operations === best.outcome.operations && excess === best.excess && staminaPlan.stamina < best.staminaPlan.stamina)
+          ) {
+            best = candidate;
+          }
+        }
+        return best;
+      }
+
+      function buildMondayArchaeologyPlans(activityStage, marathonStage) {
+        const stateSnapshot = JSON.parse(JSON.stringify(state));
+        try {
+          state.activeDay = "mon";
+          applyMinimumMondayFreeTasks();
+          const scores = getMondayScores();
+          const stamina = getMondayStaminaSummary();
+          const base = {
+            marathon: scores.marathon,
+            archaeology: scores.archaeology,
+            stamina: stamina.stamina,
+            availableStamina: getOwnedStaminaAmount(),
+            marathonTargetScore: marathonStages[clamp(toInt(marathonStage), 1, marathonStages.length) - 1].score,
+            activityTargetScore: archaeologyStages[clamp(toInt(activityStage), 1, archaeologyStages.length) - 1].score
+          };
+          const plans = [];
+
+          // 1. Pure stamina.
+          const pureStaminaRequired = calculateMondayRequiredStamina(base, 0, false);
+          const pureStaminaPlan = getMondayPlanForRequiredStamina(
+            pureStaminaRequired,
+            base.availableStamina
+          );
+          plans.push(createMondayArchaeologyPlan(base, {
+            key: "stamina-only",
+            name: "只靠體力",
+            badge: "雙加分",
+            highlight: true,
+            staminaPlan: pureStaminaPlan || { stamina: pureStaminaRequired, actions: 0, counts: {} },
+            description: "體力同時增加馬拉松與考古；先吃完前 200 體的高收益，再以超過部分每點 10 分補足。"
+          }));
+
+          // 2. Pure equipment draws.
+          const pureEquip = Math.max(
+            0,
+            Math.ceil(Math.max(
+              (base.marathonTargetScore - base.marathon) / 3000,
+              (base.activityTargetScore - base.archaeology) / 1000
+            ))
+          );
+          plans.push(createMondayArchaeologyPlan(base, {
+            key: "equip-only",
+            name: "只靠抽裝備",
+            badge: "雙加分",
+            equipAdd: pureEquip,
+            description: "每次同時增加馬拉松 3,000 分與考古 1,000 分。"
+          }));
+
+          // 3. Operation-minimized stamina/equipment combination.
+          const bestMixed = findBestMondayStaminaEquipPlan(base);
+          if (bestMixed) {
+            plans.push(createMondayArchaeologyPlan(base, {
+              key: "stamina-equip-best",
+              name: "體力＋抽裝備｜最少操作",
+              badge: "雙加分混合",
+              staminaPlan: bestMixed.staminaPlan,
+              equipAdd: bestMixed.equipAdd,
+              description: "在可用體力倍率中枚舉體力與裝備搭配，優先選總操作次數較少的組合。"
+            }));
+          }
+
+          // 4. Stamina reaches Marathon floor, then cubes finish Archaeology.
+          const staminaFloorRequired = calculateMondayRequiredStamina(base, 0, true);
+          const staminaFloorPlan = getMondayPlanForRequiredStamina(
+            staminaFloorRequired,
+            base.availableStamina
+          );
+          if (staminaFloorPlan) {
+            const afterFloor = calculateMondayActivityOutcome(base, staminaFloorPlan, 0, 0);
+            const cubeAdd = Math.max(0, Math.ceil(
+              (base.activityTargetScore - afterFloor.archaeology) / 5000
+            ));
+            plans.push(createMondayArchaeologyPlan(base, {
+              key: "stamina-floor-cube",
+              name: "體力完成馬拉松底線＋靈能洗煉",
+              badge: "考古專屬補尾",
+              staminaPlan: staminaFloorPlan,
+              cubeAdd,
+              description: "先用體力保證馬拉松底線，再用只增加考古的神兵魔方補足目標。"
+            }));
+          }
+
+          // 5. Equipment reaches Marathon floor, then cubes.
+          const equipFloor = Math.max(0, Math.ceil(
+            (base.marathonTargetScore - base.marathon) / 3000
+          ));
+          const afterEquipFloor = calculateMondayActivityOutcome(
+            base,
+            { stamina: 0, actions: 0, counts: {} },
+            equipFloor,
+            0
+          );
+          const equipFloorCubes = Math.max(0, Math.ceil(
+            (base.activityTargetScore - afterEquipFloor.archaeology) / 5000
+          ));
+          plans.push(createMondayArchaeologyPlan(base, {
+            key: "equip-floor-cube",
+            name: "抽裝備完成馬拉松底線＋靈能洗煉",
+            badge: "考古專屬補尾",
+            equipAdd: equipFloor,
+            cubeAdd: equipFloorCubes,
+            description: "先抽裝備拿滿馬拉松底線，再用神兵魔方補考古。"
+          }));
+
+          // 6+. Explicit high-yield stamina seeds, with equipment or equipment+cube finishes.
+          for (const seed of getMondayHighYieldSeedPlans()) {
+            if (seed.plan.stamina > base.availableStamina) {
+              plans.push(createMondayArchaeologyPlan(base, {
+                key: `${seed.key}-equip`,
+                name: `${seed.name}＋抽裝備`,
+                badge: "高收益體力起手",
+                staminaPlan: seed.plan,
+                description: "目前持有體力不足，僅保留試算結果。"
+              }));
+              continue;
+            }
+
+            const seedOutcome = calculateMondayActivityOutcome(base, seed.plan, 0, 0);
+            const seedEquip = Math.max(0, Math.ceil(Math.max(
+              (base.marathonTargetScore - seedOutcome.marathon) / 3000,
+              (base.activityTargetScore - seedOutcome.archaeology) / 1000
+            )));
+            plans.push(createMondayArchaeologyPlan(base, {
+              key: `${seed.key}-equip`,
+              name: `${seed.name}＋抽裝備補足`,
+              badge: "高收益體力起手",
+              staminaPlan: seed.plan,
+              equipAdd: seedEquip,
+              description: "先取得前 200 體附近的高考古收益，剩餘全部用雙加分的裝備抽取補足。"
+            }));
+
+            const seedEquipFloor = Math.max(0, Math.ceil(
+              (base.marathonTargetScore - seedOutcome.marathon) / 3000
+            ));
+            const seedFloorOutcome = calculateMondayActivityOutcome(
+              base,
+              seed.plan,
+              seedEquipFloor,
+              0
+            );
+            const seedCubes = Math.max(0, Math.ceil(
+              (base.activityTargetScore - seedFloorOutcome.archaeology) / 5000
+            ));
+            plans.push(createMondayArchaeologyPlan(base, {
+              key: `${seed.key}-cube`,
+              name: `${seed.name}＋裝備保底＋靈能`,
+              badge: "三來源混合",
+              staminaPlan: seed.plan,
+              equipAdd: seedEquipFloor,
+              cubeAdd: seedCubes,
+              description: "高收益體力起手後，只補足馬拉松底線所需裝備，最後才用神兵魔方補考古。"
+            }));
+          }
+
+          // If existing progress already meets Marathon floor, allow a true cube-only finish.
+          if (base.marathon >= base.marathonTargetScore) {
+            const cubeOnly = Math.max(0, Math.ceil(
+              (base.activityTargetScore - base.archaeology) / 5000
+            ));
+            plans.push(createMondayArchaeologyPlan(base, {
+              key: "cube-only-after-floor",
+              name: "既有馬拉松已達底線｜只補靈能洗煉",
+              badge: "考古專屬",
+              cubeAdd: cubeOnly,
+              description: "目前馬拉松已達所選底線，因此可以直接用神兵魔方補考古。"
+            }));
+          }
+
+          // Deduplicate identical resource combinations.
+          const seen = new Set();
+          return plans.filter(plan => {
+            const counts = plan.application?.staminaPlan?.counts || {};
+            const signature = JSON.stringify({
+              counts,
+              equip: plan.application?.equipAdd || 0,
+              cube: plan.application?.cubeAdd || 0
+            });
+            if (seen.has(signature)) return false;
+            seen.add(signature);
+            return true;
+          });
+        } finally {
+          state = stateSnapshot;
+        }
+      }
+
+      function buildMondayBountyPlans(activityStage, marathonStage) {
+        const stateSnapshot = JSON.parse(JSON.stringify(state));
+        try {
+          state.activeDay = "mon";
+          const personalOk = ensureBountyPersonalTasks("mon");
+          const summary = getMondayGuildBountySummary();
+          const targetScore = guildBountyStages[clamp(toInt(activityStage), 1, 9) - 1].score;
+          const remaining = Math.max(0, targetScore - summary.totalScore);
+          const slots = summary.acceptsRemaining;
+          const combos = [];
+
+          for (let gold = 0; gold <= slots; gold++) {
+            for (let purple = 0; purple <= slots - gold; purple++) {
+              for (let white = 0; white <= slots - gold - purple; white++) {
+                const count = gold + purple + white;
+                const score = gold * 300 + purple * 100 + white * 50;
+                if (score < remaining) continue;
+                const equipDraws = gold * 30 + purple * 10 + white * 5;
+                combos.push({
+                  gold, purple, white, count, score,
+                  excess: score - remaining,
+                  equipDraws,
+                  marathonGain: equipDraws * 3000
+                });
+              }
+            }
+          }
+
+          combos.sort((a, b) =>
+            a.count - b.count ||
+            a.excess - b.excess ||
+            a.equipDraws - b.equipDraws ||
+            b.gold - a.gold
+          );
+
+          const selected = [];
+          const signatures = new Set();
+          const add = combo => {
+            if (!combo) return;
+            const sig = `${combo.gold}-${combo.purple}-${combo.white}`;
+            if (signatures.has(sig)) return;
+            signatures.add(sig);
+            selected.push(combo);
+          };
+          add(combos[0]);
+          add(combos.find(item => item.gold === 0));
+          add(combos.find(item => item.gold === 0 && item.purple === 0));
+          add([...combos].sort((a, b) => a.excess - b.excess || a.count - b.count)[0]);
+          add([...combos].sort((a, b) => a.equipDraws - b.equipDraws || a.count - b.count)[0]);
+          combos.slice(0, 8).forEach(add);
+
+          const currentMarathon = getMondayScores().marathon;
+          const marathonTargetScore = marathonStages[clamp(toInt(marathonStage), 1, 5) - 1].score;
+
+          if (!selected.length && remaining <= 0) {
+            selected.push({ gold: 0, purple: 0, white: 0, count: 0, score: 0, excess: 0, equipDraws: 0, marathonGain: 0 });
+          }
+
+          return selected.map((combo, index) => ({
+            key: `bounty-${combo.gold}-${combo.purple}-${combo.white}`,
+            name: combo.count > 0
+              ? `金 ${combo.gold}／紫 ${combo.purple}／白 ${combo.white}`
+              : "目前懸賞積分已達目標",
+            badge: index === 0 ? "最少接取優先" : "接取搭配",
+            feasible: personalOk && (currentMarathon >= marathonTargetScore || combo.marathonGain + currentMarathon >= marathonTargetScore),
+            highlight: index === 0,
+            application: { bountyCombo: combo, marathonStage: toInt(marathonStage), activityStage: toInt(activityStage) },
+            metrics: [
+              { label: "個人任務", value: personalOk ? `${format(summary.personalScore)} / 500 分` : "資源不足" },
+              { label: "懸賞目標", value: `第 ${activityStage} 階・${format(targetScore)} 分` },
+              { label: "建議接取", value: `${format(combo.count)} 件` },
+              { label: "增加懸賞分", value: `${format(combo.score)} 分` },
+              { label: "推薦裝備抽取量", value: `${format(combo.equipDraws)} 次` },
+              { label: "順帶馬拉松", value: `約 +${format(combo.marathonGain)} 分` }
+            ],
+            detail: combo.count > 0
+              ? `優先接「限定秘藏箱／傳說秘寶箱抽裝備」：金色 ${format(combo.gold)} 件、紫色 ${format(combo.purple)} 件、白色 ${format(combo.white)} 件。懸賞板具有隨機性，選定後只會套用個人任務底線並保留此接取建議，不會把公會任務直接登錄為已完成。`
+              : "目前個人＋公會積分已達所選階段，不需再接取。"
+          }));
+        } finally {
+          state = stateSnapshot;
+        }
+      }
+
+      function getMondayActivityControlsHtml(activityStage, marathonStage) {
+        const activityName = state.weekMode === "bounty" ? "懸賞" : "考古";
+        const stages = state.weekMode === "bounty" ? guildBountyStages : archaeologyStages;
+        return `
+          <label class="plan-choice-control">
+            <span>馬拉松最高優先底線</span>
+            <select data-monday-marathon-stage>
+              <option value="3" ${toInt(marathonStage) === 3 ? "selected" : ""}>第 3 階｜30 星／14 卡皮幣標準配置</option>
+              <option value="5" ${toInt(marathonStage) === 5 ? "selected" : ""}>第 5 階｜本日高投入底線</option>
+            </select>
+          </label>
+          <label class="plan-choice-control">
+            <span>${activityName}目標階段</span>
+            <select data-monday-activity-stage>
+              ${stages.map((stage, index) => `
+                <option value="${index + 1}" ${toInt(activityStage) === index + 1 ? "selected" : ""}>
+                  第 ${index + 1} 階｜${format(stage.score)} 分
+                </option>
+              `).join("")}
+            </select>
+          </label>
+          <div class="plan-choice-control-note">
+            馬拉松底線永遠優先。只有體力或抽裝備等雙加分來源已把馬拉松補到所選底線後，方案才會使用只增加考古的靈能洗煉。目標獎勵：${getMondayActivityTargetReward(activityStage)}。
+          </div>
+        `;
+      }
+
+      function openMondayActivityPlanComparison(activityStage = 9, marathonStage = 3) {
+        state.activeDay = "mon";
+        const plans = state.weekMode === "bounty"
+          ? buildMondayBountyPlans(activityStage, marathonStage)
+          : buildMondayArchaeologyPlans(activityStage, marathonStage);
+
+        pendingDailyPlanComparison = {
+          mode: "mondayActivity",
+          dayKey: "mon",
+          activityStage: toInt(activityStage),
+          marathonStage: toInt(marathonStage),
+          plans
+        };
+
+        renderPlanComparisonModal({
+          title: state.weekMode === "bounty"
+            ? "週一｜公會懸賞目標與接取搭配"
+            : "週一｜聯合考古目標與資源搭配",
+          subtitle: state.weekMode === "bounty"
+            ? "先保證馬拉松與個人任務底線，再依所選懸賞階段比較金／紫／白接取搭配。"
+            : "先保證馬拉松底線，再比較體力、抽裝備、靈能洗煉與高收益體力起手的各種組合。",
+          controlsHtml: getMondayActivityControlsHtml(activityStage, marathonStage),
+          plans,
+          buttons: plans.map(plan => ({
+            key: plan.key,
+            label: plan.name,
+            disabled: !plan.feasible,
+            highlight: plan.highlight
+          }))
+        });
+      }
+
+      function applyMondayActivityPlan(planKey) {
+        if (pendingDailyPlanComparison?.mode !== "mondayActivity") return;
+        const selected = pendingDailyPlanComparison.plans.find(plan => plan.key === planKey);
+        if (!selected?.feasible) return;
+
+        const activityStage = pendingDailyPlanComparison.activityStage;
+        const marathonStage = pendingDailyPlanComparison.marathonStage;
+        closeDailyPlanModal();
+        state.activeDay = "mon";
+
+        if (state.weekMode === "bounty") {
+          const personalOk = ensureBountyPersonalTasks("mon");
+          const combo = selected.application.bountyCombo;
+          renderAll();
+          els.autoPlanStatus.className = `auto-plan-status show ${personalOk ? "success" : "warning"}`;
+          els.autoPlanStatus.innerHTML = `
+            <strong>週一｜懸賞第 ${activityStage} 階接取方案</strong>
+            <div>${personalOk ? "個人任務底線已套用。" : "資源不足，個人任務尚未補滿。"}</div>
+            <div>建議接取：金色 ${format(combo.gold)} 件、紫色 ${format(combo.purple)} 件、白色 ${format(combo.white)} 件；優先選擇「限定秘藏箱／傳說秘寶箱抽裝備」。</div>
+            <div>預計增加 ${format(combo.score)} 懸賞分，需抽裝備 ${format(combo.equipDraws)} 次，約同時增加 ${format(combo.marathonGain)} 馬拉松分。</div>
+            <div>公會懸賞不會自動登錄完成，完成後請手動輸入件數。</div>
+          `;
+        } else {
+          applyMinimumMondayFreeTasks();
+          addMondayStaminaPlan(selected.application.staminaPlan);
+          state.days.mon.equipBox = toInt(state.days.mon.equipBox) + toInt(selected.application.equipAdd);
+          state.days.mon.cube = toInt(state.days.mon.cube) + toInt(selected.application.cubeAdd);
+          const scores = getMondayScores();
+          renderAll();
+          els.autoPlanStatus.className = "auto-plan-status show success";
+          els.autoPlanStatus.innerHTML = `
+            <strong>週一｜已採用「${selected.name}」</strong>
+            <div>馬拉松底線：第 ${marathonStage} 階；聯合考古目標：第 ${activityStage} 階。</div>
+            <div>${selected.detail}</div>
+            <div>最終馬拉松 ${format(scores.marathon)} 分、${format(getMarathonStars(scores.marathon))} / 6 星；考古 ${format(scores.archaeology)} 分、${format(getArchaeologyPickaxes(scores.archaeology))} / 56 礦鎬。</div>
+          `;
+        }
+
+        pendingDailyPlanComparison = null;
       }
 
       function getDailyStrategyDefinition(dayKey, strategy) {
@@ -9592,43 +10229,33 @@ async function downloadChartAsImage() {
       }
 
       function openDailyAutoPlanComparison(dayKey) {
+        if (dayKey === "mon") {
+          openMondayActivityPlanComparison(9, STANDARD_WEEKLY_TARGETS.mon || 3);
+          return;
+        }
+
         if (dayKey === "sun") {
           state.activeDay = "sun";
           openSundayAutoPlan();
           return;
         }
 
-        const standardStage = STANDARD_WEEKLY_TARGETS[dayKey] || 5;
-        const strategies = standardStage >= 5
-          ? ["standard", "activity"]
-          : ["standard", "all5", "activity"];
-        const plans = strategies
-          .map(strategy => simulateDailyStrategy(dayKey, strategy));
-        pendingDailyPlanComparison = {
-          mode: "daily",
-          dayKey,
-          plans
-        };
-
-        const activityLabel = state.weekMode === "bounty"
-          ? "優先衝懸賞"
-          : "優先衝考古";
-        const buttonLabels = {
-          standard: standardStage >= 5 ? "永續本日 5 階" : "永續標準",
-          all5: "本日 5 階",
-          activity: activityLabel
-        };
-
+        pendingDailyPlanComparison = { mode: "notReady", dayKey };
         renderPlanComparisonModal({
-          title: `${shortDayLabels[dayKey]}自動補足方案比較`,
-          subtitle: "各方案會先試算；選定後才會真正套用與扣除資源。",
-          plans,
-          buttons: strategies.map(strategy => ({
-            key: strategy,
-            label: buttonLabels[strategy],
-            disabled: !plans.find(plan => plan.key === strategy)?.feasible,
-            highlight: strategy === "activity"
-          }))
+          title: `${shortDayLabels[dayKey]}｜資源充足方案`,
+          subtitle: "目前先逐一完成週一的完整多方案邏輯，後續會依相同架構逐日補上。",
+          plans: [{
+            name: "尚未完成本日多方案",
+            badge: "逐日製作中",
+            feasible: false,
+            highlight: false,
+            metrics: [
+              { label: "目前進度", value: "週一已完成" },
+              { label: "本日狀態", value: "尚未重做" }
+            ],
+            detail: "原本只補馬拉松的兩個永續方案仍可從右側操作按鈕使用；這裡只負責新的考古／懸賞優先方案。"
+          }],
+          buttons: []
         });
       }
 
@@ -9731,6 +10358,11 @@ async function downloadChartAsImage() {
       function applySelectedDailyPlan(choice) {
         if (pendingDailyPlanComparison?.mode === "sunday") {
           applySelectedSundayPlan(choice);
+          return;
+        }
+
+        if (pendingDailyPlanComparison?.mode === "mondayActivity") {
+          applyMondayActivityPlan(choice);
           return;
         }
 
@@ -11179,7 +11811,9 @@ async function downloadChartAsImage() {
       });
 
       document.getElementById("applyActivityPushPlan").addEventListener("click", () => {
-        applyActivityPushPlan();
+        state.activeDay = "mon";
+        renderAll();
+        openMondayActivityPlanComparison(9, STANDARD_WEEKLY_TARGETS.mon || 3);
       });
 
       els.dailyAutoPlanButton.addEventListener("click", () => {
@@ -11223,6 +11857,24 @@ async function downloadChartAsImage() {
         if (button && !button.disabled) {
           applySelectedDailyPlan(button.dataset.dailyPlanChoice);
         }
+      });
+
+      els.dailyPlanModal.addEventListener("change", event => {
+        if (pendingDailyPlanComparison?.mode !== "mondayActivity") return;
+        if (
+          !event.target.matches("[data-monday-activity-stage]") &&
+          !event.target.matches("[data-monday-marathon-stage]")
+        ) return;
+
+        const activityStage = toInt(
+          els.dailyPlanControls.querySelector("[data-monday-activity-stage]")?.value ||
+          pendingDailyPlanComparison.activityStage
+        );
+        const marathonStage = toInt(
+          els.dailyPlanControls.querySelector("[data-monday-marathon-stage]")?.value ||
+          pendingDailyPlanComparison.marathonStage
+        );
+        openMondayActivityPlanComparison(activityStage, marathonStage);
       });
 
       els.closeChartTop.addEventListener("click", closeChartModal);
