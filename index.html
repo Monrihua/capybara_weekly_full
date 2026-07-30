@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v127</title>
+  <title>水豚每週活動計算機｜週一至週日 v128</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -1540,7 +1540,7 @@
     .plan-choice-detail { margin-top:9px; font-size:12px; line-height:1.55; color:var(--text); }
     .plan-choice-actions {
       display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
+      grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
       gap:8px;
       flex:0 0 auto;
       padding:12px 14px calc(14px + env(safe-area-inset-bottom));
@@ -1580,6 +1580,7 @@
       .plan-choice-grid { grid-template-columns:1fr; }
       .plan-choice-actions { grid-template-columns:1fr 1fr; }
       .plan-choice-btn { min-height:48px; font-size:16px; }
+      .plan-choice-btn:last-child:nth-child(odd) { grid-column:1 / -1; }
     }
 
 
@@ -2395,7 +2396,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v127</div>
+      <div class="prototype-badge">週一至週日 v128</div>
     </header>
 
     <div class="app-shell">
@@ -2786,25 +2787,20 @@
   </div>
 </div>
 
-  <div class="plan-choice-modal" id="sundayPlanModal" hidden>
-    <div class="plan-choice-backdrop" data-close-sunday-plan></div>
-    <div class="plan-choice-dialog" role="dialog" aria-modal="true" aria-labelledby="sundayPlanTitle">
+  <div class="plan-choice-modal" id="dailyPlanModal" hidden>
+    <div class="plan-choice-backdrop" data-close-daily-plan></div>
+    <div class="plan-choice-dialog" role="dialog" aria-modal="true" aria-labelledby="dailyPlanTitle">
       <div class="plan-choice-head">
         <div>
-          <h3 id="sundayPlanTitle">週日自動補足方案比較</h3>
-          <p>三種方案皆以馬拉松第 5 階為目標；選定後才會實際扣除資源。</p>
+          <h3 id="dailyPlanTitle">本日自動補足方案比較</h3>
+          <p id="dailyPlanSubtitle">選定方案後才會實際套用並扣除資源。</p>
         </div>
-        <button class="chart-close-btn" id="closeSundayPlanTop" type="button">關閉</button>
+        <button class="chart-close-btn" id="closeDailyPlanTop" type="button">關閉</button>
       </div>
       <div class="plan-choice-body">
-        <div class="plan-choice-grid" id="sundayPlanResults"></div>
+        <div class="plan-choice-grid" id="dailyPlanResults"></div>
       </div>
-      <div class="plan-choice-actions">
-        <button class="plan-choice-btn" type="button" data-sunday-choice="cultivation">1 偏好培育</button>
-        <button class="plan-choice-btn" type="button" data-sunday-choice="egg">2 偏好寵物蛋</button>
-        <button class="plan-choice-btn" type="button" data-sunday-choice="chest">3 偏好寶箱</button>
-        <button class="plan-choice-btn best" type="button" data-sunday-choice="best">4 採用最佳方案</button>
-      </div>
+      <div class="plan-choice-actions" id="dailyPlanActions"></div>
     </div>
   </div>
 
@@ -2812,8 +2808,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v127";
+      const STORAGE_KEY = "capybara-weekly-full-v128";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v127",
         "capybara-weekly-full-v126",
         "capybara-weekly-full-v125",
         "capybara-weekly-full-v124",
@@ -3694,10 +3691,12 @@
         closeChartTop: document.getElementById("closeChartTop"),
         closeChartModal: document.getElementById("closeChartModal"),
         downloadChartImage: document.getElementById("downloadChartImage"),
-        sundayPlanModal: document.getElementById("sundayPlanModal"),
-        sundayPlanResults: document.getElementById("sundayPlanResults"),
-        closeSundayPlanTop: document.getElementById("closeSundayPlanTop"),
-        sundayPlanButtons: [...document.querySelectorAll("[data-sunday-choice]")]
+        dailyPlanModal: document.getElementById("dailyPlanModal"),
+        dailyPlanTitle: document.getElementById("dailyPlanTitle"),
+        dailyPlanSubtitle: document.getElementById("dailyPlanSubtitle"),
+        dailyPlanResults: document.getElementById("dailyPlanResults"),
+        dailyPlanActions: document.getElementById("dailyPlanActions"),
+        closeDailyPlanTop: document.getElementById("closeDailyPlanTop")
       };
 
       function toNonNegativeNumber(value) {
@@ -8090,7 +8089,7 @@ async function downloadChartAsImage() {
         if (!els.dailyAutoPlanButton) return;
         els.dailyAutoPlanButton.dataset.activeDay = state.activeDay;
         els.dailyAutoPlanButton.textContent =
-          "自動補齊本日積分至目標（30 星／14 卡皮幣）";
+          "比較本日多方案並選擇";
       }
 
       function getGuildBountySummaryForDay(dayKey) {
@@ -9213,6 +9212,7 @@ async function downloadChartAsImage() {
       }
 
       let pendingSundayPlans = null;
+      let pendingDailyPlanComparison = null;
       let pendingWeeklyAutoPlanResults = null;
 
       function applyMinimumSundayFreeTasks() {
@@ -9366,40 +9366,270 @@ async function downloadChartAsImage() {
         )[0];
       }
 
-      function renderSundayPlanModal(base, plans, best) {
-        els.sundayPlanResults.innerHTML = plans.map(plan => `
-          <div class="plan-choice-card ${best?.type === plan.type ? "best" : ""} ${plan.feasible ? "" : "unavailable"}">
-            <h4>${plan.name}${best?.type === plan.type ? `<span class="choice-badge">系統最佳</span>` : ""}</h4>
+      function renderPlanComparisonModal({ title, subtitle, plans, buttons }) {
+        els.dailyPlanTitle.textContent = title;
+        els.dailyPlanSubtitle.textContent = subtitle;
+        els.dailyPlanResults.innerHTML = plans.map(plan => `
+          <div class="plan-choice-card ${plan.highlight ? "best" : ""} ${plan.feasible ? "" : "unavailable"}">
+            <h4>
+              ${plan.name}
+              ${plan.badge ? `<span class="choice-badge">${plan.badge}</span>` : ""}
+            </h4>
             <div class="plan-choice-metrics">
-              <div>可執行：<strong>${plan.feasible ? "是" : "否"}</strong></div>
-              <div>操作次數：<strong>${plan.feasible ? format(plan.operations) : "—"}</strong></div>
-              <div>資源消耗：<strong>${plan.feasible ? `${format(plan.resourceUsed)} ${plan.resourceLabel}` : "資源不足"}</strong></div>
-              <div>追加積分：<strong>${format(plan.addedScore)}</strong></div>
-              <div>超出目標：<strong>${plan.feasible ? format(plan.overshoot) : "—"}</strong></div>
-              <div>最終積分：<strong>${format(plan.finalScore)} / ${format(base.targetScore)}</strong></div>
+              ${plan.metrics.map(metric => `
+                <div>${metric.label}：<strong>${metric.value}</strong></div>
+              `).join("")}
             </div>
             <div class="plan-choice-detail">${plan.detail || "不需追加操作"}</div>
           </div>
         `).join("");
 
-        for (const button of els.sundayPlanButtons) {
-          const choice = button.dataset.sundayChoice;
-          if (choice === "best") {
-            button.disabled = !best;
-          } else {
-            button.disabled = !plans.find(plan => plan.type === choice)?.feasible;
-          }
-        }
+        els.dailyPlanActions.innerHTML = buttons.map((button, index) => `
+          <button
+            class="plan-choice-btn ${button.highlight ? "best" : ""}"
+            type="button"
+            data-daily-plan-choice="${button.key}"
+            ${button.disabled ? "disabled" : ""}
+          >${index + 1} ${button.label}</button>
+        `).join("");
 
-        els.sundayPlanModal.hidden = false;
+        els.dailyPlanModal.hidden = false;
         document.body.classList.add("modal-open");
       }
 
-      function closeSundayPlanModal() {
-        els.sundayPlanModal.hidden = true;
+      function closeDailyPlanModal() {
+        els.dailyPlanModal.hidden = true;
         if (els.chartModal.hidden) {
           document.body.classList.remove("modal-open");
         }
+      }
+
+      function renderSundayPlanModal(base, plans, best) {
+        pendingDailyPlanComparison = { mode: "sunday" };
+        renderPlanComparisonModal({
+          title: "週日自動補足方案比較",
+          subtitle: "三種方案皆以馬拉松第 5 階為目標；選定後才會實際扣除資源。",
+          plans: plans.map(plan => ({
+            name: plan.name,
+            feasible: plan.feasible,
+            highlight: best?.type === plan.type,
+            badge: best?.type === plan.type ? "系統最佳" : "",
+            metrics: [
+              { label: "可執行", value: plan.feasible ? "是" : "否" },
+              { label: "操作次數", value: plan.feasible ? format(plan.operations) : "—" },
+              { label: "資源消耗", value: plan.feasible ? `${format(plan.resourceUsed)} ${plan.resourceLabel}` : "資源不足" },
+              { label: "追加積分", value: format(plan.addedScore) },
+              { label: "超出目標", value: plan.feasible ? format(plan.overshoot) : "—" },
+              { label: "最終積分", value: `${format(plan.finalScore)} / ${format(base.targetScore)}` }
+            ],
+            detail: plan.detail || "不需追加操作"
+          })),
+          buttons: [
+            { key: "cultivation", label: "偏好培育", disabled: !plans.find(plan => plan.type === "cultivation")?.feasible },
+            { key: "egg", label: "偏好寵物蛋", disabled: !plans.find(plan => plan.type === "egg")?.feasible },
+            { key: "chest", label: "偏好寶箱", disabled: !plans.find(plan => plan.type === "chest")?.feasible },
+            { key: "best", label: "採用最佳方案", disabled: !best, highlight: true }
+          ]
+        });
+      }
+
+      function getDailyStrategyDefinition(dayKey, strategy) {
+        const standardStage = STANDARD_WEEKLY_TARGETS[dayKey] || 5;
+        const activityName = state.weekMode === "bounty" ? "公會懸賞" : "聯合考古";
+
+        if (strategy === "standard") {
+          return {
+            name: "永續省資源｜標準目標",
+            badge: "永續",
+            target: `馬拉松第 ${standardStage} 階`,
+            description: "沿用 30 星／14 卡皮幣配置，只補本日對應的馬拉松目標。"
+          };
+        }
+
+        if (strategy === "all5") {
+          return {
+            name: "永續省資源｜本日 5 階",
+            badge: "馬拉松",
+            target: "馬拉松第 5 階",
+            description: "只考慮馬拉松，把本日補到第 5 階，不主動追求副活動滿階。"
+          };
+        }
+
+        return {
+          name: `資源充足｜優先衝${activityName}`,
+          badge: "副活動優先",
+          target: state.weekMode === "bounty"
+            ? "個人 500 分＋公會懸賞 3,200 分／9 階"
+            : "聯合考古 320,000 分／56 礦鎬",
+          description: state.weekMode === "bounty"
+            ? "先補個人任務，再產生優先接取的白／紫／金懸賞組合；公會任務完成後仍需手動登錄。"
+            : "先補滿聯合考古，優先使用能同時替馬拉松加分的操作。"
+        };
+      }
+
+      function getDailyStrategyResultMetrics(dayKey, strategy) {
+        const scores = getScoresForDay(dayKey);
+        const stars = getMarathonStars(scores.marathon);
+        const metrics = [
+          { label: "馬拉松結果", value: `${format(scores.marathon)} 分・${format(stars)} / 6 星` }
+        ];
+
+        if (state.weekMode === "bounty") {
+          if (dayKey === "sun") {
+            metrics.push({ label: "公會懸賞", value: "週日休息" });
+          } else {
+            const summary = getGuildBountySummaryForDay(dayKey);
+            const stages = guildBountyStages.filter(stage => summary.totalScore >= stage.score).length;
+            metrics.push({
+              label: "公會懸賞",
+              value: strategy === "activity"
+                ? `個人 ${format(summary.personalScore)} / 500・公會目前 ${format(summary.guildScore)} / 4,500・將推薦補至 3,200`
+                : `${format(summary.totalScore)} / 5,000 分・${format(stages)} / 9 階`
+            });
+          }
+        } else if (dayKey === "sun") {
+          metrics.push({ label: "聯合考古", value: "週日休息" });
+        } else {
+          metrics.push({
+            label: "聯合考古",
+            value: `${format(scores.archaeology)} / 320,000 分・${format(getArchaeologyPickaxes(scores.archaeology))} / 56 礦鎬`
+          });
+        }
+
+        return metrics;
+      }
+
+      function applyActivityPushDayChoice(dayKey) {
+        state.activeDay = dayKey;
+
+        if (state.weekMode === "archaeology") {
+          const result = applyArchaeologyPushDay(dayKey);
+          renderAll();
+          els.autoPlanStatus.className = `auto-plan-status show ${result.isWarning ? "warning" : "success"}`;
+          els.autoPlanStatus.innerHTML = result.html;
+          return result;
+        }
+
+        const personalOk = ensureBountyPersonalTasks(dayKey);
+        const recommendation = buildBountyPushRecommendation(dayKey);
+        const summary = getGuildBountySummaryForDay(dayKey);
+        const marathon = getScoresForDay(dayKey).marathon;
+        const isWarning = !personalOk || !recommendation.ok;
+        const html = `
+          <strong>${shortDayLabels[dayKey]}｜優先衝公會懸賞</strong>
+          <div>${personalOk ? `個人任務已補到 ${format(summary.personalScore)} / 500 分。` : "資源不足，個人任務尚未補滿。"}</div>
+          <div>${recommendation.html}</div>
+          <div>目前馬拉松 ${format(marathon)} 分、${format(getMarathonStars(marathon))} / 6 星。</div>
+        `;
+
+        renderAll();
+        els.autoPlanStatus.className = `auto-plan-status show ${isWarning ? "warning" : "success"}`;
+        els.autoPlanStatus.innerHTML = html;
+        return { dayLabel: shortDayLabels[dayKey], isWarning, html };
+      }
+
+      function applyDailyStrategy(dayKey, strategy) {
+        if (strategy === "standard") {
+          applyAutoPlanForDay(dayKey, STANDARD_WEEKLY_TARGETS);
+          return;
+        }
+
+        if (strategy === "all5") {
+          applyAutoPlanForDay(dayKey, ALL_STAGE_FIVE_TARGETS);
+          return;
+        }
+
+        applyActivityPushDayChoice(dayKey);
+      }
+
+      function simulateDailyStrategy(dayKey, strategy) {
+        const stateSnapshot = JSON.parse(JSON.stringify(state));
+        const statusClassSnapshot = els.autoPlanStatus.className;
+        const statusHtmlSnapshot = els.autoPlanStatus.innerHTML;
+        const definition = getDailyStrategyDefinition(dayKey, strategy);
+        let preview;
+
+        try {
+          applyDailyStrategy(dayKey, strategy);
+          const warning = els.autoPlanStatus.classList.contains("warning");
+          const detail = els.autoPlanStatus.textContent
+            .replace(/\s+/g, " ")
+            .trim();
+          preview = {
+            key: strategy,
+            name: definition.name,
+            badge: definition.badge,
+            feasible: !warning,
+            highlight: strategy === "standard",
+            metrics: [
+              { label: "可執行", value: warning ? "否／需補資源" : "是" },
+              { label: "方案目標", value: definition.target },
+              ...getDailyStrategyResultMetrics(dayKey, strategy)
+            ],
+            detail: `${definition.description}${detail ? `<br>${detail}` : ""}`
+          };
+        } catch (error) {
+          preview = {
+            key: strategy,
+            name: definition.name,
+            badge: definition.badge,
+            feasible: false,
+            highlight: false,
+            metrics: [
+              { label: "可執行", value: "否" },
+              { label: "方案目標", value: definition.target }
+            ],
+            detail: `試算失敗：${error?.message || error}`
+          };
+        } finally {
+          state = stateSnapshot;
+          renderAll();
+          els.autoPlanStatus.className = statusClassSnapshot;
+          els.autoPlanStatus.innerHTML = statusHtmlSnapshot;
+        }
+
+        return preview;
+      }
+
+      function openDailyAutoPlanComparison(dayKey) {
+        if (dayKey === "sun") {
+          state.activeDay = "sun";
+          openSundayAutoPlan();
+          return;
+        }
+
+        const standardStage = STANDARD_WEEKLY_TARGETS[dayKey] || 5;
+        const strategies = standardStage >= 5
+          ? ["standard", "activity"]
+          : ["standard", "all5", "activity"];
+        const plans = strategies
+          .map(strategy => simulateDailyStrategy(dayKey, strategy));
+        pendingDailyPlanComparison = {
+          mode: "daily",
+          dayKey,
+          plans
+        };
+
+        const activityLabel = state.weekMode === "bounty"
+          ? "優先衝懸賞"
+          : "優先衝考古";
+        const buttonLabels = {
+          standard: standardStage >= 5 ? "永續本日 5 階" : "永續標準",
+          all5: "本日 5 階",
+          activity: activityLabel
+        };
+
+        renderPlanComparisonModal({
+          title: `${shortDayLabels[dayKey]}自動補足方案比較`,
+          subtitle: "各方案會先試算；選定後才會真正套用與扣除資源。",
+          plans,
+          buttons: strategies.map(strategy => ({
+            key: strategy,
+            label: buttonLabels[strategy],
+            disabled: !plans.find(plan => plan.key === strategy)?.feasible,
+            highlight: strategy === "activity"
+          }))
+        });
       }
 
       function openSundayAutoPlan() {
@@ -9466,8 +9696,9 @@ async function downloadChartAsImage() {
           applySundayChestPlan(selected.plan);
         }
 
+        const targetScore = pendingSundayPlans.base.targetScore;
         const finalScore = getScoresForDay("sun").marathon;
-        closeSundayPlanModal();
+        closeDailyPlanModal();
         renderAll();
 
         els.autoPlanStatus.className = "auto-plan-status show success";
@@ -9480,7 +9711,7 @@ async function downloadChartAsImage() {
           <div>
             追加 ${format(selected.addedScore)} 分，超出目標
             ${format(selected.overshoot)} 分；馬拉松積分
-            ${format(finalScore)} / ${format(pendingSundayPlans.base.targetScore)}。
+            ${format(finalScore)} / ${format(targetScore)}。
           </div>
         `;
 
@@ -9494,6 +9725,23 @@ async function downloadChartAsImage() {
         }
 
         pendingSundayPlans = null;
+        pendingDailyPlanComparison = null;
+      }
+
+      function applySelectedDailyPlan(choice) {
+        if (pendingDailyPlanComparison?.mode === "sunday") {
+          applySelectedSundayPlan(choice);
+          return;
+        }
+
+        if (pendingDailyPlanComparison?.mode !== "daily") return;
+        const { dayKey, plans } = pendingDailyPlanComparison;
+        const selected = plans.find(plan => plan.key === choice);
+        if (!selected?.feasible) return;
+
+        closeDailyPlanModal();
+        pendingDailyPlanComparison = null;
+        applyDailyStrategy(dayKey, choice);
       }
 
       const ACTIVITY_PUSH_ARCHAEOLOGY_TARGET = 320000;
@@ -10935,7 +11183,7 @@ async function downloadChartAsImage() {
       });
 
       els.dailyAutoPlanButton.addEventListener("click", () => {
-        applyAutoPlanForDay(state.activeDay, STANDARD_WEEKLY_TARGETS);
+        openDailyAutoPlanComparison(state.activeDay);
       });
 
       document.getElementById("applyDailyDefaults").addEventListener("click", () => {
@@ -10964,16 +11212,17 @@ async function downloadChartAsImage() {
         renderAll();
       });
 
-      els.closeSundayPlanTop.addEventListener("click", closeSundayPlanModal);
-      els.sundayPlanModal.addEventListener("click", event => {
-        if (event.target.hasAttribute("data-close-sunday-plan")) {
-          closeSundayPlanModal();
+      els.closeDailyPlanTop.addEventListener("click", closeDailyPlanModal);
+      els.dailyPlanModal.addEventListener("click", event => {
+        if (event.target.hasAttribute("data-close-daily-plan")) {
+          closeDailyPlanModal();
+          return;
         }
-      });
-      els.sundayPlanButtons.forEach(button => {
-        button.addEventListener("click", () => {
-          applySelectedSundayPlan(button.dataset.sundayChoice);
-        });
+
+        const button = event.target.closest("[data-daily-plan-choice]");
+        if (button && !button.disabled) {
+          applySelectedDailyPlan(button.dataset.dailyPlanChoice);
+        }
       });
 
       els.closeChartTop.addEventListener("click", closeChartModal);
@@ -10985,8 +11234,8 @@ async function downloadChartAsImage() {
         }
       });
       document.addEventListener("keydown", event => {
-        if (event.key === "Escape" && !els.sundayPlanModal.hidden) {
-          closeSundayPlanModal();
+        if (event.key === "Escape" && !els.dailyPlanModal.hidden) {
+          closeDailyPlanModal();
           return;
         }
         if (event.key === "Escape" && !els.chartModal.hidden) {
