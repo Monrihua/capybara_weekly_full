@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v137</title>
+  <title>水豚每週活動計算機｜週一至週日 v138</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -2429,7 +2429,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v137</div>
+      <div class="prototype-badge">週一至週日 v138</div>
     </header>
 
     <div class="app-shell">
@@ -2618,7 +2618,7 @@
           <button class="action-btn action-confirm" id="confirmGenerateCharts" type="button">確認並產出圖表</button>
           <button class="action-btn action-plan" id="applyThirtyStarPlan" type="button">永續省資源｜只補馬拉松 30 星／14 卡皮幣</button>
           <button class="action-btn action-plan" id="applyAllStageFivePlan" type="button">永續省資源｜只補馬拉松全週 5 階</button>
-          <button class="action-btn action-plan" id="applyActivityPushPlan" type="button">資源充足｜逐日考古／懸賞方案（目前週一、週二）</button>
+          <button class="action-btn action-plan" id="applyActivityPushPlan" type="button">資源充足｜逐日考古／懸賞方案（目前週一至週三）</button>
           <button class="action-btn action-primary" id="applyDailyDefaults" type="button">重套當日無消耗型任務</button>
           <button class="action-btn action-secondary" id="clearCurrentDay" type="button">當日全部歸零＋重套無消耗型任務</button>
           <button class="action-btn action-warning" id="resetAllDaysDefaults" type="button">本週全部歸零＋重套無消耗型任務</button>
@@ -2842,8 +2842,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v137";
+      const STORAGE_KEY = "capybara-weekly-full-v138";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v137",
         "capybara-weekly-full-v136",
         "capybara-weekly-full-v135",
         "capybara-weekly-full-v134",
@@ -5615,7 +5616,7 @@
             <div class="guild-bounty-merged-summary">
               <div class="guild-bounty-merged-item">
                 <span>個人積分</span>
-                <strong>${format(summary.personalScore)} / 600</strong>
+                <strong>${format(summary.personalScore)} / 500</strong>
               </div>
               <div class="guild-bounty-merged-item">
                 <span>公會任務積分</span>
@@ -6064,6 +6065,24 @@
               }).join("")}
             </div>
           </div>
+
+          ${state.weekMode === "bounty" ? `
+          <div class="task-block">
+            <div class="task-block-title">
+              <strong>懸賞個人任務缺項</strong>
+              <span class="type-badge type-free">週二個人任務同步計算</span>
+            </div>
+            <div class="task-list">
+              ${taskRow({
+                key: "tradeShip",
+                name: "卡皮貿易 發 UR／閃金商船",
+                meta: `懸賞個人任務需 2 艘・考古 8,000 分／艘・每日上限 ${state.settings.tradeCard ? 6 : 4} 艘${state.settings.tradeCard ? "（貿易卡 +2）" : ""}`,
+                scoreHtml: `<span class="bounty-score">懸賞個人進度 ${format(Math.min(toInt(day.tradeShip), 2))} / 2 艘</span>`,
+                max: state.settings.tradeCard ? 6 : 4
+              })}
+            </div>
+          </div>
+          ` : ""}
 
           <div class="task-block">
             <div class="task-block-title">
@@ -8138,9 +8157,13 @@ async function downloadChartAsImage() {
           ? "比較週一考古／懸賞目標與搭配方案"
           : state.activeDay === "tue"
             ? "比較週二考古／懸賞目標與搭配方案"
-            : state.activeDay === "sun"
-              ? "比較週日資源方案"
-              : "資源充足方案｜將逐日補上";
+            : state.activeDay === "wed"
+              ? (state.weekMode === "bounty"
+                  ? "週三懸賞多方案｜逐日製作中"
+                  : "比較週三考古目標與搭配方案")
+              : state.activeDay === "sun"
+                ? "比較週日資源方案"
+                : "資源充足方案｜將逐日補上";
       }
 
       function getGuildBountySummaryForDay(dayKey) {
@@ -10972,6 +10995,342 @@ async function downloadChartAsImage() {
         pendingDailyPlanComparison = null;
       }
 
+
+      function addWednesdayStaminaPlan(plan) {
+        if (!plan) return;
+        const day = state.days.wed;
+        for (const [optionId, addCount] of Object.entries(plan.counts || {})) {
+          setStaminaCount(
+            "wed",
+            optionId,
+            toInt(day.staminaCounts[optionId]) + toInt(addCount)
+          );
+        }
+      }
+
+      function mergeWednesdayEggPlans(...plans) {
+        const merged = { opened: 0, consumed: 0, actions: 0, counts: {} };
+        plans.filter(Boolean).forEach(plan => {
+          merged.opened += toInt(plan.opened);
+          merged.consumed += toInt(plan.consumed);
+          merged.actions += toInt(plan.actions);
+          Object.entries(plan.counts || {}).forEach(([key, count]) => {
+            merged.counts[key] = toInt(merged.counts[key]) + toInt(count);
+          });
+        });
+        return merged;
+      }
+
+      function formatWednesdayEggCounts(plan) {
+        const labels = {
+          petEggBundle10: "×10",
+          petEggBundle5: "×5",
+          petEggBundle3: "×3",
+          petEggBundle1: "×1"
+        };
+        const parts = Object.keys(labels)
+          .filter(key => toInt(plan?.counts?.[key]) > 0)
+          .map(key => `${labels[key]} ${format(plan.counts[key])} 次`);
+        return parts.length ? parts.join("、") : "不需追加寵物蛋";
+      }
+
+      function applyWednesdayArchaeologyPrerequisites() {
+        const day = state.days.wed;
+        const before = {
+          guildRaid: toInt(day.guildRaid),
+          arena: toInt(day.arena),
+          dungeonCount: toInt(day.dungeonCount),
+          goblin: toInt(day.goblin),
+          adPetEgg: toInt(day.adPetEgg)
+        };
+        applyMinimumWednesdayFreeTasks();
+        day.goblin = Math.max(toInt(day.goblin), 100);
+        return {
+          guildRaidAdd: Math.max(0, toInt(day.guildRaid) - before.guildRaid),
+          arenaAdd: Math.max(0, toInt(day.arena) - before.arena),
+          dungeonAdd: Math.max(0, toInt(day.dungeonCount) - before.dungeonCount),
+          goblinAdd: Math.max(0, toInt(day.goblin) - before.goblin),
+          adPetEggAdd: Math.max(0, toInt(day.adPetEgg) - before.adPetEgg)
+        };
+      }
+
+      function simulateWednesdayArchaeologyPlan(config, activityStage, marathonStage) {
+        const originalState = JSON.parse(JSON.stringify(state));
+        try {
+          state.activeDay = "wed";
+          const prerequisites = applyWednesdayArchaeologyPrerequisites();
+          const normalizedActivityStage = clamp(toInt(activityStage), 1, archaeologyStages.length);
+          const normalizedMarathonStage = clamp(toInt(marathonStage), 1, marathonStages.length);
+          const activityTargetScore = archaeologyStages[normalizedActivityStage - 1].score;
+          const marathonTargetScore = marathonStages[normalizedMarathonStage - 1].score;
+
+          const initialScores = getWednesdayScores();
+          const missingMarathon = Math.max(0, marathonTargetScore - initialScores.marathon);
+          const requiredFloorOpened = Math.ceil(missingMarathon / 60);
+          const floorEggPlan = findWednesdayEggBundlePlan(
+            requiredFloorOpened,
+            getOwnedResourceAmount("petEgg")
+          );
+          if (!floorEggPlan) {
+            throw new Error("寵物蛋不足，無法先完成馬拉松底線");
+          }
+          applyWednesdayEggPlan(floorEggPlan);
+
+          let staminaPlan = { stamina: 0, actions: 0, counts: {} };
+          if (config.reach200Stamina) {
+            const currentStamina = getWednesdayStaminaSummary().stamina;
+            const requiredStamina = Math.max(0, 200 - currentStamina);
+            staminaPlan = findMinimumActionStaminaPlan(
+              requiredStamina,
+              getOwnedStaminaAmount()
+            );
+            if (!staminaPlan) {
+              throw new Error("持有體力不足，無法把週三累計體力補到 200");
+            }
+            addWednesdayStaminaPlan(staminaPlan);
+          }
+
+          let tailEggPlan = { opened: 0, consumed: 0, actions: 0, counts: {} };
+          let brandAdd = 0;
+          const beforeTailScores = getWednesdayScores();
+          const missingActivity = Math.max(0, activityTargetScore - beforeTailScores.archaeology);
+          if (config.tailSource === "egg") {
+            tailEggPlan = findWednesdayEggBundlePlan(
+              Math.ceil(missingActivity / 20),
+              getOwnedResourceAmount("petEgg")
+            );
+            if (!tailEggPlan) {
+              throw new Error("寵物蛋不足，無法補到所選考古階段");
+            }
+            applyWednesdayEggPlan(tailEggPlan);
+          } else if (config.tailSource === "brand") {
+            brandAdd = Math.ceil(missingActivity / 1000);
+            state.days.wed.brandDraw = toInt(state.days.wed.brandDraw) + brandAdd;
+          }
+
+          const finalScores = getWednesdayScores();
+          const finalEggs = getWednesdayPetEggSummary();
+          const combinedEggPlan = mergeWednesdayEggPlans(floorEggPlan, tailEggPlan);
+          const progress = getArchaeologyProgressDetails(
+            finalScores.archaeology,
+            normalizedActivityStage
+          );
+          const feasible =
+            finalScores.marathon >= marathonTargetScore &&
+            finalScores.archaeology >= activityTargetScore;
+
+          return {
+            key: config.key,
+            name: config.name,
+            badge: config.badge,
+            highlight: Boolean(config.highlight),
+            feasible,
+            application: {
+              floorEggPlan,
+              staminaPlan,
+              tailEggPlan,
+              brandAdd
+            },
+            metrics: [
+              { label: "可執行", value: feasible ? "是" : "否／目標未達" },
+              {
+                label: "總操作次數",
+                value: format(combinedEggPlan.actions + toInt(staminaPlan.actions) + brandAdd)
+              },
+              {
+                label: "自動前置",
+                value: `基本任務＋挖礦 ${format(prerequisites.goblinAdd)} 次${prerequisites.adPetEggAdd ? `＋廣告寵物蛋 ${format(prerequisites.adPetEggAdd)} 次` : ""}`
+              },
+              {
+                label: "追加寵物蛋",
+                value: `計分開啟 ${format(combinedEggPlan.opened)} 顆（${format(combinedEggPlan.actions)} 次，實耗 ${format(combinedEggPlan.consumed)} 顆）`
+              },
+              { label: "寵物蛋配置", value: formatWednesdayEggCounts(combinedEggPlan) },
+              {
+                label: "追加體力",
+                value: `${format(toInt(staminaPlan.stamina))}（${format(toInt(staminaPlan.actions))} 次）`
+              },
+              { label: "追加抽烙印", value: `${format(brandAdd)} 次` },
+              {
+                label: "馬拉松積分",
+                value: `${format(finalScores.marathon)} / ${format(marathonTargetScore)} 分`
+              },
+              {
+                label: "馬拉松星星",
+                value: `${format(getMarathonStars(finalScores.marathon))} / 6 星`
+              },
+              {
+                label: "考古已達成",
+                value: `階段 ${format(progress.achievedStage)} / ${format(progress.achievedThreshold)} 分`
+              },
+              {
+                label: "距離下個階段",
+                value: progress.nextStage
+                  ? `${format(progress.nextStage.score)} 分・還差 ${format(progress.remainingToNext)} 分`
+                  : "已完成全部階段"
+              },
+              {
+                label: "考古積分",
+                value: `${format(finalScores.archaeology)} / ${format(activityTargetScore)} 分`
+              },
+              {
+                label: "幸運礦鎬",
+                value: `${format(progress.pickaxes)} / ${format(progress.selectedTargetPickaxes)} 個`
+              }
+            ],
+            detail:
+              `${config.description}<br>` +
+              `馬拉松底線使用寵物蛋完成；最終累計計分開啟 ${format(finalEggs.openedEggs)} 顆寵物蛋。`
+          };
+        } catch (error) {
+          return {
+            key: config.key,
+            name: config.name,
+            badge: config.badge,
+            highlight: Boolean(config.highlight),
+            feasible: false,
+            application: null,
+            metrics: [
+              { label: "可執行", value: "否／資源不足" },
+              { label: "原因", value: error?.message || String(error) }
+            ],
+            detail: config.description
+          };
+        } finally {
+          state = originalState;
+        }
+      }
+
+      function buildWednesdayArchaeologyPlans(activityStage, marathonStage) {
+        return [
+          simulateWednesdayArchaeologyPlan({
+            key: "wed-egg-only",
+            name: "只靠寵物蛋方案",
+            badge: "雙加分",
+            highlight: true,
+            reach200Stamina: false,
+            tailSource: "egg",
+            description: "先用寵物蛋完成馬拉松最高優先底線，再繼續用寵物蛋補到所選考古階段。"
+          }, activityStage, marathonStage),
+          simulateWednesdayArchaeologyPlan({
+            key: "wed-egg-200-egg",
+            name: "寵物蛋補足馬拉松＋200 體後靠寵物蛋方案",
+            badge: "高收益體力＋雙加分",
+            reach200Stamina: true,
+            tailSource: "egg",
+            description: "先用寵物蛋完成馬拉松底線，再把累計體力補到 200；若目前已達 200 體則不重複追加，最後用寵物蛋補考古。"
+          }, activityStage, marathonStage),
+          simulateWednesdayArchaeologyPlan({
+            key: "wed-egg-200-brand",
+            name: "寵物蛋補足馬拉松＋200 體後靠抽烙印方案",
+            badge: "高收益體力＋烙印補尾",
+            reach200Stamina: true,
+            tailSource: "brand",
+            description: "先用寵物蛋完成馬拉松底線，再把累計體力補到 200，剩餘考古分數使用祈願／限時祈願抽烙印補足。"
+          }, activityStage, marathonStage)
+        ];
+      }
+
+      function getWednesdayActivityControlsHtml(activityStage, marathonStage) {
+        return `
+          <label class="plan-choice-control">
+            <span>馬拉松最高優先底線</span>
+            <select data-wednesday-marathon-stage>
+              <option value="3" ${toInt(marathonStage) === 3 ? "selected" : ""}>第 3 階｜30 星／14 卡皮幣標準配置</option>
+              <option value="5" ${toInt(marathonStage) === 5 ? "selected" : ""}>第 5 階｜本日高投入底線</option>
+            </select>
+          </label>
+          <label class="plan-choice-control">
+            <span>考古目標階段</span>
+            <select data-wednesday-activity-stage>
+              ${archaeologyStages.map((stage, index) => `
+                <option value="${index + 1}" ${toInt(activityStage) === index + 1 ? "selected" : ""}>
+                  第 ${index + 1} 階｜${format(stage.score)} 分
+                </option>
+              `).join("")}
+            </select>
+          </label>
+          <div class="plan-choice-control-note">
+            馬拉松底線永遠優先。考古週先補上基本任務，再用寵物蛋完成馬拉松要求；之後才依所選方案以寵物蛋、前 200 體高收益或抽烙印補足剩餘考古分數。目標獎勵：${getMondayActivityTargetReward(activityStage)}。
+          </div>
+        `;
+      }
+
+      function openWednesdayActivityPlanComparison(activityStage = 9, marathonStage = 5) {
+        state.activeDay = "wed";
+        if (state.weekMode === "bounty") {
+          pendingDailyPlanComparison = { mode: "notReady", dayKey: "wed" };
+          renderPlanComparisonModal({
+            title: "週三｜公會懸賞方案",
+            subtitle: "週三懸賞的個人任務與接取優先順序會另行建立；本版先完成週三考古的三種方案。",
+            plans: [{
+              name: "週三懸賞方案尚未完成",
+              badge: "逐日製作中",
+              feasible: false,
+              metrics: [
+                { label: "目前完成", value: "週三考古三方案" },
+                { label: "懸賞狀態", value: "尚未重做" }
+              ],
+              detail: "切換至考古週即可比較週三寵物蛋、200 體與抽烙印方案。"
+            }],
+            buttons: []
+          });
+          return;
+        }
+
+        const plans = buildWednesdayArchaeologyPlans(activityStage, marathonStage);
+        pendingDailyPlanComparison = {
+          mode: "wednesdayActivity",
+          dayKey: "wed",
+          activityStage: toInt(activityStage),
+          marathonStage: toInt(marathonStage),
+          plans
+        };
+        renderPlanComparisonModal({
+          title: "週三｜聯合考古目標與資源搭配",
+          subtitle: "馬拉松底線永遠優先。先用寵物蛋完成馬拉松要求，再依方案補足考古分數。",
+          controlsHtml: getWednesdayActivityControlsHtml(activityStage, marathonStage),
+          plans,
+          buttons: plans.map(plan => ({
+            key: plan.key,
+            label: plan.name,
+            disabled: !plan.feasible,
+            highlight: plan.highlight
+          }))
+        });
+      }
+
+      function applyWednesdayActivityPlan(planKey) {
+        if (pendingDailyPlanComparison?.mode !== "wednesdayActivity") return;
+        const selected = pendingDailyPlanComparison.plans.find(plan => plan.key === planKey);
+        if (!selected?.feasible || !selected.application) return;
+        const activityStage = pendingDailyPlanComparison.activityStage;
+        const marathonStage = pendingDailyPlanComparison.marathonStage;
+        closeDailyPlanModal();
+        state.activeDay = "wed";
+
+        applyWednesdayArchaeologyPrerequisites();
+        applyWednesdayEggPlan(selected.application.floorEggPlan);
+        addWednesdayStaminaPlan(selected.application.staminaPlan);
+        applyWednesdayEggPlan(selected.application.tailEggPlan);
+        state.days.wed.brandDraw =
+          toInt(state.days.wed.brandDraw) + toInt(selected.application.brandAdd);
+
+        const scores = getWednesdayScores();
+        const stamina = getWednesdayStaminaSummary();
+        const eggs = getWednesdayPetEggSummary();
+        renderAll();
+        els.autoPlanStatus.className = "auto-plan-status show success";
+        els.autoPlanStatus.innerHTML = `
+          <strong>週三｜已採用「${selected.name}」</strong>
+          <div>馬拉松底線：第 ${marathonStage} 階；聯合考古目標：第 ${activityStage} 階。</div>
+          <div>追加寵物蛋配置：${formatWednesdayEggCounts(mergeWednesdayEggPlans(selected.application.floorEggPlan, selected.application.tailEggPlan))}。</div>
+          <div>目前累計體力 ${format(stamina.stamina)}；追加抽烙印 ${format(selected.application.brandAdd)} 次。</div>
+          <div>最終計分開啟寵物蛋 ${format(eggs.openedEggs)} 顆；馬拉松 ${format(scores.marathon)} 分、${format(getMarathonStars(scores.marathon))} / 6 星；考古 ${format(scores.archaeology)} 分、${format(getArchaeologyPickaxes(scores.archaeology))} / 56 礦鎬。</div>
+        `;
+        pendingDailyPlanComparison = null;
+      }
+
       function getDailyStrategyDefinition(dayKey, strategy) {
         const standardStage = STANDARD_WEEKLY_TARGETS[dayKey] || 5;
         const activityName = state.weekMode === "bounty" ? "公會懸賞" : "聯合考古";
@@ -11141,6 +11500,11 @@ async function downloadChartAsImage() {
           return;
         }
 
+        if (dayKey === "wed") {
+          openWednesdayActivityPlanComparison(9, STANDARD_WEEKLY_TARGETS.wed || 5);
+          return;
+        }
+
         if (dayKey === "sun") {
           state.activeDay = "sun";
           openSundayAutoPlan();
@@ -11275,6 +11639,11 @@ async function downloadChartAsImage() {
 
         if (pendingDailyPlanComparison?.mode === "tuesdayActivity") {
           applyTuesdayActivityPlan(choice);
+          return;
+        }
+
+        if (pendingDailyPlanComparison?.mode === "wednesdayActivity") {
+          applyWednesdayActivityPlan(choice);
           return;
         }
 
@@ -12723,7 +13092,7 @@ async function downloadChartAsImage() {
       });
 
       document.getElementById("applyActivityPushPlan").addEventListener("click", () => {
-        const targetDay = ["mon", "tue"].includes(state.activeDay)
+        const targetDay = ["mon", "tue", "wed"].includes(state.activeDay)
           ? state.activeDay
           : "mon";
         state.activeDay = targetDay;
@@ -12808,6 +13177,24 @@ async function downloadChartAsImage() {
             pendingDailyPlanComparison.marathonStage
           );
           openTuesdayActivityPlanComparison(activityStage, marathonStage);
+          return;
+        }
+
+        if (pendingDailyPlanComparison?.mode === "wednesdayActivity") {
+          if (
+            !event.target.matches("[data-wednesday-activity-stage]") &&
+            !event.target.matches("[data-wednesday-marathon-stage]")
+          ) return;
+
+          const activityStage = toInt(
+            els.dailyPlanControls.querySelector("[data-wednesday-activity-stage]")?.value ||
+            pendingDailyPlanComparison.activityStage
+          );
+          const marathonStage = toInt(
+            els.dailyPlanControls.querySelector("[data-wednesday-marathon-stage]")?.value ||
+            pendingDailyPlanComparison.marathonStage
+          );
+          openWednesdayActivityPlanComparison(activityStage, marathonStage);
         }
       });
 
