@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v139</title>
+  <title>水豚每週活動計算機｜週一至週日 v140</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -1346,6 +1346,15 @@
       color: #fff;
     }
 
+    .day-auto-plan-btn.action-plan {
+      min-height: 38px;
+      padding: 8px 13px;
+      border: 0;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #2457d6, #744dd8);
+      color: #fff;
+    }
+
     .action-confirm {
       background: linear-gradient(135deg, #0f9d6a, #16a34a);
       color: #fff;
@@ -2429,7 +2438,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v139</div>
+      <div class="prototype-badge">週一至週日 v140</div>
     </header>
 
     <div class="app-shell">
@@ -2618,7 +2627,7 @@
           <button class="action-btn action-confirm" id="confirmGenerateCharts" type="button">確認並產出圖表</button>
           <button class="action-btn action-plan" id="applyThirtyStarPlan" type="button">永續省資源｜只補馬拉松 30 星／14 卡皮幣</button>
           <button class="action-btn action-plan" id="applyAllStageFivePlan" type="button">永續省資源｜只補馬拉松全週 5 階</button>
-          <button class="action-btn action-plan" id="applyActivityPushPlan" type="button">資源充足｜逐日考古／懸賞方案（目前週一至週三）</button>
+          <button class="action-btn action-plan" id="applyActivityPushPlan" type="button">資源充足｜逐日考古／懸賞方案（週一至週日）</button>
           <button class="action-btn action-primary" id="applyDailyDefaults" type="button">重套當日無消耗型任務</button>
           <button class="action-btn action-secondary" id="clearCurrentDay" type="button">當日全部歸零＋重套無消耗型任務</button>
           <button class="action-btn action-warning" id="resetAllDaysDefaults" type="button">本週全部歸零＋重套無消耗型任務</button>
@@ -2645,9 +2654,9 @@
         <button class="day-tab" type="button" data-day="sun">週日</button>
       </nav>
 
-      <div class="day-auto-plan-row" aria-label="每日自動套用">
-        <button class="day-auto-plan-btn" id="dailyAutoPlanButton" type="button">
-          自動補齊本日積分至目標（30 星／14 卡皮幣）
+      <div class="day-auto-plan-row" aria-label="每日考古／懸賞方案">
+        <button class="action-btn action-plan day-auto-plan-btn" id="dailyAutoPlanButton" type="button">
+          比較週一考古／懸賞目標與搭配方案
         </button>
       </div>
     </div>
@@ -2842,8 +2851,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v139";
+      const STORAGE_KEY = "capybara-weekly-full-v140";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v139",
         "capybara-weekly-full-v138",
         "capybara-weekly-full-v137",
         "capybara-weekly-full-v136",
@@ -13761,6 +13771,169 @@ async function downloadChartAsImage() {
       };
 
 
+      /* v140：七日方案按鈕與可逆套用狀態 */
+      const V140_ACTIVITY_PLAN_SNAPSHOT_KEY =
+        "capybara-weekly-activity-plan-snapshots-v140";
+
+      function v140DeepClone(value) {
+        return JSON.parse(JSON.stringify(value));
+      }
+
+      function v140LoadAppliedPlanSnapshots() {
+        try {
+          const saved = JSON.parse(
+            localStorage.getItem(V140_ACTIVITY_PLAN_SNAPSHOT_KEY)
+          );
+          return saved && typeof saved === "object" ? saved : {};
+        } catch (error) {
+          return {};
+        }
+      }
+
+      let v140AppliedPlanSnapshots = v140LoadAppliedPlanSnapshots();
+      let v140PlanSelectionContext = null;
+      let v140SelectionInProgress = false;
+
+      function v140SaveAppliedPlanSnapshots() {
+        localStorage.setItem(
+          V140_ACTIVITY_PLAN_SNAPSHOT_KEY,
+          JSON.stringify(v140AppliedPlanSnapshots)
+        );
+      }
+
+      function v140GetAppliedPlan(dayKey = state.activeDay) {
+        return v140AppliedPlanSnapshots[dayKey] || null;
+      }
+
+      function v140CaptureUndoSnapshot(dayKey, selectedName = "已選方案") {
+        return {
+          dayKey,
+          weekMode: state.weekMode,
+          selectedName,
+          before: {
+            day: v140DeepClone(state.days[dayKey]),
+            ownedStamina: v140DeepClone(state.ownedStamina),
+            ownedResources: v140DeepClone(state.ownedResources),
+            inventory: v140DeepClone(state.inventory)
+          }
+        };
+      }
+
+      function v140SnapshotFingerprint(snapshot) {
+        return JSON.stringify(snapshot?.before || {});
+      }
+
+      function v140CurrentFingerprint(dayKey) {
+        return JSON.stringify({
+          day: state.days[dayKey],
+          ownedStamina: state.ownedStamina,
+          ownedResources: state.ownedResources,
+          inventory: state.inventory
+        });
+      }
+
+      function v140StoreAppliedPlan(snapshot) {
+        if (!snapshot?.dayKey) return;
+        v140AppliedPlanSnapshots[snapshot.dayKey] = snapshot;
+        v140SaveAppliedPlanSnapshots();
+      }
+
+      function v140ClearAppliedPlan(dayKey) {
+        if (!dayKey || !v140AppliedPlanSnapshots[dayKey]) return;
+        delete v140AppliedPlanSnapshots[dayKey];
+        v140SaveAppliedPlanSnapshots();
+      }
+
+      function v140ClearAllAppliedPlans() {
+        v140AppliedPlanSnapshots = {};
+        v140SaveAppliedPlanSnapshots();
+      }
+
+      function v140RestoreAppliedPlan(dayKey) {
+        const applied = v140GetAppliedPlan(dayKey);
+        if (!applied?.before) return false;
+
+        state.days[dayKey] = v140DeepClone(applied.before.day);
+        state.ownedStamina = v140DeepClone(applied.before.ownedStamina);
+        state.ownedResources = v140DeepClone(applied.before.ownedResources);
+        state.inventory = v140DeepClone(applied.before.inventory);
+        v140ClearAppliedPlan(dayKey);
+        renderAll();
+
+        els.autoPlanStatus.className = "auto-plan-status show success";
+        els.autoPlanStatus.innerHTML = `
+          <strong>${shortDayLabels[dayKey]}｜已返還「${applied.selectedName}」增加的內容</strong>
+          <div>方案造成的體力、資源、寶箱與任務數量已還原；可再次按下比較按鈕重新選擇。</div>
+        `;
+        return true;
+      }
+
+      function v140ActivityPlanButtonLabel(dayKey = state.activeDay) {
+        if (v140GetAppliedPlan(dayKey)) return "重新選擇方案";
+        return dayKey === "sun"
+          ? "比較週日馬拉松資源方案"
+          : `比較${shortDayLabels[dayKey]}考古／懸賞目標與搭配方案`;
+      }
+
+      updateDailyAutoPlanButton = function() {
+        const dailyButton = document.getElementById("dailyAutoPlanButton");
+        const resourceButton = document.getElementById("applyActivityPushPlan");
+        const hasAppliedPlan = Boolean(v140GetAppliedPlan(state.activeDay));
+
+        if (dailyButton) {
+          dailyButton.dataset.activeDay = state.activeDay;
+          dailyButton.dataset.hasAppliedPlan = hasAppliedPlan ? "true" : "false";
+          dailyButton.textContent = v140ActivityPlanButtonLabel(state.activeDay);
+        }
+
+        if (resourceButton) {
+          resourceButton.dataset.activeDay = state.activeDay;
+          resourceButton.textContent =
+            "資源充足｜逐日考古／懸賞方案（週一至週日）";
+        }
+      };
+
+      const v140PreviousCloseDailyPlanModal = closeDailyPlanModal;
+      closeDailyPlanModal = function() {
+        v140PreviousCloseDailyPlanModal();
+        if (!v140SelectionInProgress) {
+          v140PlanSelectionContext = null;
+        }
+      };
+
+      const v140PreviousApplySelectedDailyPlan = applySelectedDailyPlan;
+      applySelectedDailyPlan = function(choice) {
+        const pending = pendingDailyPlanComparison;
+        const dayKey = pending?.dayKey || state.activeDay;
+        const selected = pending?.plans?.find(plan => plan.key === choice);
+        const shouldTrack =
+          v140PlanSelectionContext?.dayKey === dayKey &&
+          !v140GetAppliedPlan(dayKey);
+        const undoSnapshot = shouldTrack
+          ? v140CaptureUndoSnapshot(dayKey, selected?.name || "已選方案")
+          : null;
+        const beforeFingerprint = undoSnapshot
+          ? v140SnapshotFingerprint(undoSnapshot)
+          : "";
+
+        v140SelectionInProgress = true;
+        try {
+          v140PreviousApplySelectedDailyPlan(choice);
+        } finally {
+          v140SelectionInProgress = false;
+        }
+
+        if (
+          undoSnapshot &&
+          v140CurrentFingerprint(dayKey) !== beforeFingerprint
+        ) {
+          v140StoreAppliedPlan(undoSnapshot);
+        }
+        v140PlanSelectionContext = null;
+        updateDailyAutoPlanButton();
+      };
+
+
       document.getElementById("confirmGenerateCharts").addEventListener("click", () => {
         renderAll();
         openRewardSummary();
@@ -13768,32 +13941,46 @@ async function downloadChartAsImage() {
       });
 
       document.getElementById("applyThirtyStarPlan").addEventListener("click", () => {
+        v140ClearAllAppliedPlans();
         applyWeeklyAutoPlan(STANDARD_WEEKLY_TARGETS);
       });
 
       document.getElementById("applyAllStageFivePlan").addEventListener("click", () => {
+        v140ClearAllAppliedPlans();
         applyWeeklyAutoPlan(ALL_STAGE_FIVE_TARGETS);
       });
 
-      document.getElementById("applyActivityPushPlan").addEventListener("click", () => {
-        const targetDay = ["mon", "tue", "wed", "thu", "fri", "sat"].includes(state.activeDay)
-          ? state.activeDay
-          : "mon";
-        state.activeDay = targetDay;
-        renderAll();
-        openDailyAutoPlanComparison(targetDay);
-      });
+      function v140OpenOrRestoreDailyPlan() {
+        const targetDay = state.activeDay;
+        if (v140GetAppliedPlan(targetDay)) {
+          v140RestoreAppliedPlan(targetDay);
+          return;
+        }
 
-      els.dailyAutoPlanButton.addEventListener("click", () => {
-        openDailyAutoPlanComparison(state.activeDay);
-      });
+        v140PlanSelectionContext = { dayKey: targetDay };
+        openDailyAutoPlanComparison(targetDay);
+      }
+
+      document.getElementById("applyActivityPushPlan").addEventListener(
+        "click",
+        v140OpenOrRestoreDailyPlan
+      );
+
+      if (els.dailyAutoPlanButton) {
+        els.dailyAutoPlanButton.addEventListener(
+          "click",
+          v140OpenOrRestoreDailyPlan
+        );
+      }
 
       document.getElementById("applyDailyDefaults").addEventListener("click", () => {
+        v140ClearAppliedPlan(state.activeDay);
         applyDailyDefaults();
         renderAll();
       });
 
       document.getElementById("clearCurrentDay").addEventListener("click", () => {
+        v140ClearAppliedPlan(state.activeDay);
         els.autoPlanStatus.className = "auto-plan-status";
         els.autoPlanStatus.innerHTML = "";
         resetDayToDefaults(state.activeDay);
@@ -13801,6 +13988,7 @@ async function downloadChartAsImage() {
       });
 
       document.getElementById("resetAllDaysDefaults").addEventListener("click", () => {
+        v140ClearAllAppliedPlans();
         els.autoPlanStatus.className = "auto-plan-status";
         els.autoPlanStatus.innerHTML = "";
         resetAllDaysToDefaults();
@@ -13808,6 +13996,7 @@ async function downloadChartAsImage() {
       });
 
       document.getElementById("zeroAllDays").addEventListener("click", () => {
+        v140ClearAllAppliedPlans();
         els.autoPlanStatus.className = "auto-plan-status";
         els.autoPlanStatus.innerHTML = "";
         zeroAllDaysTasks();
