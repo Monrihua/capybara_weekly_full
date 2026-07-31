@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v134</title>
+  <title>水豚每週活動計算機｜週一至週日 v135</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -2429,7 +2429,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v134</div>
+      <div class="prototype-badge">週一至週日 v135</div>
     </header>
 
     <div class="app-shell">
@@ -2618,7 +2618,7 @@
           <button class="action-btn action-confirm" id="confirmGenerateCharts" type="button">確認並產出圖表</button>
           <button class="action-btn action-plan" id="applyThirtyStarPlan" type="button">永續省資源｜只補馬拉松 30 星／14 卡皮幣</button>
           <button class="action-btn action-plan" id="applyAllStageFivePlan" type="button">永續省資源｜只補馬拉松全週 5 階</button>
-          <button class="action-btn action-plan" id="applyActivityPushPlan" type="button">資源充足｜逐日考古／懸賞方案（目前週一）</button>
+          <button class="action-btn action-plan" id="applyActivityPushPlan" type="button">資源充足｜逐日考古／懸賞方案（目前週一、週二）</button>
           <button class="action-btn action-primary" id="applyDailyDefaults" type="button">重套當日無消耗型任務</button>
           <button class="action-btn action-secondary" id="clearCurrentDay" type="button">當日全部歸零＋重套無消耗型任務</button>
           <button class="action-btn action-warning" id="resetAllDaysDefaults" type="button">本週全部歸零＋重套無消耗型任務</button>
@@ -2842,8 +2842,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v134";
+      const STORAGE_KEY = "capybara-weekly-full-v135";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v134",
         "capybara-weekly-full-v133",
         "capybara-weekly-full-v132",
         "capybara-weekly-full-v131",
@@ -10364,6 +10365,617 @@ async function downloadChartAsImage() {
         pendingDailyPlanComparison = null;
       }
 
+      const TUESDAY_CULTIVATION_KEYS = [
+        "petBase",
+        "petStone1",
+        "petStone2",
+        "petStone3",
+        "petStone4"
+      ];
+
+      const TUESDAY_CULTIVATION_RATES = {
+        petBase: 3000,
+        petStone1: 4750,
+        petStone2: 6500,
+        petStone3: 8250,
+        petStone4: 10000
+      };
+
+      function formatTuesdayCultivationCounts(counts) {
+        const labels = {
+          petBase: "不鎖詞綴",
+          petStone1: "鎖 1 條",
+          petStone2: "鎖 2 條",
+          petStone3: "鎖 3 條",
+          petStone4: "鎖 4 條"
+        };
+        const parts = TUESDAY_CULTIVATION_KEYS
+          .filter(key => toInt(counts?.[key]) > 0)
+          .map(key => `${labels[key]} × ${format(counts[key])}`);
+        return parts.length ? parts.join("、") : "不需追加培育";
+      }
+
+      function createTuesdayCultivationCounts(actions, stones) {
+        const totalActions = Math.max(0, toInt(actions));
+        let remainingStones = clamp(toInt(stones), 0, totalActions * 4);
+        const counts = {
+          petBase: 0,
+          petStone1: 0,
+          petStone2: 0,
+          petStone3: 0,
+          petStone4: 0
+        };
+
+        const fourLocked = Math.floor(remainingStones / 4);
+        counts.petStone4 = Math.min(totalActions, fourLocked);
+        remainingStones -= counts.petStone4 * 4;
+
+        let usedActions = counts.petStone4;
+        if (remainingStones > 0 && usedActions < totalActions) {
+          counts[`petStone${remainingStones}`] = 1;
+          usedActions += 1;
+        }
+        counts.petBase = Math.max(0, totalActions - usedActions);
+        return counts;
+      }
+
+      function getTuesdayCultivationAdditionSummary(counts) {
+        let actions = 0;
+        let stones = 0;
+        let marathonScore = 0;
+        for (let level = 0; level <= 4; level++) {
+          const key = level === 0 ? "petBase" : `petStone${level}`;
+          const count = Math.max(0, toInt(counts?.[key]));
+          actions += count;
+          stones += count * level;
+          marathonScore += count * TUESDAY_CULTIVATION_RATES[key];
+        }
+        return {
+          actions,
+          stones,
+          spirit: actions * 200,
+          marathonScore,
+          archaeologyScore: actions * 1000
+        };
+      }
+
+      function findTuesdayCultivationFloorPlan({
+        missingMarathonScore,
+        minimumActions = 0,
+        policy = "minOperations",
+        availableSpirit = getOwnedResourceAmount("spiritStone"),
+        availableStones = getOwnedResourceAmount("unchangingStone")
+      }) {
+        const missingScore = Math.max(0, toInt(missingMarathonScore));
+        const requiredMinimumActions = Math.max(0, toInt(minimumActions));
+        const maxActions = Math.floor(Math.max(0, availableSpirit) / 200);
+        if (requiredMinimumActions > maxActions) return null;
+
+        if (policy === "stoneSave") {
+          const actions = Math.max(
+            requiredMinimumActions,
+            Math.ceil(missingScore / 3000)
+          );
+          if (actions > maxActions) return null;
+          const counts = createTuesdayCultivationCounts(actions, 0);
+          return {
+            ...getTuesdayCultivationAdditionSummary(counts),
+            counts,
+            policy
+          };
+        }
+
+        const minimumByScore = Math.ceil(missingScore / 10000);
+        const startActions = Math.max(requiredMinimumActions, minimumByScore);
+        for (let actions = startActions; actions <= maxActions; actions++) {
+          const baseScore = actions * 3000;
+          const missingLockScore = Math.max(0, missingScore - baseScore);
+          const requiredStones = Math.ceil(missingLockScore / 1750);
+          if (requiredStones > actions * 4) continue;
+          if (requiredStones > availableStones) continue;
+          const counts = createTuesdayCultivationCounts(actions, requiredStones);
+          return {
+            ...getTuesdayCultivationAdditionSummary(counts),
+            counts,
+            policy
+          };
+        }
+        return null;
+      }
+
+      function applyTuesdayCultivationAddition(counts) {
+        const order = ["petStone4", "petStone3", "petStone2", "petStone1", "petBase"];
+        for (const key of order) {
+          const add = Math.max(0, toInt(counts?.[key]));
+          if (!add) continue;
+          const day = state.days.tue;
+          const before = toInt(day[key]);
+          const after = setResourceTaskCount("tue", key, before + add);
+          if (toInt(after) - before !== add) {
+            throw new Error(`資源不足，無法追加「${key}」${add} 次`);
+          }
+        }
+      }
+
+      function applyTuesdayArchaeologyPrerequisites() {
+        const day = state.days.tue;
+        const before = {
+          guildRaid: toInt(day.guildRaid),
+          arena: toInt(day.arena),
+          dungeonCount: toInt(day.dungeonCount),
+          goblin: toInt(day.goblin)
+        };
+        applyMinimumTuesdayFreeTasks();
+        day.goblin = Math.max(toInt(day.goblin), 100);
+        return {
+          guildRaidAdd: Math.max(0, toInt(day.guildRaid) - before.guildRaid),
+          arenaAdd: Math.max(0, toInt(day.arena) - before.arena),
+          dungeonAdd: Math.max(0, toInt(day.dungeonCount) - before.dungeonCount),
+          goblinAdd: Math.max(0, toInt(day.goblin) - before.goblin)
+        };
+      }
+
+      function applyTuesdayBountyFixedPrerequisites() {
+        const day = state.days.tue;
+        const before = {
+          guildRaid: toInt(day.guildRaid),
+          arena: toInt(day.arena),
+          dungeonCount: toInt(day.dungeonCount),
+          goblin: toInt(day.goblin),
+          tradeShip: toInt(day.tradeShip)
+        };
+        applyMinimumTuesdayFreeTasks();
+        day.guildRaid = Math.max(toInt(day.guildRaid), 2);
+        day.arena = Math.max(toInt(day.arena), 5);
+        day.dungeonCount = Math.max(toInt(day.dungeonCount), 10);
+        day.goblin = Math.max(toInt(day.goblin), 100);
+        day.tradeShip = Math.max(toInt(day.tradeShip), 2);
+        return {
+          guildRaidAdd: Math.max(0, toInt(day.guildRaid) - before.guildRaid),
+          arenaAdd: Math.max(0, toInt(day.arena) - before.arena),
+          dungeonAdd: Math.max(0, toInt(day.dungeonCount) - before.dungeonCount),
+          goblinAdd: Math.max(0, toInt(day.goblin) - before.goblin),
+          tradeAdd: Math.max(0, toInt(day.tradeShip) - before.tradeShip)
+        };
+      }
+
+      function calculateTuesdayProjectedScores(base, cultivationPlan, extraBaseActions = 0, tradeAdd = 0, treasureAdd = 0) {
+        const floor = cultivationPlan || {
+          actions: 0,
+          stones: 0,
+          spirit: 0,
+          marathonScore: 0,
+          archaeologyScore: 0,
+          counts: {}
+        };
+        const tailActions = Math.max(0, toInt(extraBaseActions));
+        const trade = Math.max(0, toInt(tradeAdd));
+        const treasure = Math.max(0, toInt(treasureAdd));
+        return {
+          marathon:
+            base.marathon + floor.marathonScore + tailActions * 3000,
+          archaeology:
+            base.archaeology +
+            floor.archaeologyScore +
+            tailActions * 1000 +
+            trade * 8000 +
+            treasure * 1000,
+          operations: floor.actions + tailActions + trade + treasure,
+          cultivationActions: floor.actions + tailActions,
+          spirit: floor.spirit + tailActions * 200,
+          stones: floor.stones,
+          tradeAdd: trade,
+          treasureAdd: treasure,
+          tailBaseActions: tailActions
+        };
+      }
+
+      function createTuesdayArchaeologyPlan(base, config) {
+        const floorPlan = config.floorPlan;
+        const outcome = calculateTuesdayProjectedScores(
+          base,
+          floorPlan,
+          config.tailBaseActions,
+          config.tradeAdd,
+          config.treasureAdd
+        );
+        const tradeLimit = state.settings.tradeCard ? 6 : 4;
+        const tradeFeasible = toInt(state.days.tue.tradeShip) + outcome.tradeAdd <= tradeLimit;
+        const resourceFeasible = Boolean(floorPlan) &&
+          outcome.spirit <= base.availableSpirit &&
+          outcome.stones <= base.availableStones;
+        const feasible = Boolean(config.valid !== false) &&
+          resourceFeasible &&
+          tradeFeasible &&
+          outcome.marathon >= base.marathonTargetScore &&
+          outcome.archaeology >= base.activityTargetScore;
+        const archaeologyProgress = getArchaeologyProgressDetails(
+          outcome.archaeology,
+          base.activityStage
+        );
+        const totalCounts = {
+          ...(floorPlan?.counts || {})
+        };
+        totalCounts.petBase = toInt(totalCounts.petBase) + outcome.tailBaseActions;
+
+        let unavailableReason = "否／目標未達";
+        if (!floorPlan) unavailableReason = "否／靈石或不變石不足";
+        else if (!resourceFeasible) unavailableReason = "否／持有資源不足";
+        else if (!tradeFeasible) unavailableReason = `否／貿易上限 ${tradeLimit} 艘`;
+
+        return {
+          key: config.key,
+          name: config.name,
+          badge: config.badge,
+          highlight: Boolean(config.highlight),
+          feasible,
+          application: {
+            cultivationCounts: totalCounts,
+            tradeAdd: outcome.tradeAdd,
+            treasureAdd: outcome.treasureAdd
+          },
+          metrics: [
+            { label: "可執行", value: feasible ? "是" : unavailableReason },
+            { label: "總操作次數", value: format(outcome.operations) },
+            { label: "追加培育", value: `${format(outcome.cultivationActions)} 次` },
+            { label: "追加靈石", value: `${format(outcome.spirit)} 個` },
+            { label: "追加不變石", value: `${format(outcome.stones)} 個` },
+            { label: "培育配置", value: formatTuesdayCultivationCounts(totalCounts) },
+            { label: "追加卡皮貿易", value: `${format(outcome.tradeAdd)} 艘` },
+            { label: "追加寶石抽獎", value: `${format(outcome.treasureAdd)} 次` },
+            { label: "馬拉松積分", value: `${format(outcome.marathon)} / ${format(base.marathonTargetScore)} 分` },
+            { label: "馬拉松星星", value: `${format(getMarathonStars(outcome.marathon))} / 6 星` },
+            { label: "考古已達成", value: `階段 ${format(archaeologyProgress.achievedStage)} / ${format(archaeologyProgress.achievedThreshold)} 分` },
+            { label: "距離下個階段", value: archaeologyProgress.nextStage ? `${format(archaeologyProgress.nextStage.score)} 分・還差 ${format(archaeologyProgress.remainingToNext)} 分` : "已完成全部階段" },
+            { label: "考古積分", value: `${format(outcome.archaeology)} / ${format(base.activityTargetScore)} 分` },
+            { label: "幸運礦鎬", value: `${format(archaeologyProgress.pickaxes)} / ${format(archaeologyProgress.selectedTargetPickaxes)} 個` }
+          ],
+          detail: `${config.description}<br>馬拉松底線階段：${formatTuesdayCultivationCounts(floorPlan?.counts || {})}；底線完成後：${config.tailDescription}。`,
+          outcome
+        };
+      }
+
+      function buildTuesdayArchaeologyPlans(activityStage, marathonStage) {
+        const stateSnapshot = JSON.parse(JSON.stringify(state));
+        try {
+          state.activeDay = "tue";
+          const prerequisites = applyTuesdayArchaeologyPrerequisites();
+          const normalizedActivityStage = clamp(toInt(activityStage), 1, archaeologyStages.length);
+          const normalizedMarathonStage = clamp(toInt(marathonStage), 1, marathonStages.length);
+          const scores = getTuesdayScores();
+          const base = {
+            marathon: scores.marathon,
+            archaeology: scores.archaeology,
+            marathonTargetScore: marathonStages[normalizedMarathonStage - 1].score,
+            activityTargetScore: archaeologyStages[normalizedActivityStage - 1].score,
+            activityStage: normalizedActivityStage,
+            availableSpirit: getOwnedResourceAmount("spiritStone"),
+            availableStones: getOwnedResourceAmount("unchangingStone"),
+            tradeSlots: Math.max(0, (state.settings.tradeCard ? 6 : 4) - toInt(state.days.tue.tradeShip)),
+            prerequisites
+          };
+          const floorPlan = findTuesdayCultivationFloorPlan({
+            missingMarathonScore: Math.max(0, base.marathonTargetScore - base.marathon),
+            minimumActions: 0,
+            policy: "minOperations",
+            availableSpirit: base.availableSpirit,
+            availableStones: base.availableStones
+          });
+          const afterFloor = calculateTuesdayProjectedScores(base, floorPlan, 0, 0, 0);
+          const missingAfterFloor = Math.max(0, base.activityTargetScore - afterFloor.archaeology);
+
+          const cultivationTail = Math.ceil(missingAfterFloor / 1000);
+          const tradeOnlyAdd = Math.ceil(missingAfterFloor / 8000);
+          const treasureOnlyAdd = Math.ceil(missingAfterFloor / 1000);
+          const mixedTradeAdd = Math.min(
+            base.tradeSlots,
+            Math.floor(missingAfterFloor / 8000)
+          );
+          const mixedTreasureAdd = Math.ceil(
+            Math.max(0, missingAfterFloor - mixedTradeAdd * 8000) / 1000
+          );
+
+          return [
+            createTuesdayArchaeologyPlan(base, {
+              key: "tue-arch-cultivation-only",
+              name: "只靠寵物培育",
+              badge: "雙加分",
+              highlight: true,
+              floorPlan,
+              tailBaseActions: cultivationTail,
+              tradeAdd: 0,
+              treasureAdd: 0,
+              description: "先以可用不變石縮短培育次數，完成馬拉松底線。",
+              tailDescription: `改用不鎖詞綴培育 × ${format(cultivationTail)} 補考古，不再消耗不變石`
+            }),
+            createTuesdayArchaeologyPlan(base, {
+              key: "tue-arch-trade-only",
+              name: "培育完成馬拉松底線＋卡皮貿易",
+              badge: "貿易補足",
+              floorPlan,
+              tailBaseActions: 0,
+              tradeAdd: tradeOnlyAdd,
+              treasureAdd: 0,
+              valid: tradeOnlyAdd <= base.tradeSlots,
+              description: "寵物培育只做到馬拉松底線。",
+              tailDescription: `卡皮貿易 × ${format(tradeOnlyAdd)} 補到考古目標`
+            }),
+            createTuesdayArchaeologyPlan(base, {
+              key: "tue-arch-treasure-only",
+              name: "培育完成馬拉松底線＋寶石抽獎",
+              badge: "考古專屬",
+              floorPlan,
+              tailBaseActions: 0,
+              tradeAdd: 0,
+              treasureAdd: treasureOnlyAdd,
+              description: "寵物培育只做到馬拉松底線。",
+              tailDescription: `珍寶商店抽寶石 × ${format(treasureOnlyAdd)} 補到考古目標`
+            }),
+            createTuesdayArchaeologyPlan(base, {
+              key: "tue-arch-trade-treasure",
+              name: "培育底線＋貿易優先＋寶石抽獎補足",
+              badge: "混合方案",
+              floorPlan,
+              tailBaseActions: 0,
+              tradeAdd: mixedTradeAdd,
+              treasureAdd: mixedTreasureAdd,
+              description: "寵物培育只做到馬拉松底線。",
+              tailDescription: `先用卡皮貿易 × ${format(mixedTradeAdd)}，剩餘再用寶石抽獎 × ${format(mixedTreasureAdd)}`
+            })
+          ];
+        } finally {
+          state = stateSnapshot;
+        }
+      }
+
+      function createTuesdayBountyPlan(base, config) {
+        const floorPlan = config.floorPlan;
+        const floorSummary = floorPlan || {
+          actions: 0,
+          stones: 0,
+          spirit: 0,
+          marathonScore: 0,
+          counts: {}
+        };
+        const projectedMarathon = base.marathon + floorSummary.marathonScore;
+        const projectedPersonalScore = floorPlan &&
+          base.currentPetActions + floorSummary.actions >= 10
+          ? 500
+          : base.baseSummary.personalScore;
+        const projectedBountyScore = Math.min(
+          GUILD_BOUNTY_TOTAL_MAX,
+          projectedPersonalScore + base.baseSummary.guildScore
+        );
+        const achievedStage = guildBountyStages.filter(
+          stage => projectedBountyScore >= stage.score
+        ).length;
+        const achievedThreshold = achievedStage > 0
+          ? guildBountyStages[achievedStage - 1].score
+          : 0;
+        const nextStage = guildBountyStages[achievedStage] || null;
+        const remaining = Math.max(0, base.activityTargetScore - projectedBountyScore);
+        const combo = findBountyColorPlan(remaining, base.baseSummary.acceptsRemaining);
+        const feasible = Boolean(floorPlan) &&
+          projectedPersonalScore >= 500 &&
+          projectedMarathon >= base.marathonTargetScore &&
+          Boolean(combo);
+        const recommendationSpirit = combo
+          ? combo.gold * 6000 + combo.purple * 2000 + combo.white * 1000
+          : 0;
+        const totalOperations =
+          base.prerequisites.goblinAdd +
+          base.prerequisites.tradeAdd +
+          floorSummary.actions;
+
+        return {
+          key: config.key,
+          name: config.name,
+          badge: config.badge,
+          highlight: Boolean(config.highlight),
+          feasible,
+          application: {
+            cultivationCounts: floorSummary.counts,
+            combo: combo || { gold: 0, purple: 0, white: 0, count: 0, score: 0, excess: 0 },
+            activityStage: base.activityStage,
+            marathonStage: base.marathonStage
+          },
+          metrics: [
+            { label: "可執行", value: feasible ? "是" : !floorPlan ? "否／靈石或不變石不足" : !combo ? "否／懸賞接取額度不足" : "否／目標未達" },
+            { label: "總操作次數", value: format(totalOperations) },
+            { label: "自動前置", value: `基本任務＋挖礦 ${format(base.prerequisites.goblinAdd)} 次＋貿易 ${format(base.prerequisites.tradeAdd)} 艘` },
+            { label: "追加培育", value: `${format(floorSummary.actions)} 次` },
+            { label: "追加靈石", value: `${format(floorSummary.spirit)} 個` },
+            { label: "追加不變石", value: `${format(floorSummary.stones)} 個` },
+            { label: "培育配置", value: formatTuesdayCultivationCounts(floorSummary.counts) },
+            { label: "馬拉松積分", value: `${format(projectedMarathon)} / ${format(base.marathonTargetScore)} 分` },
+            { label: "馬拉松星星", value: `${format(getMarathonStars(projectedMarathon))} / 6 星` },
+            { label: "懸賞已達成", value: `階段 ${format(achievedStage)} / ${format(achievedThreshold)} 分` },
+            { label: "距離下個階段", value: nextStage ? `${format(nextStage.score)} 分・還差 ${format(Math.max(0, nextStage.score - projectedBountyScore))} 分` : "已完成全部階段" },
+            { label: "懸賞目標", value: `階段 ${format(base.activityStage)} / ${format(base.activityTargetScore)} 分` },
+            { label: "建議接取", value: combo ? `金 ${format(combo.gold)}・紫 ${format(combo.purple)}・白 ${format(combo.white)}，共 ${format(combo.count)} 件` : "接取額度不足" }
+          ],
+          detail:
+            `${config.description}<br>` +
+            `先完成個人六任務與馬拉松底線；公會任務優先接「通過寵物培育消耗靈石」，建議活動量合計 ${format(recommendationSpirit)} 靈石。公會任務不會自動登錄。`,
+          projectedMarathon,
+          projectedBountyScore,
+          combo
+        };
+      }
+
+      function buildTuesdayBountyPlans(activityStage, marathonStage) {
+        const stateSnapshot = JSON.parse(JSON.stringify(state));
+        try {
+          state.activeDay = "tue";
+          const prerequisites = applyTuesdayBountyFixedPrerequisites();
+          const normalizedActivityStage = clamp(toInt(activityStage), 1, guildBountyStages.length);
+          const normalizedMarathonStage = clamp(toInt(marathonStage), 1, marathonStages.length);
+          const scores = getTuesdayScores();
+          const pet = getTuesdayPetSummary();
+          const base = {
+            marathon: scores.marathon,
+            marathonTargetScore: marathonStages[normalizedMarathonStage - 1].score,
+            marathonStage: normalizedMarathonStage,
+            activityTargetScore: guildBountyStages[normalizedActivityStage - 1].score,
+            activityStage: normalizedActivityStage,
+            availableSpirit: getOwnedResourceAmount("spiritStone"),
+            availableStones: getOwnedResourceAmount("unchangingStone"),
+            currentPetActions: pet.actions,
+            baseSummary: getTuesdayGuildBountySummary(),
+            prerequisites
+          };
+          const mandatoryActions = Math.max(0, 10 - pet.actions);
+          const missingMarathon = Math.max(0, base.marathonTargetScore - base.marathon);
+          const stoneSaveFloor = findTuesdayCultivationFloorPlan({
+            missingMarathonScore: missingMarathon,
+            minimumActions: mandatoryActions,
+            policy: "stoneSave",
+            availableSpirit: base.availableSpirit,
+            availableStones: base.availableStones
+          });
+          const operationSaveFloor = findTuesdayCultivationFloorPlan({
+            missingMarathonScore: missingMarathon,
+            minimumActions: mandatoryActions,
+            policy: "minOperations",
+            availableSpirit: base.availableSpirit,
+            availableStones: base.availableStones
+          });
+
+          return [
+            createTuesdayBountyPlan(base, {
+              key: "tue-bounty-stone-save",
+              name: "個人六任務＋不變石節省方案",
+              badge: "不鎖詞綴",
+              highlight: true,
+              floorPlan: stoneSaveFloor,
+              description: "個人任務所需的培育與後續馬拉松補分全部使用不鎖詞綴，優先節省不變石。"
+            }),
+            createTuesdayBountyPlan(base, {
+              key: "tue-bounty-operation-save",
+              name: "個人六任務＋靈石／操作節省方案",
+              badge: "鎖詞綴最佳化",
+              floorPlan: operationSaveFloor,
+              description: "把個人任務原本就必須進行的培育優先配置鎖定詞綴，依目前不變石庫存，用最少培育次數完成馬拉松底線。"
+            })
+          ];
+        } finally {
+          state = stateSnapshot;
+        }
+      }
+
+      function getTuesdayActivityControlsHtml(activityStage, marathonStage) {
+        const activityName = state.weekMode === "bounty" ? "懸賞" : "考古";
+        const stages = state.weekMode === "bounty" ? guildBountyStages : archaeologyStages;
+        return `
+          <label class="plan-choice-control">
+            <span>馬拉松最高優先底線</span>
+            <select data-tuesday-marathon-stage>
+              <option value="3" ${toInt(marathonStage) === 3 ? "selected" : ""}>第 3 階｜30 星／14 卡皮幣標準配置</option>
+              <option value="5" ${toInt(marathonStage) === 5 ? "selected" : ""}>第 5 階｜本日高投入底線</option>
+            </select>
+          </label>
+          <label class="plan-choice-control">
+            <span>${activityName}目標階段</span>
+            <select data-tuesday-activity-stage>
+              ${stages.map((stage, index) => `
+                <option value="${index + 1}" ${toInt(activityStage) === index + 1 ? "selected" : ""}>
+                  第 ${index + 1} 階｜${format(stage.score)} 分
+                </option>
+              `).join("")}
+            </select>
+          </label>
+          <div class="plan-choice-control-note">
+            ${state.weekMode === "bounty"
+              ? `先完成週二個人六任務，再保證馬拉松底線；最後依所選懸賞階段產生接取建議。懸賞週不顯示預測考古。目標獎勵：${getMondayActivityTargetReward(activityStage)}。`
+              : `先用寵物培育完成馬拉松底線；鎖定詞綴只用於底線階段，底線完成後再依所選方案補考古。目標獎勵：${getMondayActivityTargetReward(activityStage)}。`}
+          </div>
+        `;
+      }
+
+      function openTuesdayActivityPlanComparison(activityStage = 9, marathonStage = 5) {
+        state.activeDay = "tue";
+        const plans = state.weekMode === "bounty"
+          ? buildTuesdayBountyPlans(activityStage, marathonStage)
+          : buildTuesdayArchaeologyPlans(activityStage, marathonStage);
+        pendingDailyPlanComparison = {
+          mode: "tuesdayActivity",
+          dayKey: "tue",
+          activityStage: toInt(activityStage),
+          marathonStage: toInt(marathonStage),
+          plans
+        };
+        renderPlanComparisonModal({
+          title: state.weekMode === "bounty"
+            ? "週二｜公會懸賞目標與培育配置"
+            : "週二｜聯合考古目標與資源搭配",
+          subtitle: state.weekMode === "bounty"
+            ? "先完成個人六任務，再比較不變石節省與靈石／操作節省兩種馬拉松底線配置，最後產生懸賞接取建議。"
+            : "先用寵物培育保證馬拉松底線，再比較培育、卡皮貿易、寶石抽獎及混合補足方案。",
+          controlsHtml: getTuesdayActivityControlsHtml(activityStage, marathonStage),
+          plans,
+          buttons: plans.map(plan => ({
+            key: plan.key,
+            label: plan.name,
+            disabled: !plan.feasible,
+            highlight: plan.highlight
+          }))
+        });
+      }
+
+      function applyTuesdayActivityPlan(planKey) {
+        if (pendingDailyPlanComparison?.mode !== "tuesdayActivity") return;
+        const selected = pendingDailyPlanComparison.plans.find(plan => plan.key === planKey);
+        if (!selected?.feasible) return;
+        const activityStage = pendingDailyPlanComparison.activityStage;
+        const marathonStage = pendingDailyPlanComparison.marathonStage;
+        closeDailyPlanModal();
+        state.activeDay = "tue";
+
+        if (state.weekMode === "bounty") {
+          applyTuesdayBountyFixedPrerequisites();
+          applyTuesdayCultivationAddition(selected.application.cultivationCounts);
+          const scores = getTuesdayScores();
+          const summary = getTuesdayGuildBountySummary();
+          const achievedStage = guildBountyStages.filter(
+            stage => summary.totalScore >= stage.score
+          ).length;
+          const nextStage = guildBountyStages[achievedStage] || null;
+          const combo = selected.application.combo;
+          renderAll();
+          els.autoPlanStatus.className = "auto-plan-status show success";
+          els.autoPlanStatus.innerHTML = `
+            <strong>週二｜已採用「${selected.name}」</strong>
+            <div>已先完成個人六任務：公會討伐、競技場、副本、挖礦、卡皮貿易 2 艘，以及培育消耗 2,000 靈石。</div>
+            <div>馬拉松底線：第 ${marathonStage} 階；目前 ${format(scores.marathon)} 分、${format(getMarathonStars(scores.marathon))} / 6 星。</div>
+            <div>培育配置：${formatTuesdayCultivationCounts(selected.application.cultivationCounts)}。</div>
+            <div>目前懸賞 ${format(summary.totalScore)} 分，已達階段 ${format(achievedStage)}；${nextStage ? `下一階段 ${format(nextStage.score)} 分，還差 ${format(Math.max(0, nextStage.score - summary.totalScore))} 分。` : "已達全部階段。"}</div>
+            <div>懸賞第 ${activityStage} 階建議：金色 ${format(combo.gold)} 件、紫色 ${format(combo.purple)} 件、白色 ${format(combo.white)} 件，共 ${format(combo.count)} 件；優先接培育消耗靈石任務。</div>
+            <div>公會懸賞不會自動登錄完成，完成後請手動輸入件數。</div>
+          `;
+        } else {
+          applyTuesdayArchaeologyPrerequisites();
+          applyTuesdayCultivationAddition(selected.application.cultivationCounts);
+          const day = state.days.tue;
+          const tradeLimit = state.settings.tradeCard ? 6 : 4;
+          day.tradeShip = Math.min(
+            tradeLimit,
+            toInt(day.tradeShip) + toInt(selected.application.tradeAdd)
+          );
+          day.treasureDraw =
+            toInt(day.treasureDraw) + toInt(selected.application.treasureAdd);
+          const scores = getTuesdayScores();
+          renderAll();
+          els.autoPlanStatus.className = "auto-plan-status show success";
+          els.autoPlanStatus.innerHTML = `
+            <strong>週二｜已採用「${selected.name}」</strong>
+            <div>馬拉松底線：第 ${marathonStage} 階；聯合考古目標：第 ${activityStage} 階。</div>
+            <div>培育配置：${formatTuesdayCultivationCounts(selected.application.cultivationCounts)}；追加卡皮貿易 ${format(selected.application.tradeAdd)} 艘、寶石抽獎 ${format(selected.application.treasureAdd)} 次。</div>
+            <div>最終馬拉松 ${format(scores.marathon)} 分、${format(getMarathonStars(scores.marathon))} / 6 星；考古 ${format(scores.archaeology)} 分、${format(getArchaeologyPickaxes(scores.archaeology))} / 56 礦鎬。</div>
+          `;
+        }
+        pendingDailyPlanComparison = null;
+      }
+
       function getDailyStrategyDefinition(dayKey, strategy) {
         const standardStage = STANDARD_WEEKLY_TARGETS[dayKey] || 5;
         const activityName = state.weekMode === "bounty" ? "公會懸賞" : "聯合考古";
@@ -10528,6 +11140,11 @@ async function downloadChartAsImage() {
           return;
         }
 
+        if (dayKey === "tue") {
+          openTuesdayActivityPlanComparison(9, STANDARD_WEEKLY_TARGETS.tue || 5);
+          return;
+        }
+
         if (dayKey === "sun") {
           state.activeDay = "sun";
           openSundayAutoPlan();
@@ -10657,6 +11274,11 @@ async function downloadChartAsImage() {
 
         if (pendingDailyPlanComparison?.mode === "mondayActivity") {
           applyMondayActivityPlan(choice);
+          return;
+        }
+
+        if (pendingDailyPlanComparison?.mode === "tuesdayActivity") {
+          applyTuesdayActivityPlan(choice);
           return;
         }
 
@@ -12105,9 +12727,12 @@ async function downloadChartAsImage() {
       });
 
       document.getElementById("applyActivityPushPlan").addEventListener("click", () => {
-        state.activeDay = "mon";
+        const targetDay = ["mon", "tue"].includes(state.activeDay)
+          ? state.activeDay
+          : "mon";
+        state.activeDay = targetDay;
         renderAll();
-        openMondayActivityPlanComparison(9, STANDARD_WEEKLY_TARGETS.mon || 3);
+        openDailyAutoPlanComparison(targetDay);
       });
 
       els.dailyAutoPlanButton.addEventListener("click", () => {
@@ -12154,21 +12779,40 @@ async function downloadChartAsImage() {
       });
 
       els.dailyPlanModal.addEventListener("change", event => {
-        if (pendingDailyPlanComparison?.mode !== "mondayActivity") return;
-        if (
-          !event.target.matches("[data-monday-activity-stage]") &&
-          !event.target.matches("[data-monday-marathon-stage]")
-        ) return;
+        if (pendingDailyPlanComparison?.mode === "mondayActivity") {
+          if (
+            !event.target.matches("[data-monday-activity-stage]") &&
+            !event.target.matches("[data-monday-marathon-stage]")
+          ) return;
 
-        const activityStage = toInt(
-          els.dailyPlanControls.querySelector("[data-monday-activity-stage]")?.value ||
-          pendingDailyPlanComparison.activityStage
-        );
-        const marathonStage = toInt(
-          els.dailyPlanControls.querySelector("[data-monday-marathon-stage]")?.value ||
-          pendingDailyPlanComparison.marathonStage
-        );
-        openMondayActivityPlanComparison(activityStage, marathonStage);
+          const activityStage = toInt(
+            els.dailyPlanControls.querySelector("[data-monday-activity-stage]")?.value ||
+            pendingDailyPlanComparison.activityStage
+          );
+          const marathonStage = toInt(
+            els.dailyPlanControls.querySelector("[data-monday-marathon-stage]")?.value ||
+            pendingDailyPlanComparison.marathonStage
+          );
+          openMondayActivityPlanComparison(activityStage, marathonStage);
+          return;
+        }
+
+        if (pendingDailyPlanComparison?.mode === "tuesdayActivity") {
+          if (
+            !event.target.matches("[data-tuesday-activity-stage]") &&
+            !event.target.matches("[data-tuesday-marathon-stage]")
+          ) return;
+
+          const activityStage = toInt(
+            els.dailyPlanControls.querySelector("[data-tuesday-activity-stage]")?.value ||
+            pendingDailyPlanComparison.activityStage
+          );
+          const marathonStage = toInt(
+            els.dailyPlanControls.querySelector("[data-tuesday-marathon-stage]")?.value ||
+            pendingDailyPlanComparison.marathonStage
+          );
+          openTuesdayActivityPlanComparison(activityStage, marathonStage);
+        }
       });
 
       els.closeChartTop.addEventListener("click", closeChartModal);
