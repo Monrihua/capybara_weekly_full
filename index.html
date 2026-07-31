@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v129</title>
+  <title>水豚每週活動計算機｜週一至週日 v132</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -2429,7 +2429,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v129</div>
+      <div class="prototype-badge">週一至週日 v132</div>
     </header>
 
     <div class="app-shell">
@@ -2842,8 +2842,11 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v129";
+      const STORAGE_KEY = "capybara-weekly-full-v132";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v131",
+        "capybara-weekly-full-v130",
+        "capybara-weekly-full-v129",
         "capybara-weekly-full-v128",
         "capybara-weekly-full-v127",
         "capybara-weekly-full-v126",
@@ -8777,6 +8780,10 @@ async function downloadChartAsImage() {
         return best;
       }
 
+      function getMondayPlanForRequiredStamina(requiredStamina, availableStamina) {
+        return findMinimumActionStaminaPlan(requiredStamina, availableStamina);
+      }
+
       function addMondayStaminaPlan(plan) {
         if (!plan) return;
 
@@ -9434,6 +9441,22 @@ async function downloadChartAsImage() {
           >${index + 1} ${button.label}</button>
         `).join("");
 
+        els.dailyPlanActions
+          .querySelectorAll("[data-daily-plan-choice]")
+          .forEach(button => {
+            button.addEventListener("click", event => {
+              event.preventDefault();
+              event.stopPropagation();
+              if (button.disabled) return;
+              try {
+                applySelectedDailyPlan(button.dataset.dailyPlanChoice);
+              } catch (error) {
+                console.error(error);
+                alert(`套用方案失敗：${error?.message || error}`);
+              }
+            });
+          });
+
         els.dailyPlanModal.hidden = false;
         document.body.classList.add("modal-open");
       }
@@ -9589,23 +9612,108 @@ async function downloadChartAsImage() {
         };
       }
 
+      function mergeMondayStaminaPlans(...plans) {
+        const merged = { stamina: 0, actions: 0, counts: {} };
+        for (const plan of plans) {
+          if (!plan) continue;
+          merged.stamina += toInt(plan.stamina);
+          merged.actions += toInt(plan.actions);
+          for (const [key, count] of Object.entries(plan.counts || {})) {
+            merged.counts[key] = toInt(merged.counts[key]) + toInt(count);
+          }
+        }
+        return merged;
+      }
+
+      function findFlexibleMondayStaminaPlan(requiredStamina, availableStamina) {
+        const required = Math.max(0, Math.ceil(toNonNegativeNumber(requiredStamina) / 5) * 5);
+        if (required <= 0) return { stamina: 0, actions: 0, counts: {} };
+        if (availableStamina < required) return null;
+
+        const options = getMondayAutoPlanOptions();
+        if (!options.length) return null;
+        const maxOption = Math.max(...options.map(option => option.stamina));
+        const limit = Math.min(availableStamina, required + maxOption);
+        const maxUnits = Math.floor(limit / 5);
+        const requiredUnits = Math.ceil(required / 5);
+        const dp = Array(maxUnits + 1).fill(null);
+        dp[0] = { actions: 0, counts: {} };
+
+        for (let units = 0; units <= maxUnits; units++) {
+          const current = dp[units];
+          if (!current) continue;
+          for (const option of options) {
+            const next = units + option.stamina / 5;
+            if (next > maxUnits) continue;
+            const candidate = {
+              actions: current.actions + 1,
+              counts: {
+                ...current.counts,
+                [option.id]: toInt(current.counts[option.id]) + 1
+              }
+            };
+            if (!dp[next] || candidate.actions < dp[next].actions) dp[next] = candidate;
+          }
+        }
+
+        let best = null;
+        for (let units = requiredUnits; units <= maxUnits; units++) {
+          const candidate = dp[units];
+          if (!candidate) continue;
+          const stamina = units * 5;
+          if (
+            !best ||
+            candidate.actions < best.actions ||
+            (candidate.actions === best.actions && stamina < best.stamina)
+          ) {
+            best = { stamina, actions: candidate.actions, counts: candidate.counts };
+          }
+        }
+        return best;
+      }
+
+      function getMondayPlanToReach200(baseStamina, availableStamina) {
+        const missing = Math.max(0, 200 - toInt(baseStamina));
+        if (missing <= 0) return { stamina: 0, actions: 0, counts: {} };
+        return findFlexibleMondayStaminaPlan(missing, availableStamina);
+      }
+
+      function getArchaeologyProgressDetails(score, selectedStage = 1) {
+        const safeScore = Math.max(0, toInt(score));
+        const achievedStage = archaeologyStages.filter(stage => safeScore >= stage.score).length;
+        const achievedThreshold = achievedStage > 0
+          ? archaeologyStages[achievedStage - 1].score
+          : 0;
+        const nextStage = archaeologyStages[achievedStage] || null;
+        const selectedTarget = archaeologyStages[
+          clamp(toInt(selectedStage), 1, archaeologyStages.length) - 1
+        ];
+        return {
+          achievedStage,
+          achievedThreshold,
+          nextStage,
+          remainingToNext: nextStage ? Math.max(0, nextStage.score - safeScore) : 0,
+          pickaxes: getArchaeologyPickaxes(safeScore),
+          selectedTargetScore: selectedTarget.score,
+          selectedTargetPickaxes: getArchaeologyPickaxes(selectedTarget.score)
+        };
+      }
+
       function createMondayArchaeologyPlan(base, config) {
         const staminaPlan = config.staminaPlan || { stamina: 0, actions: 0, counts: {} };
-        const outcome = calculateMondayActivityOutcome(
-          base,
-          staminaPlan,
-          toInt(config.equipAdd),
-          toInt(config.cubeAdd)
-        );
-        const staminaNeeded = toInt(staminaPlan.stamina);
-        const staminaFeasible = staminaNeeded <= base.availableStamina;
+        const equipAdd = Math.max(0, toInt(config.equipAdd));
+        const cubeAdd = Math.max(0, toInt(config.cubeAdd));
+        const outcome = calculateMondayActivityOutcome(base, staminaPlan, equipAdd, cubeAdd);
+        const staminaNeeded = Math.max(0, toInt(staminaPlan.stamina));
+        const staminaFeasible = Boolean(config.staminaPlanValid !== false) && staminaNeeded <= base.availableStamina;
         const meetsMarathon = outcome.marathon >= base.marathonTargetScore;
         const meetsActivity = outcome.archaeology >= base.activityTargetScore;
         const feasible = staminaFeasible && meetsMarathon && meetsActivity;
+        const archaeologyProgress = getArchaeologyProgressDetails(outcome.archaeology, base.activityStage);
         const sourceParts = [];
         if (staminaPlan.actions > 0) sourceParts.push(formatStaminaPlan(staminaPlan));
-        if (config.equipAdd > 0) sourceParts.push(`抽裝備 × ${format(config.equipAdd)}`);
-        if (config.cubeAdd > 0) sourceParts.push(`神兵魔方 × ${format(config.cubeAdd)}`);
+        if (equipAdd > 0) sourceParts.push(`抽裝備 × ${format(equipAdd)}`);
+        if (cubeAdd > 0) sourceParts.push(`神兵魔方 × ${format(cubeAdd)}`);
         if (!sourceParts.length) sourceParts.push("目前進度已達標");
 
         return {
@@ -9614,29 +9722,23 @@ async function downloadChartAsImage() {
           badge: config.badge || "考古方案",
           feasible,
           highlight: Boolean(config.highlight),
-          application: {
-            staminaPlan,
-            equipAdd: toInt(config.equipAdd),
-            cubeAdd: toInt(config.cubeAdd)
-          },
+          application: { staminaPlan, equipAdd, cubeAdd },
           metrics: [
             { label: "可執行", value: feasible ? "是" : staminaFeasible ? "否／目標未達" : "否／持有體力不足" },
             { label: "總操作次數", value: format(outcome.operations) },
             { label: "追加體力", value: `${format(staminaNeeded)}（${format(staminaPlan.actions)} 次）` },
-            { label: "追加抽裝備", value: `${format(config.equipAdd)} 次` },
-            { label: "追加神兵魔方", value: `${format(config.cubeAdd)} 個` },
-            { label: "馬拉松結果", value: `${format(outcome.marathon)} 分・${format(outcome.stars)} / 6 星` },
-            { label: "考古結果", value: `${format(outcome.archaeology)} / ${format(base.activityTargetScore)} 分` }
+            { label: "追加抽裝備", value: `${format(equipAdd)} 次` },
+            { label: "追加神兵魔方", value: `${format(cubeAdd)} 個` },
+            { label: "馬拉松積分", value: `${format(outcome.marathon)} / ${format(base.marathonTargetScore)} 分` },
+            { label: "馬拉松星星", value: `${format(outcome.stars)} / 6 星` },
+            { label: "考古已達成", value: `階段 ${format(archaeologyProgress.achievedStage)} / ${format(archaeologyProgress.achievedThreshold)} 分` },
+            { label: "距離下個階段", value: archaeologyProgress.nextStage ? `${format(archaeologyProgress.nextStage.score)} 分・還差 ${format(archaeologyProgress.remainingToNext)} 分` : "已完成全部階段" },
+            { label: "考古積分", value: `${format(outcome.archaeology)} / ${format(base.activityTargetScore)} 分` },
+            { label: "幸運礦鎬", value: `${format(archaeologyProgress.pickaxes)} / ${format(archaeologyProgress.selectedTargetPickaxes)} 個` }
           ],
           detail: `${config.description || ""}${config.description ? "<br>" : ""}${sourceParts.join("；")}。`,
           outcome
         };
-      }
-
-      function getMondayPlanForRequiredStamina(requiredStamina, availableStamina) {
-        const need = Math.max(0, Math.ceil(requiredStamina));
-        if (need <= 0) return { stamina: 0, actions: 0, counts: {} };
-        return findMinimumActionStaminaPlan(need, availableStamina);
       }
 
       function calculateMondayRequiredStamina(base, equipAdd = 0, marathonOnly = false) {
@@ -9707,180 +9809,137 @@ async function downloadChartAsImage() {
           applyMinimumMondayFreeTasks();
           const scores = getMondayScores();
           const stamina = getMondayStaminaSummary();
+          const normalizedActivityStage = clamp(toInt(activityStage), 1, archaeologyStages.length);
+          const normalizedMarathonStage = clamp(toInt(marathonStage), 1, marathonStages.length);
           const base = {
             marathon: scores.marathon,
             archaeology: scores.archaeology,
             stamina: stamina.stamina,
             availableStamina: getOwnedStaminaAmount(),
-            marathonTargetScore: marathonStages[clamp(toInt(marathonStage), 1, marathonStages.length) - 1].score,
-            activityTargetScore: archaeologyStages[clamp(toInt(activityStage), 1, archaeologyStages.length) - 1].score
+            marathonTargetScore: marathonStages[normalizedMarathonStage - 1].score,
+            activityTargetScore: archaeologyStages[normalizedActivityStage - 1].score,
+            activityStage: normalizedActivityStage
           };
           const plans = [];
+          const zeroPlan = { stamina: 0, actions: 0, counts: {} };
 
-          // 1. Pure stamina.
-          const pureStaminaRequired = calculateMondayRequiredStamina(base, 0, false);
-          const pureStaminaPlan = getMondayPlanForRequiredStamina(
-            pureStaminaRequired,
+          // 1. 先用體力完成馬拉松底線，再繼續只用體力補考古。
+          const staminaFloorNeed = Math.max(0, Math.ceil(
+            (base.marathonTargetScore - base.marathon) / MARATHON_STAMINA_RATE
+          ));
+          const staminaFloorPlan = getMondayPlanForRequiredStamina(
+            staminaFloorNeed,
             base.availableStamina
           );
+          let staminaOnlyPlan = staminaFloorPlan;
+          let staminaOnlyValid = Boolean(staminaFloorPlan);
+          if (staminaFloorPlan) {
+            const afterFloor = calculateMondayActivityOutcome(base, staminaFloorPlan, 0, 0);
+            const archaeologyNeed = Math.max(0, base.activityTargetScore - afterFloor.archaeology);
+            const tailNeed = getRequiredAdditionalMondayStaminaForArchaeology(
+              afterFloor.stamina,
+              archaeologyNeed
+            );
+            const tailPlan = getMondayPlanForRequiredStamina(
+              tailNeed,
+              Math.max(0, base.availableStamina - staminaFloorPlan.stamina)
+            );
+            staminaOnlyValid = Boolean(tailPlan);
+            staminaOnlyPlan = mergeMondayStaminaPlans(staminaFloorPlan, tailPlan);
+          }
           plans.push(createMondayArchaeologyPlan(base, {
             key: "stamina-only",
             name: "只靠體力",
             badge: "雙加分",
             highlight: true,
-            staminaPlan: pureStaminaPlan || { stamina: pureStaminaRequired, actions: 0, counts: {} },
-            description: "體力同時增加馬拉松與考古；先吃完前 200 體的高收益，再以超過部分每點 10 分補足。"
+            staminaPlan: staminaOnlyPlan || zeroPlan,
+            staminaPlanValid: staminaOnlyValid,
+            description: "先用體力補到馬拉松最高優先底線，再繼續只用體力補到所選考古階段。"
           }));
 
-          // 2. Pure equipment draws.
-          const pureEquip = Math.max(
-            0,
-            Math.ceil(Math.max(
-              (base.marathonTargetScore - base.marathon) / 3000,
-              (base.activityTargetScore - base.archaeology) / 1000
-            ))
-          );
+          // 2. 先把總體力補到至少 200，再只靠抽裝備完成馬拉松與考古。
+          const reach200Plan = getMondayPlanToReach200(base.stamina, base.availableStamina);
+          let equipOnlyPlan = reach200Plan;
+          let equipOnlyValid = Boolean(reach200Plan);
+          let equipOnlyAdd = 0;
+          if (reach200Plan) {
+            const after200 = calculateMondayActivityOutcome(base, reach200Plan, 0, 0);
+            const equipForMarathon = Math.max(0, Math.ceil(
+              (base.marathonTargetScore - after200.marathon) / 3000
+            ));
+            const afterMarathon = calculateMondayActivityOutcome(
+              base,
+              reach200Plan,
+              equipForMarathon,
+              0
+            );
+            const equipForArchaeology = Math.max(0, Math.ceil(
+              (base.activityTargetScore - afterMarathon.archaeology) / 1000
+            ));
+            equipOnlyAdd = equipForMarathon + equipForArchaeology;
+          }
           plans.push(createMondayArchaeologyPlan(base, {
             key: "equip-only",
             name: "只靠抽裝備",
-            badge: "雙加分",
-            equipAdd: pureEquip,
-            description: "每次同時增加馬拉松 3,000 分與考古 1,000 分。"
+            badge: "200 體後雙加分",
+            staminaPlan: equipOnlyPlan || zeroPlan,
+            staminaPlanValid: equipOnlyValid,
+            equipAdd: equipOnlyAdd,
+            description: "先只補足總體力至 200；若目前已達 200 體則不再追加。之後先用抽裝備完成馬拉松底線，再繼續用抽裝備補考古。"
           }));
 
-          // 3. Operation-minimized stamina/equipment combination.
-          const bestMixed = findBestMondayStaminaEquipPlan(base);
-          if (bestMixed) {
-            plans.push(createMondayArchaeologyPlan(base, {
-              key: "stamina-equip-best",
-              name: "體力＋抽裝備｜最少操作",
-              badge: "雙加分混合",
-              staminaPlan: bestMixed.staminaPlan,
-              equipAdd: bestMixed.equipAdd,
-              description: "在可用體力倍率中枚舉體力與裝備搭配，優先選總操作次數較少的組合。"
-            }));
-          }
-
-          // 4. Stamina reaches Marathon floor, then cubes finish Archaeology.
-          const staminaFloorRequired = calculateMondayRequiredStamina(base, 0, true);
-          const staminaFloorPlan = getMondayPlanForRequiredStamina(
-            staminaFloorRequired,
-            base.availableStamina
-          );
+          // 3. 體力完成馬拉松底線，剩餘考古只用靈能洗煉。
+          let staminaCubePlan = staminaFloorPlan;
+          let staminaCubeValid = Boolean(staminaFloorPlan);
+          let staminaCubeAdd = 0;
           if (staminaFloorPlan) {
             const afterFloor = calculateMondayActivityOutcome(base, staminaFloorPlan, 0, 0);
-            const cubeAdd = Math.max(0, Math.ceil(
+            staminaCubeAdd = Math.max(0, Math.ceil(
               (base.activityTargetScore - afterFloor.archaeology) / 5000
             ));
-            plans.push(createMondayArchaeologyPlan(base, {
-              key: "stamina-floor-cube",
-              name: "體力完成馬拉松底線＋靈能洗煉",
-              badge: "考古專屬補尾",
-              staminaPlan: staminaFloorPlan,
-              cubeAdd,
-              description: "先用體力保證馬拉松底線，再用只增加考古的神兵魔方補足目標。"
-            }));
           }
+          plans.push(createMondayArchaeologyPlan(base, {
+            key: "stamina-floor-cube",
+            name: "體力完成馬拉松底線＋靈能洗煉",
+            badge: "考古補尾",
+            staminaPlan: staminaCubePlan || zeroPlan,
+            staminaPlanValid: staminaCubeValid,
+            cubeAdd: staminaCubeAdd,
+            description: "先用體力完成馬拉松最高優先底線；底線達成後，剩餘考古分數才改用神兵魔方補足。"
+          }));
 
-          // 5. Equipment reaches Marathon floor, then cubes.
-          const equipFloor = Math.max(0, Math.ceil(
-            (base.marathonTargetScore - base.marathon) / 3000
-          ));
-          const afterEquipFloor = calculateMondayActivityOutcome(
-            base,
-            { stamina: 0, actions: 0, counts: {} },
-            equipFloor,
-            0
-          );
-          const equipFloorCubes = Math.max(0, Math.ceil(
-            (base.activityTargetScore - afterEquipFloor.archaeology) / 5000
-          ));
+          // 4. 先補到 200 體，再用抽裝備完成馬拉松底線，最後以靈能補考古。
+          let equipCubePlan = reach200Plan;
+          let equipCubeValid = Boolean(reach200Plan);
+          let equipFloorAdd = 0;
+          let equipCubeAdd = 0;
+          if (reach200Plan) {
+            const after200 = calculateMondayActivityOutcome(base, reach200Plan, 0, 0);
+            equipFloorAdd = Math.max(0, Math.ceil(
+              (base.marathonTargetScore - after200.marathon) / 3000
+            ));
+            const afterFloor = calculateMondayActivityOutcome(
+              base,
+              reach200Plan,
+              equipFloorAdd,
+              0
+            );
+            equipCubeAdd = Math.max(0, Math.ceil(
+              (base.activityTargetScore - afterFloor.archaeology) / 5000
+            ));
+          }
           plans.push(createMondayArchaeologyPlan(base, {
             key: "equip-floor-cube",
             name: "抽裝備完成馬拉松底線＋靈能洗煉",
-            badge: "考古專屬補尾",
-            equipAdd: equipFloor,
-            cubeAdd: equipFloorCubes,
-            description: "先抽裝備拿滿馬拉松底線，再用神兵魔方補考古。"
+            badge: "200 體後補尾",
+            staminaPlan: equipCubePlan || zeroPlan,
+            staminaPlanValid: equipCubeValid,
+            equipAdd: equipFloorAdd,
+            cubeAdd: equipCubeAdd,
+            description: "先只補足總體力至 200；若目前已達 200 體則追加體力為 0。接著用抽裝備完成馬拉松底線，最後才用神兵魔方補考古。"
           }));
 
-          // 6+. Explicit high-yield stamina seeds, with equipment or equipment+cube finishes.
-          for (const seed of getMondayHighYieldSeedPlans()) {
-            if (seed.plan.stamina > base.availableStamina) {
-              plans.push(createMondayArchaeologyPlan(base, {
-                key: `${seed.key}-equip`,
-                name: `${seed.name}＋抽裝備`,
-                badge: "高收益體力起手",
-                staminaPlan: seed.plan,
-                description: "目前持有體力不足，僅保留試算結果。"
-              }));
-              continue;
-            }
-
-            const seedOutcome = calculateMondayActivityOutcome(base, seed.plan, 0, 0);
-            const seedEquip = Math.max(0, Math.ceil(Math.max(
-              (base.marathonTargetScore - seedOutcome.marathon) / 3000,
-              (base.activityTargetScore - seedOutcome.archaeology) / 1000
-            )));
-            plans.push(createMondayArchaeologyPlan(base, {
-              key: `${seed.key}-equip`,
-              name: `${seed.name}＋抽裝備補足`,
-              badge: "高收益體力起手",
-              staminaPlan: seed.plan,
-              equipAdd: seedEquip,
-              description: "先取得前 200 體附近的高考古收益，剩餘全部用雙加分的裝備抽取補足。"
-            }));
-
-            const seedEquipFloor = Math.max(0, Math.ceil(
-              (base.marathonTargetScore - seedOutcome.marathon) / 3000
-            ));
-            const seedFloorOutcome = calculateMondayActivityOutcome(
-              base,
-              seed.plan,
-              seedEquipFloor,
-              0
-            );
-            const seedCubes = Math.max(0, Math.ceil(
-              (base.activityTargetScore - seedFloorOutcome.archaeology) / 5000
-            ));
-            plans.push(createMondayArchaeologyPlan(base, {
-              key: `${seed.key}-cube`,
-              name: `${seed.name}＋裝備保底＋靈能`,
-              badge: "三來源混合",
-              staminaPlan: seed.plan,
-              equipAdd: seedEquipFloor,
-              cubeAdd: seedCubes,
-              description: "高收益體力起手後，只補足馬拉松底線所需裝備，最後才用神兵魔方補考古。"
-            }));
-          }
-
-          // If existing progress already meets Marathon floor, allow a true cube-only finish.
-          if (base.marathon >= base.marathonTargetScore) {
-            const cubeOnly = Math.max(0, Math.ceil(
-              (base.activityTargetScore - base.archaeology) / 5000
-            ));
-            plans.push(createMondayArchaeologyPlan(base, {
-              key: "cube-only-after-floor",
-              name: "既有馬拉松已達底線｜只補靈能洗煉",
-              badge: "考古專屬",
-              cubeAdd: cubeOnly,
-              description: "目前馬拉松已達所選底線，因此可以直接用神兵魔方補考古。"
-            }));
-          }
-
-          // Deduplicate identical resource combinations.
-          const seen = new Set();
-          return plans.filter(plan => {
-            const counts = plan.application?.staminaPlan?.counts || {};
-            const signature = JSON.stringify({
-              counts,
-              equip: plan.application?.equipAdd || 0,
-              cube: plan.application?.cubeAdd || 0
-            });
-            if (seen.has(signature)) return false;
-            seen.add(signature);
-            return true;
-          });
+          return plans;
         } finally {
           state = stateSnapshot;
         }
@@ -9891,80 +9950,198 @@ async function downloadChartAsImage() {
         try {
           state.activeDay = "mon";
           const personalOk = ensureBountyPersonalTasks("mon");
-          const summary = getMondayGuildBountySummary();
-          const targetScore = guildBountyStages[clamp(toInt(activityStage), 1, 9) - 1].score;
-          const remaining = Math.max(0, targetScore - summary.totalScore);
-          const slots = summary.acceptsRemaining;
-          const combos = [];
+          const normalizedActivityStage = clamp(
+            toInt(activityStage),
+            1,
+            guildBountyStages.length
+          );
+          const normalizedMarathonStage = clamp(
+            toInt(marathonStage),
+            1,
+            marathonStages.length
+          );
+          const marathonTargetScore =
+            marathonStages[normalizedMarathonStage - 1].score;
+          const targetScore =
+            guildBountyStages[normalizedActivityStage - 1].score;
+          const summaryAfterPersonal = getMondayGuildBountySummary();
+          const scoresAfterPersonal = getMondayScores();
+          const remainingBounty = Math.max(
+            0,
+            targetScore - summaryAfterPersonal.totalScore
+          );
+          const slots = summaryAfterPersonal.acceptsRemaining;
+          let bountyCombo = null;
 
           for (let gold = 0; gold <= slots; gold++) {
             for (let purple = 0; purple <= slots - gold; purple++) {
               for (let white = 0; white <= slots - gold - purple; white++) {
                 const count = gold + purple + white;
                 const score = gold * 300 + purple * 100 + white * 50;
-                if (score < remaining) continue;
-                const equipDraws = gold * 30 + purple * 10 + white * 5;
-                combos.push({
-                  gold, purple, white, count, score,
-                  excess: score - remaining,
-                  equipDraws,
-                  marathonGain: equipDraws * 3000
-                });
+                if (score < remainingBounty) continue;
+
+                const candidate = {
+                  gold,
+                  purple,
+                  white,
+                  count,
+                  score,
+                  excess: score - remainingBounty,
+                  equipDraws: gold * 30 + purple * 10 + white * 5
+                };
+
+                if (
+                  !bountyCombo ||
+                  candidate.count < bountyCombo.count ||
+                  (candidate.count === bountyCombo.count &&
+                    candidate.excess < bountyCombo.excess) ||
+                  (candidate.count === bountyCombo.count &&
+                    candidate.excess === bountyCombo.excess &&
+                    candidate.equipDraws < bountyCombo.equipDraws)
+                ) {
+                  bountyCombo = candidate;
+                }
               }
             }
           }
 
-          combos.sort((a, b) =>
-            a.count - b.count ||
-            a.excess - b.excess ||
-            a.equipDraws - b.equipDraws ||
-            b.gold - a.gold
-          );
-
-          const selected = [];
-          const signatures = new Set();
-          const add = combo => {
-            if (!combo) return;
-            const sig = `${combo.gold}-${combo.purple}-${combo.white}`;
-            if (signatures.has(sig)) return;
-            signatures.add(sig);
-            selected.push(combo);
-          };
-          add(combos[0]);
-          add(combos.find(item => item.gold === 0));
-          add(combos.find(item => item.gold === 0 && item.purple === 0));
-          add([...combos].sort((a, b) => a.excess - b.excess || a.count - b.count)[0]);
-          add([...combos].sort((a, b) => a.equipDraws - b.equipDraws || a.count - b.count)[0]);
-          combos.slice(0, 8).forEach(add);
-
-          const currentMarathon = getMondayScores().marathon;
-          const marathonTargetScore = marathonStages[clamp(toInt(marathonStage), 1, 5) - 1].score;
-
-          if (!selected.length && remaining <= 0) {
-            selected.push({ gold: 0, purple: 0, white: 0, count: 0, score: 0, excess: 0, equipDraws: 0, marathonGain: 0 });
+          if (remainingBounty <= 0) {
+            bountyCombo = {
+              gold: 0, purple: 0, white: 0, count: 0,
+              score: 0, excess: 0, equipDraws: 0
+            };
           }
 
-          return selected.map((combo, index) => ({
-            key: `bounty-${combo.gold}-${combo.purple}-${combo.white}`,
-            name: combo.count > 0
-              ? `金 ${combo.gold}／紫 ${combo.purple}／白 ${combo.white}`
-              : "目前懸賞積分已達目標",
-            badge: index === 0 ? "最少接取優先" : "接取搭配",
-            feasible: personalOk && (currentMarathon >= marathonTargetScore || combo.marathonGain + currentMarathon >= marathonTargetScore),
-            highlight: index === 0,
-            application: { bountyCombo: combo, marathonStage: toInt(marathonStage), activityStage: toInt(activityStage) },
-            metrics: [
-              { label: "個人任務", value: personalOk ? `${format(summary.personalScore)} / 500 分` : "資源不足" },
-              { label: "懸賞目標", value: `第 ${activityStage} 階・${format(targetScore)} 分` },
-              { label: "建議接取", value: `${format(combo.count)} 件` },
-              { label: "增加懸賞分", value: `${format(combo.score)} 分` },
-              { label: "推薦裝備抽取量", value: `${format(combo.equipDraws)} 次` },
-              { label: "順帶馬拉松", value: `約 +${format(combo.marathonGain)} 分` }
-            ],
-            detail: combo.count > 0
-              ? `優先接「限定秘藏箱／傳說秘寶箱抽裝備」：金色 ${format(combo.gold)} 件、紫色 ${format(combo.purple)} 件、白色 ${format(combo.white)} 件。懸賞板具有隨機性，選定後只會套用個人任務底線並保留此接取建議，不會把公會任務直接登錄為已完成。`
-              : "目前個人＋公會積分已達所選階段，不需再接取。"
-          }));
+          const makePlan = ({ key, name, badge, floorType }) => {
+            const missingMarathon = Math.max(
+              0,
+              marathonTargetScore - scoresAfterPersonal.marathon
+            );
+            let staminaPlan = { stamina: 0, actions: 0, counts: {} };
+            let equipAdd = 0;
+            let floorFeasible = true;
+
+            if (floorType === "stamina") {
+              const requiredStamina = Math.ceil(
+                missingMarathon / MARATHON_STAMINA_RATE
+              );
+              const found = getMondayPlanForRequiredStamina(
+                requiredStamina,
+                getOwnedStaminaAmount()
+              );
+              floorFeasible = Boolean(found);
+              if (found) staminaPlan = found;
+            } else {
+              equipAdd = Math.max(0, Math.ceil(missingMarathon / 3000));
+            }
+
+            const floorOutcome = calculateMondayActivityOutcome(
+              {
+                marathon: scoresAfterPersonal.marathon,
+                archaeology: scoresAfterPersonal.archaeology,
+                stamina: getMondayStaminaSummary().stamina
+              },
+              staminaPlan,
+              equipAdd,
+              0
+            );
+            const recommendationArchaeology =
+              floorOutcome.archaeology +
+              toInt(bountyCombo?.equipDraws) * 1000;
+            const archaeologyProgress = getArchaeologyProgressDetails(
+              recommendationArchaeology,
+              1
+            );
+            const feasible =
+              personalOk && floorFeasible && Boolean(bountyCombo);
+            const floorOperations =
+              toInt(staminaPlan.actions) + equipAdd;
+
+            return {
+              key,
+              name,
+              badge,
+              feasible,
+              highlight: floorType === "stamina",
+              application: {
+                floorType,
+                staminaPlan,
+                equipAdd,
+                bountyCombo: bountyCombo || {
+                  gold: 0, purple: 0, white: 0, count: 0,
+                  score: 0, excess: 0, equipDraws: 0
+                },
+                marathonStage: normalizedMarathonStage,
+                activityStage: normalizedActivityStage
+              },
+              metrics: [
+                {
+                  label: "可執行",
+                  value: feasible
+                    ? "是"
+                    : !personalOk
+                      ? "否／基本六任務資源不足"
+                      : !floorFeasible
+                        ? "否／持有體力不足"
+                        : "否／懸賞接取額度不足"
+                },
+                {
+                  label: "個人基本六任務",
+                  value: personalOk
+                    ? `${format(summaryAfterPersonal.personalScore)} / 500 分`
+                    : "未完成"
+                },
+                { label: "總操作次數", value: format(floorOperations) },
+                {
+                  label: "追加體力",
+                  value: `${format(toInt(staminaPlan.stamina))}（${format(toInt(staminaPlan.actions))} 次）`
+                },
+                { label: "追加抽裝備", value: `${format(equipAdd)} 次` },
+                {
+                  label: "馬拉松積分",
+                  value: `${format(floorOutcome.marathon)} / ${format(marathonTargetScore)} 分`
+                },
+                {
+                  label: "馬拉松星星",
+                  value: `${format(getMarathonStars(floorOutcome.marathon))} / 6 星`
+                },
+                {
+                  label: "懸賞目標",
+                  value: `階段 ${normalizedActivityStage} / ${format(targetScore)} 分`
+                },
+                {
+                  label: "建議接取",
+                  value: bountyCombo
+                    ? `金 ${format(bountyCombo.gold)}・紫 ${format(bountyCombo.purple)}・白 ${format(bountyCombo.white)}，共 ${format(bountyCombo.count)} 件`
+                    : "接取額度不足"
+                },
+                {
+                  label: "建議任務抽裝備",
+                  value: `${format(toInt(bountyCombo?.equipDraws))} 次`
+                },
+                {
+                  label: "預測考古",
+                  value: `階段 ${format(archaeologyProgress.achievedStage)}・${format(recommendationArchaeology)} 分・${format(archaeologyProgress.pickaxes)} 礦鎬`
+                }
+              ],
+              detail: `先自動完成週一個人基本六任務，再用${floorType === "stamina" ? "體力" : "抽裝備"}補足馬拉松第 ${normalizedMarathonStage} 階。馬拉松底線完成後，才依懸賞目標建議接取裝備抽取任務；公會懸賞完成件數仍需手動登錄。`
+            };
+          };
+
+          return [
+            makePlan({
+              key: "bounty-floor-stamina",
+              name: "基本六任務＋體力補馬拉松底線",
+              badge: "體力方案",
+              floorType: "stamina"
+            }),
+            makePlan({
+              key: "bounty-floor-equip",
+              name: "基本六任務＋抽裝備補馬拉松底線",
+              badge: "抽裝備方案",
+              floorType: "equip"
+            })
+          ];
         } finally {
           state = stateSnapshot;
         }
@@ -9992,7 +10169,9 @@ async function downloadChartAsImage() {
             </select>
           </label>
           <div class="plan-choice-control-note">
-            馬拉松底線永遠優先。只有體力或抽裝備等雙加分來源已把馬拉松補到所選底線後，方案才會使用只增加考古的靈能洗煉。目標獎勵：${getMondayActivityTargetReward(activityStage)}。
+            ${state.weekMode === "bounty"
+              ? `先自動完成週一個人基本六任務，再選擇用體力或抽裝備補足馬拉松底線；完成底線後才產生懸賞第 ${toInt(activityStage)} 階的接取建議。目標獎勵：${getMondayActivityTargetReward(activityStage)}。`
+              : `馬拉松底線永遠優先。只有體力或抽裝備等雙加分來源已把馬拉松補到所選底線後，方案才會使用只增加考古的靈能洗煉。目標獎勵：${getMondayActivityTargetReward(activityStage)}。`}
           </div>
         `;
       }
@@ -10016,8 +10195,8 @@ async function downloadChartAsImage() {
             ? "週一｜公會懸賞目標與接取搭配"
             : "週一｜聯合考古目標與資源搭配",
           subtitle: state.weekMode === "bounty"
-            ? "先保證馬拉松與個人任務底線，再依所選懸賞階段比較金／紫／白接取搭配。"
-            : "先保證馬拉松底線，再比較體力、抽裝備、靈能洗煉與高收益體力起手的各種組合。",
+            ? "先自動完成個人基本六任務，再比較「體力補馬拉松底線」與「抽裝備補馬拉松底線」兩種方案，最後產生懸賞接取建議。"
+            : "先完成馬拉松最高優先底線，再比較四種固定補法：只靠體力、200 體後只靠抽裝備、體力底線＋靈能、200 體＋裝備底線＋靈能。",
           controlsHtml: getMondayActivityControlsHtml(activityStage, marathonStage),
           plans,
           buttons: plans.map(plan => ({
@@ -10041,14 +10220,35 @@ async function downloadChartAsImage() {
 
         if (state.weekMode === "bounty") {
           const personalOk = ensureBountyPersonalTasks("mon");
-          const combo = selected.application.bountyCombo;
+          const application = selected.application || {};
+
+          if (application.floorType === "stamina") {
+            addMondayStaminaPlan(application.staminaPlan);
+          } else if (application.floorType === "equip") {
+            state.days.mon.equipBox =
+              toInt(state.days.mon.equipBox) + toInt(application.equipAdd);
+          }
+
+          const combo = application.bountyCombo || {
+            gold: 0, purple: 0, white: 0, count: 0,
+            score: 0, equipDraws: 0
+          };
+          const finalScores = getMondayScores();
+          const forecastArchaeology =
+            finalScores.archaeology + toInt(combo.equipDraws) * 1000;
+          const archaeologyProgress = getArchaeologyProgressDetails(
+            forecastArchaeology,
+            1
+          );
           renderAll();
-          els.autoPlanStatus.className = `auto-plan-status show ${personalOk ? "success" : "warning"}`;
+          els.autoPlanStatus.className =
+            `auto-plan-status show ${personalOk ? "success" : "warning"}`;
           els.autoPlanStatus.innerHTML = `
-            <strong>週一｜懸賞第 ${activityStage} 階接取方案</strong>
-            <div>${personalOk ? "個人任務底線已套用。" : "資源不足，個人任務尚未補滿。"}</div>
-            <div>建議接取：金色 ${format(combo.gold)} 件、紫色 ${format(combo.purple)} 件、白色 ${format(combo.white)} 件；優先選擇「限定秘藏箱／傳說秘寶箱抽裝備」。</div>
-            <div>預計增加 ${format(combo.score)} 懸賞分，需抽裝備 ${format(combo.equipDraws)} 次，約同時增加 ${format(combo.marathonGain)} 馬拉松分。</div>
+            <strong>週一｜已採用「${selected.name}」</strong>
+            <div>${personalOk ? "個人基本六任務已自動套用。" : "資源不足，個人基本六任務尚未補滿。"}</div>
+            <div>已先用${application.floorType === "stamina" ? "體力" : "抽裝備"}補足馬拉松第 ${marathonStage} 階；目前 ${format(finalScores.marathon)} 分、${format(getMarathonStars(finalScores.marathon))} / 6 星。</div>
+            <div>懸賞第 ${activityStage} 階建議：金色 ${format(combo.gold)} 件、紫色 ${format(combo.purple)} 件、白色 ${format(combo.white)} 件，共 ${format(combo.count)} 件；優先選擇裝備抽取任務。</div>
+            <div>建議任務合計需抽裝備 ${format(combo.equipDraws)} 次，預計增加 ${format(combo.score)} 懸賞分；完成後預測考古階段 ${format(archaeologyProgress.achievedStage)}、${format(forecastArchaeology)} 分、${format(archaeologyProgress.pickaxes)} 礦鎬。</div>
             <div>公會懸賞不會自動登錄完成，完成後請手動輸入件數。</div>
           `;
         } else {
