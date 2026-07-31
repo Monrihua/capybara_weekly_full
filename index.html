@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v135</title>
+  <title>水豚每週活動計算機｜週一至週日 v136</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -2429,7 +2429,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v135</div>
+      <div class="prototype-badge">週一至週日 v136</div>
     </header>
 
     <div class="app-shell">
@@ -2842,8 +2842,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v135";
+      const STORAGE_KEY = "capybara-weekly-full-v136";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v135",
         "capybara-weekly-full-v134",
         "capybara-weekly-full-v133",
         "capybara-weekly-full-v132",
@@ -8134,9 +8135,11 @@ async function downloadChartAsImage() {
         els.dailyAutoPlanButton.dataset.activeDay = state.activeDay;
         els.dailyAutoPlanButton.textContent = state.activeDay === "mon"
           ? "比較週一考古／懸賞目標與搭配方案"
-          : state.activeDay === "sun"
-            ? "比較週日資源方案"
-            : "資源充足方案｜將逐日補上";
+          : state.activeDay === "tue"
+            ? "比較週二考古／懸賞目標與搭配方案"
+            : state.activeDay === "sun"
+              ? "比較週日資源方案"
+              : "資源充足方案｜將逐日補上";
       }
 
       function getGuildBountySummaryForDay(dayKey) {
@@ -10643,6 +10646,7 @@ async function downloadChartAsImage() {
           const normalizedActivityStage = clamp(toInt(activityStage), 1, archaeologyStages.length);
           const normalizedMarathonStage = clamp(toInt(marathonStage), 1, marathonStages.length);
           const scores = getTuesdayScores();
+          const tradeLimit = state.settings.tradeCard ? 6 : 4;
           const base = {
             marathon: scores.marathon,
             archaeology: scores.archaeology,
@@ -10650,77 +10654,82 @@ async function downloadChartAsImage() {
             activityTargetScore: archaeologyStages[normalizedActivityStage - 1].score,
             activityStage: normalizedActivityStage,
             availableSpirit: getOwnedResourceAmount("spiritStone"),
-            availableStones: getOwnedResourceAmount("unchangingStone"),
-            tradeSlots: Math.max(0, (state.settings.tradeCard ? 6 : 4) - toInt(state.days.tue.tradeShip)),
+            availableStones: 0,
+            tradeLimit,
+            tradeSlots: Math.max(0, tradeLimit - toInt(state.days.tue.tradeShip)),
             prerequisites
           };
+
+          // Every Tuesday plan uses unlocked-affix cultivation. Unchanging stones are never allocated.
           const floorPlan = findTuesdayCultivationFloorPlan({
             missingMarathonScore: Math.max(0, base.marathonTargetScore - base.marathon),
             minimumActions: 0,
-            policy: "minOperations",
+            policy: "stoneSave",
             availableSpirit: base.availableSpirit,
-            availableStones: base.availableStones
+            availableStones: 0
           });
           const afterFloor = calculateTuesdayProjectedScores(base, floorPlan, 0, 0, 0);
           const missingAfterFloor = Math.max(0, base.activityTargetScore - afterFloor.archaeology);
 
           const cultivationTail = Math.ceil(missingAfterFloor / 1000);
-          const tradeOnlyAdd = Math.ceil(missingAfterFloor / 8000);
-          const treasureOnlyAdd = Math.ceil(missingAfterFloor / 1000);
-          const mixedTradeAdd = Math.min(
-            base.tradeSlots,
-            Math.floor(missingAfterFloor / 8000)
+          const treasureTail = Math.ceil(missingAfterFloor / 1000);
+
+          // Trade schemes always fill the daily ship capacity first (4 or 6 total ships),
+          // then use the selected final resource for any remaining archaeology score.
+          const fullTradeAdd = base.tradeSlots;
+          const archaeologyAfterFullTrade = afterFloor.archaeology + fullTradeAdd * 8000;
+          const cultivationAfterTrade = Math.ceil(
+            Math.max(0, base.activityTargetScore - archaeologyAfterFullTrade) / 1000
           );
-          const mixedTreasureAdd = Math.ceil(
-            Math.max(0, missingAfterFloor - mixedTradeAdd * 8000) / 1000
+          const treasureAfterTrade = Math.ceil(
+            Math.max(0, base.activityTargetScore - archaeologyAfterFullTrade) / 1000
           );
 
           return [
             createTuesdayArchaeologyPlan(base, {
               key: "tue-arch-cultivation-only",
-              name: "只靠寵物培育",
+              name: "只靠培育｜全程不鎖詞綴",
               badge: "雙加分",
               highlight: true,
               floorPlan,
               tailBaseActions: cultivationTail,
               tradeAdd: 0,
               treasureAdd: 0,
-              description: "先以可用不變石縮短培育次數，完成馬拉松底線。",
-              tailDescription: `改用不鎖詞綴培育 × ${format(cultivationTail)} 補考古，不再消耗不變石`
+              description: "先用不鎖詞綴培育完成馬拉松底線。",
+              tailDescription: `繼續以不鎖詞綴培育 × ${format(cultivationTail)} 補到考古目標`
             }),
             createTuesdayArchaeologyPlan(base, {
-              key: "tue-arch-trade-only",
-              name: "培育完成馬拉松底線＋卡皮貿易",
-              badge: "貿易補足",
+              key: "tue-arch-trade-cultivation",
+              name: `培育底線＋貿易開滿 ${format(tradeLimit)} 艘＋不鎖培育補足`,
+              badge: "貿易＋培育",
               floorPlan,
-              tailBaseActions: 0,
-              tradeAdd: tradeOnlyAdd,
+              tailBaseActions: cultivationAfterTrade,
+              tradeAdd: fullTradeAdd,
               treasureAdd: 0,
-              valid: tradeOnlyAdd <= base.tradeSlots,
-              description: "寵物培育只做到馬拉松底線。",
-              tailDescription: `卡皮貿易 × ${format(tradeOnlyAdd)} 補到考古目標`
+              description: "先用不鎖詞綴培育完成馬拉松底線。",
+              tailDescription: `將卡皮貿易補至每日上限 ${format(tradeLimit)} 艘，再以不鎖詞綴培育 × ${format(cultivationAfterTrade)} 補到考古目標`
             }),
             createTuesdayArchaeologyPlan(base, {
               key: "tue-arch-treasure-only",
-              name: "培育完成馬拉松底線＋寶石抽獎",
-              badge: "考古專屬",
+              name: "培育底線＋寶石抽獎補足",
+              badge: "寶石補足",
               floorPlan,
               tailBaseActions: 0,
               tradeAdd: 0,
-              treasureAdd: treasureOnlyAdd,
-              description: "寵物培育只做到馬拉松底線。",
-              tailDescription: `珍寶商店抽寶石 × ${format(treasureOnlyAdd)} 補到考古目標`
+              treasureAdd: treasureTail,
+              description: "先用不鎖詞綴培育完成馬拉松底線。",
+              tailDescription: `再以珍寶商店抽寶石 × ${format(treasureTail)} 補到考古目標`
             }),
             createTuesdayArchaeologyPlan(base, {
               key: "tue-arch-trade-treasure",
-              name: "培育底線＋貿易優先＋寶石抽獎補足",
-              badge: "混合方案",
+              name: `培育底線＋貿易開滿 ${format(tradeLimit)} 艘＋寶石抽獎補足`,
+              badge: "貿易＋寶石",
               floorPlan,
               tailBaseActions: 0,
-              tradeAdd: mixedTradeAdd,
-              treasureAdd: mixedTreasureAdd,
-              description: "寵物培育只做到馬拉松底線。",
-              tailDescription: `先用卡皮貿易 × ${format(mixedTradeAdd)}，剩餘再用寶石抽獎 × ${format(mixedTreasureAdd)}`
+              tradeAdd: fullTradeAdd,
+              treasureAdd: treasureAfterTrade,
+              description: "先用不鎖詞綴培育完成馬拉松底線。",
+              tailDescription: `將卡皮貿易補至每日上限 ${format(tradeLimit)} 艘，再以寶石抽獎 × ${format(treasureAfterTrade)} 補到考古目標`
             })
           ];
         } finally {
@@ -10780,7 +10789,7 @@ async function downloadChartAsImage() {
             marathonStage: base.marathonStage
           },
           metrics: [
-            { label: "可執行", value: feasible ? "是" : !floorPlan ? "否／靈石或不變石不足" : !combo ? "否／懸賞接取額度不足" : "否／目標未達" },
+            { label: "可執行", value: feasible ? "是" : !floorPlan ? "否／靈石不足" : !combo ? "否／懸賞接取額度不足" : "否／目標未達" },
             { label: "總操作次數", value: format(totalOperations) },
             { label: "自動前置", value: `基本任務＋挖礦 ${format(base.prerequisites.goblinAdd)} 次＋貿易 ${format(base.prerequisites.tradeAdd)} 艘` },
             { label: "追加培育", value: `${format(floorSummary.actions)} 次` },
@@ -10819,43 +10828,29 @@ async function downloadChartAsImage() {
             activityTargetScore: guildBountyStages[normalizedActivityStage - 1].score,
             activityStage: normalizedActivityStage,
             availableSpirit: getOwnedResourceAmount("spiritStone"),
-            availableStones: getOwnedResourceAmount("unchangingStone"),
+            availableStones: 0,
             currentPetActions: pet.actions,
             baseSummary: getTuesdayGuildBountySummary(),
             prerequisites
           };
           const mandatoryActions = Math.max(0, 10 - pet.actions);
           const missingMarathon = Math.max(0, base.marathonTargetScore - base.marathon);
-          const stoneSaveFloor = findTuesdayCultivationFloorPlan({
+          const unlockedFloor = findTuesdayCultivationFloorPlan({
             missingMarathonScore: missingMarathon,
             minimumActions: mandatoryActions,
             policy: "stoneSave",
             availableSpirit: base.availableSpirit,
-            availableStones: base.availableStones
-          });
-          const operationSaveFloor = findTuesdayCultivationFloorPlan({
-            missingMarathonScore: missingMarathon,
-            minimumActions: mandatoryActions,
-            policy: "minOperations",
-            availableSpirit: base.availableSpirit,
-            availableStones: base.availableStones
+            availableStones: 0
           });
 
           return [
             createTuesdayBountyPlan(base, {
-              key: "tue-bounty-stone-save",
-              name: "個人六任務＋不變石節省方案",
+              key: "tue-bounty-unlocked",
+              name: "個人六任務＋全程不鎖詞綴補馬拉松底線",
               badge: "不鎖詞綴",
               highlight: true,
-              floorPlan: stoneSaveFloor,
-              description: "個人任務所需的培育與後續馬拉松補分全部使用不鎖詞綴，優先節省不變石。"
-            }),
-            createTuesdayBountyPlan(base, {
-              key: "tue-bounty-operation-save",
-              name: "個人六任務＋靈石／操作節省方案",
-              badge: "鎖詞綴最佳化",
-              floorPlan: operationSaveFloor,
-              description: "把個人任務原本就必須進行的培育優先配置鎖定詞綴，依目前不變石庫存，用最少培育次數完成馬拉松底線。"
+              floorPlan: unlockedFloor,
+              description: "個人任務所需培育與後續馬拉松補分全部使用不鎖詞綴，不配置任何不變石。"
             })
           ];
         } finally {
@@ -10886,8 +10881,8 @@ async function downloadChartAsImage() {
           </label>
           <div class="plan-choice-control-note">
             ${state.weekMode === "bounty"
-              ? `先完成週二個人六任務，再保證馬拉松底線；最後依所選懸賞階段產生接取建議。懸賞週不顯示預測考古。目標獎勵：${getMondayActivityTargetReward(activityStage)}。`
-              : `先用寵物培育完成馬拉松底線；鎖定詞綴只用於底線階段，底線完成後再依所選方案補考古。目標獎勵：${getMondayActivityTargetReward(activityStage)}。`}
+              ? `先完成週二個人六任務，再以不鎖詞綴培育保證馬拉松底線；最後依所選懸賞階段產生接取建議。懸賞週不顯示預測考古。目標獎勵：${getMondayActivityTargetReward(activityStage)}。`
+              : `所有培育一律不鎖詞綴。先用培育完成馬拉松底線，再依所選方案用培育、貿易或寶石抽獎補考古。貿易方案會先補至每日上限 4／6 艘。目標獎勵：${getMondayActivityTargetReward(activityStage)}。`}
           </div>
         `;
       }
@@ -10909,8 +10904,8 @@ async function downloadChartAsImage() {
             ? "週二｜公會懸賞目標與培育配置"
             : "週二｜聯合考古目標與資源搭配",
           subtitle: state.weekMode === "bounty"
-            ? "先完成個人六任務，再比較不變石節省與靈石／操作節省兩種馬拉松底線配置，最後產生懸賞接取建議。"
-            : "先用寵物培育保證馬拉松底線，再比較培育、卡皮貿易、寶石抽獎及混合補足方案。",
+            ? "先完成個人六任務，再以全程不鎖詞綴的培育補足馬拉松底線，最後產生懸賞接取建議。"
+            : "所有培育一律不鎖詞綴。先保證馬拉松底線，再比較純培育、貿易開滿後培育、寶石抽獎，以及貿易開滿後寶石抽獎四種補足方案。",
           controlsHtml: getTuesdayActivityControlsHtml(activityStage, marathonStage),
           plans,
           buttons: plans.map(plan => ({
