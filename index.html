@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v132</title>
+  <title>水豚每週活動計算機｜週一至週日 v134</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -2429,7 +2429,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v132</div>
+      <div class="prototype-badge">週一至週日 v134</div>
     </header>
 
     <div class="app-shell">
@@ -2842,8 +2842,10 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v132";
+      const STORAGE_KEY = "capybara-weekly-full-v134";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v133",
+        "capybara-weekly-full-v132",
         "capybara-weekly-full-v131",
         "capybara-weekly-full-v130",
         "capybara-weekly-full-v129",
@@ -5044,7 +5046,9 @@
 
         return {
           arena: Math.min(toInt(day.arena), 25),
-          dungeon: Math.min(toInt(day.dungeonCount), dungeonDailyCap),
+          // 懸賞個人任務以實際輸入的副本次數判定；
+          // 推薦副本數只是建議值，不能拿來截斷 10 次任務進度。
+          dungeon: toInt(day.dungeonCount),
           trade: tradeDailyCap,
           goblin: toInt(day.goblin),
           stamina: getMondayStaminaSummary().stamina,
@@ -9945,11 +9949,33 @@ async function downloadChartAsImage() {
         }
       }
 
+      function applyMondayBountyPrerequisites() {
+        const day = state.days.mon;
+        const before = {
+          goblin: toInt(day.goblin),
+          equipBox: toInt(day.equipBox)
+        };
+
+        // 先套用原本馬拉松方案會使用的無消耗基本任務。
+        applyMinimumMondayFreeTasks();
+
+        // 懸賞個人任務中的副本門檻至少為 10 次；其餘兩個
+        // 原本基本任務沒有涵蓋的項目則補到挖礦 100 次、抽裝備 10 次。
+        day.dungeonCount = Math.max(toInt(day.dungeonCount), 10);
+        day.goblin = Math.max(toInt(day.goblin), 100);
+        day.equipBox = Math.max(toInt(day.equipBox), 10);
+
+        return {
+          goblinAdd: Math.max(0, toInt(day.goblin) - before.goblin),
+          equipPrerequisiteAdd: Math.max(0, toInt(day.equipBox) - before.equipBox)
+        };
+      }
+
       function buildMondayBountyPlans(activityStage, marathonStage) {
         const stateSnapshot = JSON.parse(JSON.stringify(state));
         try {
           state.activeDay = "mon";
-          const personalOk = ensureBountyPersonalTasks("mon");
+          const prerequisite = applyMondayBountyPrerequisites();
           const normalizedActivityStage = clamp(
             toInt(activityStage),
             1,
@@ -9964,98 +9990,152 @@ async function downloadChartAsImage() {
             marathonStages[normalizedMarathonStage - 1].score;
           const targetScore =
             guildBountyStages[normalizedActivityStage - 1].score;
-          const summaryAfterPersonal = getMondayGuildBountySummary();
-          const scoresAfterPersonal = getMondayScores();
-          const remainingBounty = Math.max(
-            0,
-            targetScore - summaryAfterPersonal.totalScore
-          );
-          const slots = summaryAfterPersonal.acceptsRemaining;
-          let bountyCombo = null;
+          const baseSummary = getMondayGuildBountySummary();
+          const baseScores = getMondayScores();
+          const baseStamina = getMondayStaminaSummary().stamina;
+          const availableStamina = getOwnedStaminaAmount();
+          const personalStaminaMissing = Math.max(0, 100 - baseStamina);
 
-          for (let gold = 0; gold <= slots; gold++) {
-            for (let purple = 0; purple <= slots - gold; purple++) {
-              for (let white = 0; white <= slots - gold - purple; white++) {
-                const count = gold + purple + white;
-                const score = gold * 300 + purple * 100 + white * 50;
-                if (score < remainingBounty) continue;
+          function findBountyCombo(projectedPersonalScore) {
+            const remainingBounty = Math.max(
+              0,
+              targetScore - (projectedPersonalScore + baseSummary.guildScore)
+            );
+            const slots = baseSummary.acceptsRemaining;
 
-                const candidate = {
-                  gold,
-                  purple,
-                  white,
-                  count,
-                  score,
-                  excess: score - remainingBounty,
-                  equipDraws: gold * 30 + purple * 10 + white * 5
-                };
+            if (remainingBounty <= 0) {
+              return {
+                gold: 0, purple: 0, white: 0, count: 0,
+                score: 0, excess: 0, equipDraws: 0
+              };
+            }
 
-                if (
-                  !bountyCombo ||
-                  candidate.count < bountyCombo.count ||
-                  (candidate.count === bountyCombo.count &&
-                    candidate.excess < bountyCombo.excess) ||
-                  (candidate.count === bountyCombo.count &&
-                    candidate.excess === bountyCombo.excess &&
-                    candidate.equipDraws < bountyCombo.equipDraws)
-                ) {
-                  bountyCombo = candidate;
+            let best = null;
+            for (let gold = 0; gold <= slots; gold++) {
+              for (let purple = 0; purple <= slots - gold; purple++) {
+                for (let white = 0; white <= slots - gold - purple; white++) {
+                  const count = gold + purple + white;
+                  if (!count) continue;
+                  const score = gold * 300 + purple * 100 + white * 50;
+                  if (score < remainingBounty) continue;
+
+                  const candidate = {
+                    gold,
+                    purple,
+                    white,
+                    count,
+                    score,
+                    excess: score - remainingBounty,
+                    equipDraws: gold * 30 + purple * 10 + white * 5
+                  };
+
+                  if (
+                    !best ||
+                    candidate.count < best.count ||
+                    (candidate.count === best.count &&
+                      candidate.excess < best.excess) ||
+                    (candidate.count === best.count &&
+                      candidate.excess === best.excess &&
+                      candidate.equipDraws < best.equipDraws)
+                  ) {
+                    best = candidate;
+                  }
                 }
               }
             }
-          }
-
-          if (remainingBounty <= 0) {
-            bountyCombo = {
-              gold: 0, purple: 0, white: 0, count: 0,
-              score: 0, excess: 0, equipDraws: 0
-            };
+            return best;
           }
 
           const makePlan = ({ key, name, badge, floorType }) => {
-            const missingMarathon = Math.max(
-              0,
-              marathonTargetScore - scoresAfterPersonal.marathon
-            );
             let staminaPlan = { stamina: 0, actions: 0, counts: {} };
-            let equipAdd = 0;
+            let equipFloorAdd = 0;
             let floorFeasible = true;
 
             if (floorType === "stamina") {
-              const requiredStamina = Math.ceil(
-                missingMarathon / MARATHON_STAMINA_RATE
+              // 體力方案：前置任務完成後，體力同時滿足個人任務 100 體
+              // 與所選馬拉松底線。
+              const marathonStaminaMissing = Math.max(
+                0,
+                Math.ceil(
+                  (marathonTargetScore - baseScores.marathon) /
+                  MARATHON_STAMINA_RATE
+                )
+              );
+              const requiredStamina = Math.max(
+                personalStaminaMissing,
+                marathonStaminaMissing
               );
               const found = getMondayPlanForRequiredStamina(
                 requiredStamina,
-                getOwnedStaminaAmount()
+                availableStamina
               );
               floorFeasible = Boolean(found);
               if (found) staminaPlan = found;
             } else {
-              equipAdd = Math.max(0, Math.ceil(missingMarathon / 3000));
+              // 抽裝備方案：先只補足懸賞個人任務需要的 100 體，
+              // 再用額外抽裝備補到所選馬拉松底線。
+              const found = getMondayPlanForRequiredStamina(
+                personalStaminaMissing,
+                availableStamina
+              );
+              floorFeasible = Boolean(found);
+              if (found) {
+                staminaPlan = found;
+                const afterPersonalStamina = calculateMondayActivityOutcome(
+                  {
+                    marathon: baseScores.marathon,
+                    archaeology: baseScores.archaeology,
+                    stamina: baseStamina
+                  },
+                  staminaPlan,
+                  0,
+                  0
+                );
+                equipFloorAdd = Math.max(
+                  0,
+                  Math.ceil(
+                    (marathonTargetScore - afterPersonalStamina.marathon) / 3000
+                  )
+                );
+              }
             }
 
             const floorOutcome = calculateMondayActivityOutcome(
               {
-                marathon: scoresAfterPersonal.marathon,
-                archaeology: scoresAfterPersonal.archaeology,
-                stamina: getMondayStaminaSummary().stamina
+                marathon: baseScores.marathon,
+                archaeology: baseScores.archaeology,
+                stamina: baseStamina
               },
               staminaPlan,
-              equipAdd,
+              equipFloorAdd,
               0
             );
-            const recommendationArchaeology =
-              floorOutcome.archaeology +
-              toInt(bountyCombo?.equipDraws) * 1000;
-            const archaeologyProgress = getArchaeologyProgressDetails(
-              recommendationArchaeology,
-              1
+            const projectedPersonalScore =
+              floorFeasible && floorOutcome.stamina >= 100 ? 500 : baseSummary.personalScore;
+            const projectedBountyScore = Math.min(
+              GUILD_BOUNTY_TOTAL_MAX,
+              projectedPersonalScore + baseSummary.guildScore
             );
+            const achievedBountyStages = guildBountyStages.filter(
+              stage => projectedBountyScore >= stage.score
+            );
+            const achievedBountyStage = achievedBountyStages.length;
+            const achievedBountyThreshold = achievedBountyStage > 0
+              ? guildBountyStages[achievedBountyStage - 1].score
+              : 0;
+            const nextBountyStage =
+              guildBountyStages[achievedBountyStage] || null;
+            const bountyCombo = findBountyCombo(projectedPersonalScore);
             const feasible =
-              personalOk && floorFeasible && Boolean(bountyCombo);
-            const floorOperations =
-              toInt(staminaPlan.actions) + equipAdd;
+              floorFeasible &&
+              projectedPersonalScore >= 500 &&
+              Boolean(bountyCombo);
+            const totalEquipAdd =
+              prerequisite.equipPrerequisiteAdd + equipFloorAdd;
+            const totalOperations =
+              prerequisite.goblinAdd +
+              totalEquipAdd +
+              toInt(staminaPlan.actions);
 
             return {
               key,
@@ -10066,7 +10146,7 @@ async function downloadChartAsImage() {
               application: {
                 floorType,
                 staminaPlan,
-                equipAdd,
+                equipFloorAdd,
                 bountyCombo: bountyCombo || {
                   gold: 0, purple: 0, white: 0, count: 0,
                   score: 0, excess: 0, equipDraws: 0
@@ -10079,24 +10159,25 @@ async function downloadChartAsImage() {
                   label: "可執行",
                   value: feasible
                     ? "是"
-                    : !personalOk
-                      ? "否／基本六任務資源不足"
-                      : !floorFeasible
-                        ? "否／持有體力不足"
+                    : !floorFeasible
+                      ? "否／持有體力不足"
+                      : projectedPersonalScore < 500
+                        ? "否／個人任務尚未完成"
                         : "否／懸賞接取額度不足"
                 },
+                { label: "總操作次數", value: format(totalOperations) },
                 {
-                  label: "個人基本六任務",
-                  value: personalOk
-                    ? `${format(summaryAfterPersonal.personalScore)} / 500 分`
-                    : "未完成"
+                  label: "自動前置",
+                  value: `基本任務＋挖礦 ${format(prerequisite.goblinAdd)} 次＋抽裝備 ${format(prerequisite.equipPrerequisiteAdd)} 次`
                 },
-                { label: "總操作次數", value: format(floorOperations) },
                 {
                   label: "追加體力",
                   value: `${format(toInt(staminaPlan.stamina))}（${format(toInt(staminaPlan.actions))} 次）`
                 },
-                { label: "追加抽裝備", value: `${format(equipAdd)} 次` },
+                {
+                  label: "追加抽裝備",
+                  value: `${format(totalEquipAdd)} 次`
+                },
                 {
                   label: "馬拉松積分",
                   value: `${format(floorOutcome.marathon)} / ${format(marathonTargetScore)} 分`
@@ -10104,6 +10185,16 @@ async function downloadChartAsImage() {
                 {
                   label: "馬拉松星星",
                   value: `${format(getMarathonStars(floorOutcome.marathon))} / 6 星`
+                },
+                {
+                  label: "懸賞已達成",
+                  value: `階段 ${format(achievedBountyStage)} / ${format(achievedBountyThreshold)} 分`
+                },
+                {
+                  label: "距離下個階段",
+                  value: nextBountyStage
+                    ? `${format(nextBountyStage.score)} 分・還差 ${format(Math.max(0, nextBountyStage.score - projectedBountyScore))} 分`
+                    : "已達全部階段"
                 },
                 {
                   label: "懸賞目標",
@@ -10114,30 +10205,25 @@ async function downloadChartAsImage() {
                   value: bountyCombo
                     ? `金 ${format(bountyCombo.gold)}・紫 ${format(bountyCombo.purple)}・白 ${format(bountyCombo.white)}，共 ${format(bountyCombo.count)} 件`
                     : "接取額度不足"
-                },
-                {
-                  label: "建議任務抽裝備",
-                  value: `${format(toInt(bountyCombo?.equipDraws))} 次`
-                },
-                {
-                  label: "預測考古",
-                  value: `階段 ${format(archaeologyProgress.achievedStage)}・${format(recommendationArchaeology)} 分・${format(archaeologyProgress.pickaxes)} 礦鎬`
                 }
               ],
-              detail: `先自動完成週一個人基本六任務，再用${floorType === "stamina" ? "體力" : "抽裝備"}補足馬拉松第 ${normalizedMarathonStage} 階。馬拉松底線完成後，才依懸賞目標建議接取裝備抽取任務；公會懸賞完成件數仍需手動登錄。`
+              detail:
+                `先套用原本無消耗基本任務，再補個人懸賞缺少的挖礦 100 次與抽裝備 10 次；` +
+                `之後用${floorType === "stamina" ? "體力" : "先滿 100 體後再抽裝備"}補足馬拉松第 ${normalizedMarathonStage} 階。` +
+                `最後才依懸賞目標產生公會任務接取建議。`
             };
           };
 
           return [
             makePlan({
               key: "bounty-floor-stamina",
-              name: "基本六任務＋體力補馬拉松底線",
+              name: "基本任務＋懸賞缺項＋體力補馬拉松底線",
               badge: "體力方案",
               floorType: "stamina"
             }),
             makePlan({
               key: "bounty-floor-equip",
-              name: "基本六任務＋抽裝備補馬拉松底線",
+              name: "基本任務＋懸賞缺項＋抽裝備補馬拉松底線",
               badge: "抽裝備方案",
               floorType: "equip"
             })
@@ -10170,7 +10256,7 @@ async function downloadChartAsImage() {
           </label>
           <div class="plan-choice-control-note">
             ${state.weekMode === "bounty"
-              ? `先自動完成週一個人基本六任務，再選擇用體力或抽裝備補足馬拉松底線；完成底線後才產生懸賞第 ${toInt(activityStage)} 階的接取建議。目標獎勵：${getMondayActivityTargetReward(activityStage)}。`
+              ? `先套用原本無消耗基本任務，再補上懸賞個人任務額外需要的挖礦 100 次與抽裝備 10 次；接著選擇用體力或抽裝備補足馬拉松底線，最後才產生懸賞第 ${toInt(activityStage)} 階的接取建議。目標獎勵：${getMondayActivityTargetReward(activityStage)}。`
               : `馬拉松底線永遠優先。只有體力或抽裝備等雙加分來源已把馬拉松補到所選底線後，方案才會使用只增加考古的靈能洗煉。目標獎勵：${getMondayActivityTargetReward(activityStage)}。`}
           </div>
         `;
@@ -10195,7 +10281,7 @@ async function downloadChartAsImage() {
             ? "週一｜公會懸賞目標與接取搭配"
             : "週一｜聯合考古目標與資源搭配",
           subtitle: state.weekMode === "bounty"
-            ? "先自動完成個人基本六任務，再比較「體力補馬拉松底線」與「抽裝備補馬拉松底線」兩種方案，最後產生懸賞接取建議。"
+            ? "先套用原本無消耗基本任務，再補挖礦 100 次與抽裝備 10 次；之後比較「體力補馬拉松底線」與「抽裝備補馬拉松底線」兩種方案，最後產生懸賞接取建議。"
             : "先完成馬拉松最高優先底線，再比較四種固定補法：只靠體力、200 體後只靠抽裝備、體力底線＋靈能、200 體＋裝備底線＋靈能。",
           controlsHtml: getMondayActivityControlsHtml(activityStage, marathonStage),
           plans,
@@ -10219,36 +10305,44 @@ async function downloadChartAsImage() {
         state.activeDay = "mon";
 
         if (state.weekMode === "bounty") {
-          const personalOk = ensureBountyPersonalTasks("mon");
           const application = selected.application || {};
+          const prerequisite = applyMondayBountyPrerequisites();
 
-          if (application.floorType === "stamina") {
-            addMondayStaminaPlan(application.staminaPlan);
-          } else if (application.floorType === "equip") {
+          // 兩個方案都可能需要先補懸賞個人任務的 100 體；
+          // 體力方案則會一次補到馬拉松底線所需的體力。
+          addMondayStaminaPlan(application.staminaPlan);
+          if (application.floorType === "equip") {
             state.days.mon.equipBox =
-              toInt(state.days.mon.equipBox) + toInt(application.equipAdd);
+              toInt(state.days.mon.equipBox) +
+              toInt(application.equipFloorAdd);
           }
 
+          const personalSummary = getMondayGuildBountySummary();
+          const personalOk = personalSummary.personalScore >= 500;
           const combo = application.bountyCombo || {
             gold: 0, purple: 0, white: 0, count: 0,
             score: 0, equipDraws: 0
           };
           const finalScores = getMondayScores();
-          const forecastArchaeology =
-            finalScores.archaeology + toInt(combo.equipDraws) * 1000;
-          const archaeologyProgress = getArchaeologyProgressDetails(
-            forecastArchaeology,
-            1
+          const currentBountyScore = Math.min(
+            GUILD_BOUNTY_TOTAL_MAX,
+            personalSummary.personalScore + personalSummary.guildScore
           );
+          const achievedBountyStage = guildBountyStages.filter(
+            stage => currentBountyScore >= stage.score
+          ).length;
+          const nextBountyStage =
+            guildBountyStages[achievedBountyStage] || null;
           renderAll();
           els.autoPlanStatus.className =
             `auto-plan-status show ${personalOk ? "success" : "warning"}`;
           els.autoPlanStatus.innerHTML = `
             <strong>週一｜已採用「${selected.name}」</strong>
-            <div>${personalOk ? "個人基本六任務已自動套用。" : "資源不足，個人基本六任務尚未補滿。"}</div>
-            <div>已先用${application.floorType === "stamina" ? "體力" : "抽裝備"}補足馬拉松第 ${marathonStage} 階；目前 ${format(finalScores.marathon)} 分、${format(getMarathonStars(finalScores.marathon))} / 6 星。</div>
-            <div>懸賞第 ${activityStage} 階建議：金色 ${format(combo.gold)} 件、紫色 ${format(combo.purple)} 件、白色 ${format(combo.white)} 件，共 ${format(combo.count)} 件；優先選擇裝備抽取任務。</div>
-            <div>建議任務合計需抽裝備 ${format(combo.equipDraws)} 次，預計增加 ${format(combo.score)} 懸賞分；完成後預測考古階段 ${format(archaeologyProgress.achievedStage)}、${format(forecastArchaeology)} 分、${format(archaeologyProgress.pickaxes)} 礦鎬。</div>
+            <div>已先套用原本無消耗基本任務。</div>
+            <div>懸賞個人缺項已追加：挖礦 ${format(prerequisite.goblinAdd)} 次、限定／傳說秘寶箱抽裝備 ${format(prerequisite.equipPrerequisiteAdd)} 次；個人任務 ${format(personalSummary.personalScore)} / 500 分。</div>
+            <div>再用${application.floorType === "stamina" ? "體力" : "100 體＋額外抽裝備"}補足馬拉松第 ${marathonStage} 階；目前 ${format(finalScores.marathon)} 分、${format(getMarathonStars(finalScores.marathon))} / 6 星。</div>
+            <div>目前懸賞 ${format(currentBountyScore)} 分，已達階段 ${format(achievedBountyStage)}；${nextBountyStage ? `下一階段 ${format(nextBountyStage.score)} 分，還差 ${format(Math.max(0, nextBountyStage.score - currentBountyScore))} 分。` : "已達全部階段。"}</div>
+            <div>懸賞第 ${activityStage} 階建議：金色 ${format(combo.gold)} 件、紫色 ${format(combo.purple)} 件、白色 ${format(combo.white)} 件，共 ${format(combo.count)} 件；建議任務合計需抽裝備 ${format(combo.equipDraws)} 次，預計增加 ${format(combo.score)} 懸賞分。</div>
             <div>公會懸賞不會自動登錄完成，完成後請手動輸入件數。</div>
           `;
         } else {
