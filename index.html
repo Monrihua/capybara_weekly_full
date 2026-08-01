@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v206</title>
+  <title>水豚每週活動計算機｜週一至週日 v207</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -2964,9 +2964,6 @@
       .stats-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
-    @media (min-width: 601px) {
-      .stats-pane[hidden] { display: grid !important; }
-    }
 
     @media (max-width: 600px) {
       .stats-view-shell { gap: 8px; }
@@ -3043,6 +3040,245 @@
         display: none !important;
       }
     }
+
+    /* v207：桌面改為真正的單頁儀表板框架 */
+    [hidden] { display: none !important; }
+
+    .desktop-app-nav { display: none; }
+
+    @media (min-width: 901px) {
+      html, body { min-height: 100%; }
+      body {
+        padding: 14px;
+        background: #eef2f8;
+      }
+
+      .page {
+        max-width: 1580px;
+        min-height: calc(100vh - 28px);
+      }
+
+      .hero { display: none; }
+
+      .app-shell {
+        display: grid;
+        grid-template-columns: 98px minmax(0, 1fr);
+        grid-template-areas: "nav content";
+        gap: 14px;
+        min-height: calc(100vh - 28px);
+        align-items: stretch;
+      }
+
+      .desktop-app-nav {
+        grid-area: nav;
+        position: sticky;
+        top: 14px;
+        display: flex;
+        flex-direction: column;
+        align-self: start;
+        min-height: calc(100vh - 28px);
+        overflow: hidden;
+        border: 1px solid #263b59;
+        border-radius: 22px;
+        background: linear-gradient(180deg, #17304d, #203c5e 70%, #152b45);
+        color: #fff;
+        box-shadow: 0 18px 44px rgba(23, 48, 77, .20);
+      }
+
+      .desktop-brand {
+        display: grid;
+        place-items: center;
+        gap: 5px;
+        min-height: 112px;
+        padding: 13px 8px;
+        border-bottom: 1px solid rgba(255,255,255,.12);
+        text-align: center;
+        font-size: 11px;
+        line-height: 1.25;
+      }
+
+      .desktop-brand-icon { font-size: 31px; }
+
+      .desktop-nav-btn {
+        display: grid;
+        place-items: center;
+        gap: 7px;
+        min-height: 96px;
+        padding: 10px 5px;
+        border-radius: 0;
+        background: transparent;
+        color: #d5dfec;
+        text-align: center;
+        font-size: 11px;
+        line-height: 1.25;
+      }
+
+      .desktop-nav-btn span { font-size: 23px; }
+      .desktop-nav-btn strong { font-weight: 900; }
+
+      .desktop-nav-btn:hover {
+        background: rgba(255,255,255,.07);
+        color: #fff;
+      }
+
+      .desktop-nav-btn.active {
+        background: linear-gradient(180deg, rgba(111,143,190,.42), rgba(71,101,145,.46));
+        color: #fff;
+        box-shadow: inset 4px 0 0 #8ab0ff;
+      }
+
+      #sidebarCard,
+      #actionsSidebarCard,
+      #mainContent {
+        grid-area: content;
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+      }
+
+      #sidebarCard,
+      #actionsSidebarCard {
+        position: static;
+        padding: 22px;
+        border-radius: 22px;
+      }
+
+      #mainContent {
+        display: grid;
+        align-content: start;
+        gap: 12px;
+      }
+
+      body[data-active-panel="stats"] #mainContent {
+        padding: 16px;
+        border: 1px solid #d4dce8;
+        border-radius: 22px;
+        background: #f9fbfe;
+        box-shadow: 0 14px 42px rgba(20,33,61,.08);
+      }
+
+      body[data-active-panel="tasks"] #mainContent {
+        padding: 0;
+      }
+
+      body[data-active-panel="stats"] .stats-view-shell {
+        gap: 14px;
+      }
+
+      body[data-active-panel="stats"] .stats-dashboard-head {
+        position: relative;
+        align-items: center;
+        min-height: 64px;
+        padding: 3px 4px 10px;
+        border-bottom: 1px solid #e2e7ef;
+      }
+
+      .stats-dashboard-head h2 {
+        font-size: 28px;
+      }
+
+      .stats-dashboard-meta {
+        position: absolute;
+        right: 4px;
+        top: 8px;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .stats-summary-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .stats-kpi-card {
+        display: flex;
+        flex-direction: column;
+        min-height: 238px;
+        padding: 17px;
+        border-radius: 17px;
+        box-shadow: 0 6px 18px rgba(20,33,61,.06);
+      }
+
+      .stats-kpi-card::before { height: 0; }
+      .stats-kpi-title { font-size: 14px; }
+      .stats-kpi-icon { font-size: 20px; }
+      .stats-kpi-value { margin-top: 17px; }
+      .stats-kpi-value strong { font-size: clamp(27px, 2.4vw, 38px); }
+      .stats-kpi-metrics { min-height: 39px; font-size: 11px; }
+      .stats-kpi-card .progress { margin-top: auto; }
+      .stats-next-line { min-height: 42px; font-size: 11px; }
+      .stats-reward-icons { font-size: 12px; }
+
+      .stats-attention-card { display: none; }
+
+      .weekly-marathon-card {
+        padding: 16px;
+        border-radius: 18px;
+        box-shadow: none;
+      }
+
+      .stats-week-head { margin-bottom: 10px; }
+      .stats-secondary-totals { display: none; }
+
+      .stats-week-table-head,
+      .stats-week-row {
+        grid-template-columns: 72px minmax(280px, 1.3fr) minmax(260px, 1.1fr) 118px;
+        min-width: 800px;
+      }
+
+      .stats-week-table-head { padding: 11px 14px; }
+      .stats-week-row { padding: 11px 14px; }
+
+      .stats-next-reward-section,
+      .stats-detail-fold,
+      .stats-reward-total-section {
+        border-radius: 18px;
+        box-shadow: none;
+      }
+
+      .stats-next-reward-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .stats-view-tabs { display: none; }
+      .mobile-bottom-nav { display: none !important; }
+    }
+
+    @media (min-width: 901px) and (max-width: 1180px) {
+      .app-shell { grid-template-columns: 84px minmax(0, 1fr); }
+      .desktop-nav-btn { min-height: 88px; }
+      .stats-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 900px) and (min-width: 601px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+        grid-template-areas: "content";
+      }
+      #sidebarCard, #actionsSidebarCard, #mainContent { grid-area: content; }
+    }
+
+    @media (max-width: 600px) {
+      body[data-active-panel="stats"] .hero { display: none; }
+      body[data-active-panel="stats"] { padding-top: 8px; }
+      .stats-dashboard-meta { display: none; }
+      .stats-kpi-card {
+        min-height: 0;
+        padding: 10px 11px;
+      }
+      .stats-kpi-head { align-items: flex-start; }
+      .stats-kpi-title { font-size: 12px; }
+      .stats-kpi-value { min-height: 30px; margin-top: 7px; }
+      .stats-kpi-value strong { font-size: 23px; }
+      .stats-kpi-metrics { min-height: 25px; margin-top: 2px; }
+      .stats-kpi-card .progress { margin-top: 7px; }
+      .stats-next-line { display: none; }
+      .stats-reward-icons { min-height: 29px; margin-top: 4px; font-size: 10px; }
+      .stats-attention-card { padding: 11px; }
+      .stats-section-heading { margin-bottom: 7px; }
+    }
+
 </style>
 </head>
 <body>
@@ -3052,10 +3288,20 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v206</div>
+      <div class="prototype-badge">週一至週日 v207</div>
     </header>
 
-    <div class="app-shell">
+    <div class="app-shell" id="appShell">
+      <nav class="desktop-app-nav" id="desktopAppNav" aria-label="功能切換">
+        <div class="desktop-brand" aria-label="水豚每週活動計算機">
+          <span class="desktop-brand-icon">🦫</span>
+          <strong>水豚週計</strong>
+        </div>
+        <button class="desktop-nav-btn active" type="button" data-mobile-panel="tasks"><span>▣</span><strong>任務面板</strong></button>
+        <button class="desktop-nav-btn" type="button" data-mobile-panel="actions"><span>⚒</span><strong>操作面板</strong></button>
+        <button class="desktop-nav-btn" type="button" data-mobile-panel="stats"><span>▥</span><strong>統計</strong></button>
+        <button class="desktop-nav-btn" type="button" data-mobile-panel="settings"><span>⚙</span><strong>個人化設定</strong></button>
+      </nav>
       <aside class="card sidebar" id="sidebarCard" aria-label="個人化設置">
         <h2 id="sidebarHeading">個人化設置</h2>
         <div class="sidebar-note" id="sidebarNote">設定會共用於週一至週日。</div>
@@ -3252,8 +3498,8 @@
         </div>
       </aside>
 
-      <div class="main">
-    <div class="top-tabs-stack">
+      <div class="main" id="mainContent">
+    <div class="top-tabs-stack" id="topTabsStack">
       <nav class="week-mode-tabs" aria-label="活動週切換">
         <button class="week-mode-tab active" type="button" data-week-mode="archaeology">考古週</button>
         <button class="week-mode-tab" type="button" data-week-mode="bounty">懸賞週</button>
@@ -3281,6 +3527,7 @@
               <span class="stats-dashboard-kicker">本週活動與獎勵</span>
               <h2>統計總覽</h2>
               <p id="statsViewSubtitle">快速確認今日進度、七天狀態與下一個獎勵。</p>
+              <div class="stats-dashboard-meta">目前活動週・週一至週日</div>
             </div>
             <nav class="stats-view-tabs" id="statsViewTabs" aria-label="統計內容切換">
               <button class="stats-view-tab active" type="button" data-stats-view="overview">總覽</button>
@@ -3571,8 +3818,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v206";
+      const STORAGE_KEY = "capybara-weekly-full-v207";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v206",
         "capybara-weekly-full-v205",
         "capybara-weekly-full-v204",
         "capybara-weekly-full-v203",
@@ -4430,7 +4678,10 @@
         statsDailySecondaryNextRewards: document.getElementById("statsDailySecondaryNextRewards"),
         archaeologyActivityCard: document.getElementById("archaeologyActivityCard"),
         archaeologyDailyStageSection: document.getElementById("archaeologyDailyStageSection"),
-        mobileNavButtons: [...document.querySelectorAll(".mobile-nav-btn")],
+        mobileNavButtons: [...document.querySelectorAll(".mobile-nav-btn, .desktop-nav-btn")],
+        mainContent: document.getElementById("mainContent"),
+        topTabsStack: document.getElementById("topTabsStack"),
+        appShell: document.getElementById("appShell"),
         monthlyCard: document.getElementById("monthlyCard"),
         weeklyCard: document.getElementById("weeklyCard"),
         lifetimeCard: document.getElementById("lifetimeCard"),
@@ -8540,8 +8791,9 @@
 
       let rewardSummaryCollapsed =
         localStorage.getItem(REWARD_SUMMARY_COLLAPSE_KEY) !== "0";
-      let activeMobilePanel = "tasks";
-      const STATS_VIEW_KEY = "capybara-stats-view-v205";
+      const APP_PANEL_KEY = "capybara-app-panel-v207";
+      let activeMobilePanel = normalizeMobilePanel(localStorage.getItem(APP_PANEL_KEY) || "tasks");
+      const STATS_VIEW_KEY = "capybara-stats-view-v207";
       const validStatsViews = new Set(["overview", "week", "rewards"]);
       let activeStatsView = validStatsViews.has(localStorage.getItem(STATS_VIEW_KEY))
         ? localStorage.getItem(STATS_VIEW_KEY)
@@ -9237,54 +9489,45 @@ async function downloadChartAsImage() {
       }
 
       function renderMobilePanels() {
-        const isMobile = isMobileLayout();
         const show = (element, visible) => {
           if (!element) return;
           element.hidden = !visible;
         };
 
-        els.mobileNavButtons.forEach(button => {
-          button.classList.toggle("active", button.dataset.mobilePanel === activeMobilePanel);
-        });
-
-        if (!isMobile) {
-          show(els.sidebarCard, true);
-          show(els.actionsSidebarCard, true);
-          show(els.mobileSettingsPanel, true);
-          show(els.mobileActionsPanel, true);
-          show(els.mobileTasksPanel, true);
-          show(els.statsViewShell, true);
-          show(els.mobileStatsPanel, true);
-          show(els.mobileWeeklyStagePanel, true);
-          show(els.mobileDailyRewardsPanel, true);
-          renderStatsView();
-          if (els.sidebarHeading) els.sidebarHeading.textContent = "個人化設置";
-          if (els.sidebarNote) els.sidebarNote.textContent = "設定會共用於週一至週日。";
-          return;
-        }
-
         const settingsMode = activeMobilePanel === "settings";
         const actionsMode = activeMobilePanel === "actions";
         const statsMode = activeMobilePanel === "stats";
+        const tasksMode = activeMobilePanel === "tasks";
+
+        els.mobileNavButtons.forEach(button => {
+          const active = button.dataset.mobilePanel === activeMobilePanel;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-current", active ? "page" : "false");
+        });
 
         show(els.sidebarCard, settingsMode);
         show(els.actionsSidebarCard, actionsMode);
+        show(els.mainContent, tasksMode || statsMode);
         show(els.mobileSettingsPanel, settingsMode);
         show(els.mobileActionsPanel, actionsMode);
-        show(els.mobileTasksPanel, activeMobilePanel === "tasks");
+        show(els.mobileTasksPanel, tasksMode);
+        show(els.topTabsStack, tasksMode);
         show(els.statsViewShell, statsMode);
+
         if (statsMode) renderStatsView();
 
-        if (els.sidebarHeading) {
-          els.sidebarHeading.textContent = "個人化設置";
+        if (els.appShell) {
+          els.appShell.dataset.activePanel = activeMobilePanel;
         }
-        if (els.sidebarNote) {
-          els.sidebarNote.textContent = "設定會共用於週一至週日。";
-        }
+        document.body.dataset.activePanel = activeMobilePanel;
+
+        if (els.sidebarHeading) els.sidebarHeading.textContent = "個人化設置";
+        if (els.sidebarNote) els.sidebarNote.textContent = "設定會共用於週一至週日。";
       }
 
       function setMobilePanel(panel) {
         activeMobilePanel = normalizeMobilePanel(panel);
+        localStorage.setItem(APP_PANEL_KEY, activeMobilePanel);
         renderMobilePanels();
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
