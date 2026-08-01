@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v212</title>
+  <title>水豚每週活動計算機｜週一至週日 v213</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -4086,6 +4086,398 @@
       .day-tab { min-height: 42px; }
     }
 
+  
+
+    /* v213｜任務／操作／個人化設定樣式重構（不改功能與邏輯） */
+    @media (min-width: 901px) {
+      body[data-active-panel="tasks"] #mainContent,
+      body[data-active-panel="actions"] #actionsSidebarCard,
+      body[data-active-panel="settings"] #sidebarCard {
+        border-radius: 26px;
+      }
+
+      body[data-active-panel="tasks"] #mainContent {
+        padding: 18px 18px 20px;
+        background: linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(249,251,255,.98) 100%);
+        border: 1px solid #dbe4ef;
+        box-shadow: 0 18px 42px rgba(20,33,61,.08);
+      }
+
+      .top-tabs-stack {
+        gap: 14px;
+        margin-bottom: 8px;
+      }
+      .week-mode-tabs,
+      .day-tabs {
+        margin: 0;
+        padding: 10px 12px;
+        border: 1px solid #dde5ef;
+        border-radius: 18px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        box-shadow: 0 8px 18px rgba(20,33,61,.04);
+      }
+      .week-mode-tab,
+      .day-tab {
+        min-height: 50px;
+        border-radius: 16px;
+        font-size: 17px;
+      }
+      .week-mode-tab.active,
+      .day-tab.active {
+        background: linear-gradient(135deg, #3f7df0, #2c63da);
+      }
+      .week-mode-tab[data-week-mode="bounty"].active {
+        background: linear-gradient(135deg, #2ba456, #208c4b);
+      }
+      .day-auto-plan-row .day-auto-plan-btn {
+        min-height: 50px;
+        border-radius: 16px;
+        background: linear-gradient(90deg, #335fd5, #7a57e5);
+        color: #fff;
+      }
+
+      #mobileTasksPanel > .section-card {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+      #mobileTasksPanel .section-head {
+        align-items: baseline;
+        gap: 14px;
+        padding: 10px 4px 16px;
+        border-bottom: 1px solid #e8eef5;
+        margin-bottom: 12px;
+      }
+      #mobileTasksPanel .section-head h2 {
+        font-size: 28px;
+        line-height: 1.1;
+        letter-spacing: -.03em;
+        color: #142640;
+      }
+      #mobileTasksPanel .section-note {
+        font-size: 15px;
+        color: #7a8698;
+      }
+
+      .task-block {
+        padding: 16px;
+        border-radius: 22px;
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        border: 1px solid #dce5ef;
+        box-shadow: 0 8px 18px rgba(20,33,61,.04);
+      }
+      .task-block + .task-block { margin-top: 14px; }
+      .task-block-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 48px;
+        margin: 0 0 10px;
+        padding: 0 2px 10px;
+        border-bottom: 1px solid #ebf0f6;
+      }
+      .task-block-title::before {
+        content: "";
+        width: 32px;
+        height: 32px;
+        flex: 0 0 32px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+      }
+      .task-block:nth-of-type(1) .task-block-title::before { background: linear-gradient(135deg, #effaf0, #d7f3df); }
+      .task-block:nth-of-type(2) .task-block-title::before { background: linear-gradient(135deg, #edf4ff, #dce7ff); }
+      .task-block:nth-of-type(3) .task-block-title::before { background: linear-gradient(135deg, #f4edff, #e6dcff); }
+      .task-block-title strong,
+      .task-block-title h3,
+      .task-group-title {
+        font-size: 17px;
+        font-weight: 900;
+        color: #162742;
+      }
+      .task-block-title span {
+        font-size: 13px;
+        color: #7b8799;
+      }
+
+      .task-row {
+        grid-template-columns: 58px minmax(0, 1fr) auto;
+        gap: 14px;
+        padding: 12px 14px;
+        border-radius: 16px;
+      }
+      .task-row-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .task-icon-badge {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #ffffff 0%, #f0f6ff 100%);
+        border: 1px solid #dbe6f3;
+        font-size: 22px;
+        box-shadow: 0 6px 12px rgba(20,33,61,.05);
+      }
+      .task-name {
+        font-size: 15px;
+        line-height: 1.25;
+      }
+      .task-meta {
+        margin-top: 4px;
+        font-size: 12px;
+        color: #7b8799;
+      }
+      .task-score {
+        margin-top: 5px;
+        font-size: 12px;
+      }
+      .task-score span { margin-right: 10px; }
+      .task-counter {
+        border-radius: 999px;
+        background: #fff;
+        border: 1px solid #d9e2ee;
+        padding: 4px 6px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+      }
+      .task-counter button {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: #f5f8fd;
+      }
+      .task-counter input {
+        width: 72px;
+        height: 34px;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+
+      #actionsSidebarCard {
+        padding: 20px;
+        background: linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(249,251,255,.98) 100%);
+      }
+      .actions-panel-shell {
+        display: grid;
+        gap: 14px;
+        margin-top: 12px;
+      }
+      .action-group-card {
+        border: 1px solid #dce4ef;
+        border-radius: 22px;
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        box-shadow: 0 8px 18px rgba(20,33,61,.04);
+        padding: 16px;
+      }
+      .action-group-head {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        margin-bottom: 12px;
+      }
+      .action-group-icon {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        border: 1px solid #dce4ef;
+        font-size: 24px;
+        background: #f7f9fc;
+      }
+      .action-group-icon.green { background: #ebf8ef; }
+      .action-group-icon.leaf { background: #eefaf1; }
+      .action-group-icon.violet { background: #f3efff; }
+      .action-group-icon.slate { background: #f3f6fb; }
+      .action-group-head h3 {
+        font-size: 16px;
+        font-weight: 900;
+        color: #172945;
+      }
+      .action-group-head p {
+        margin-top: 2px;
+        font-size: 12px;
+        color: #7b8799;
+      }
+      .action-card-grid {
+        display: grid;
+        gap: 12px;
+      }
+      .action-card-grid.two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .action-card-grid.four-col { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .action-card-btn {
+        min-height: 112px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 6px;
+        padding: 18px 20px;
+        border-radius: 20px;
+        text-align: left;
+      }
+      .action-card-main {
+        display: block;
+        font-size: 15px;
+        font-weight: 900;
+        line-height: 1.35;
+      }
+      .action-card-sub {
+        display: block;
+        font-size: 12px;
+        line-height: 1.5;
+        opacity: .9;
+      }
+      .action-blue { background: linear-gradient(135deg, #eef4ff, #ffffff); color: #224bb8; border: 1px solid #bfd0ff; }
+      .action-amber { background: linear-gradient(135deg, #fff8ed, #ffffff); color: #a75a00; border: 1px solid #ffd69d; }
+      .action-violet { background: linear-gradient(135deg, #f5f0ff, #ffffff); color: #5a38cd; border: 1px solid #d6c5ff; }
+      .action-outline-blue { background: #fff; color: #3568e3; border: 1px solid #cadeff; }
+      .action-outline-green { background: #fff; color: #23894b; border: 1px solid #cfe9d8; }
+      .action-outline-orange { background: #fff; color: #c17b05; border: 1px solid #f3ddaf; }
+      .action-outline-red { background: #fff; color: #d34949; border: 1px solid #f0cbcb; }
+      .action-ghost-red { background: linear-gradient(180deg, #fff7f7, #fff); color: #c93636; border: 1px dashed #efbcbc; }
+      .action-group-card.report .action-card-btn { min-height: 122px; }
+      .action-group-card .action-confirm {
+        background: linear-gradient(135deg, #eef8f1, #ffffff);
+        color: #1a6f38;
+        border: 1px solid #bfe0c6;
+      }
+      .auto-plan-status {
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px dashed #d8dfeb;
+        background: #fbfcff;
+      }
+
+      #sidebarCard {
+        padding: 20px;
+        background: linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(249,251,255,.98) 100%);
+      }
+      .settings-panel-shell {
+        display: grid;
+        gap: 14px;
+        margin-top: 12px;
+      }
+      .settings-card {
+        border: 1px solid #dce4ef;
+        border-radius: 22px;
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        box-shadow: 0 8px 18px rgba(20,33,61,.04);
+        padding: 16px;
+      }
+      .settings-card-head {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        margin-bottom: 12px;
+      }
+      .settings-card-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        border: 1px solid #e1e8f1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        background: #f7f9fc;
+      }
+      .settings-card-icon.purple { background: #f3efff; }
+      .settings-card-icon.indigo { background: #f0efff; }
+      .settings-card-icon.green { background: #eef9f1; }
+      .settings-card-head h3 {
+        font-size: 16px;
+        font-weight: 900;
+        color: #172945;
+      }
+      .settings-card-head p {
+        margin-top: 2px;
+        font-size: 12px;
+        color: #7b8799;
+      }
+      .settings-option-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .setting-row {
+        min-height: 46px;
+        font-size: 14px;
+        font-weight: 700;
+      }
+      .settings-inline-note {
+        margin-top: 12px;
+      }
+      .settings-subgroup-shell {
+        display: grid;
+        gap: 12px;
+      }
+      .unlock-group-card,
+      .settings-inventory-card,
+      .owned-stamina-box {
+        border: 1px solid #e3e9f2;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(20,33,61,.03);
+        padding: 14px;
+      }
+      .settings-resource-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .owned-stamina-input-row input,
+      .owned-stamina-input-row select,
+      .collection-setting-row select {
+        border-radius: 12px;
+        border: 1px solid #d3ddea;
+        background: #fff;
+        min-height: 40px;
+      }
+      .inventory-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      #mobileTasksPanel .section-head {
+        gap: 8px;
+      }
+      .task-row {
+        grid-template-columns: 44px minmax(0, 1fr);
+        align-items: start;
+      }
+      .task-counter {
+        grid-column: 2;
+        margin-left: auto;
+      }
+      .task-icon-badge {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+      }
+      .actions-panel-shell,
+      .settings-panel-shell { display: grid; gap: 12px; }
+      .action-group-card,
+      .settings-card { padding: 14px; border-radius: 18px; border: 1px solid #dce4ef; background: #fff; }
+      .action-card-grid.two-col,
+      .action-card-grid.four-col,
+      .settings-option-grid,
+      .settings-resource-grid,
+      .inventory-list { grid-template-columns: 1fr; }
+      .action-card-btn { min-height: 88px; border-radius: 16px; text-align: left; }
+      .setting-row { min-height: 44px; }
+    }
+
   </style>
 </head>
 <body>
@@ -4095,7 +4487,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v212</div>
+      <div class="prototype-badge">週一至週日 v213</div>
     </header>
 
     <div class="app-shell" id="appShell">
@@ -4110,200 +4502,226 @@
         <button class="desktop-nav-btn" type="button" data-mobile-panel="settings"><span>⚙️</span><strong>個人化設定</strong></button>
       </nav>
       <aside class="card sidebar" id="sidebarCard" aria-label="個人化設置">
-        <h2 id="sidebarHeading">個人化設置</h2>
-        <div class="sidebar-note" id="sidebarNote">設定會共用於週一至週日。</div>
 
-        <div id="mobileSettingsPanel">
+        <h2 id="sidebarHeading">個人化設定</h2>
+        <div class="sidebar-note" id="sidebarNote">自訂你的偏好與資源設定，讓使用體驗更符合你的習慣。</div>
 
-        <details class="card-settings-details" open>
-          <summary>卡片與廣告設定</summary>
-          <div class="card-settings-content">
-            <div class="setting-list">
-              <label class="setting-row">
-                <input type="checkbox" id="monthlyCard" />
-                我有月卡
-              </label>
-
-              <label class="setting-row">
-                <input type="checkbox" id="weeklyCard" />
-                我有週卡
-              </label>
-
-              <label class="setting-row">
-                <input type="checkbox" id="lifetimeCard" />
-                我有終身卡
-              </label>
-
-              <label class="setting-row">
-                <input type="checkbox" id="watchAds" />
-                我會看滿廣告
-              </label>
-
-              <label class="setting-row">
-                <input type="checkbox" id="tradeCard" />
-                我有貿易卡
-              </label>
-
-              <label class="setting-row">
-                <input type="checkbox" id="mineCard" />
-                我有礦卡
-              </label>
+        <div id="mobileSettingsPanel" class="settings-panel-shell">
+          <section class="settings-card settings-card-toggle">
+            <div class="settings-card-head">
+              <div class="settings-card-icon purple">📅</div>
+              <div>
+                <h3>週卡／廣告設定</h3>
+                <p>設定你的週卡狀態與廣告觀看偏好。</p>
+              </div>
             </div>
-
-            <div class="auto-box" style="margin-top:10px;">
+            <div class="settings-option-grid">
+              <label class="setting-row"><input type="checkbox" id="monthlyCard" />我有月卡</label>
+              <label class="setting-row"><input type="checkbox" id="weeklyCard" />我有週卡</label>
+              <label class="setting-row"><input type="checkbox" id="lifetimeCard" />我有終身卡</label>
+              <label class="setting-row"><input type="checkbox" id="watchAds" />我會看滿廣告</label>
+              <label class="setting-row"><input type="checkbox" id="tradeCard" />我有貿易卡</label>
+              <label class="setting-row"><input type="checkbox" id="mineCard" />我有礦卡</label>
+            </div>
+            <div class="settings-inline-note auto-box">
               <span>建議副本次數</span>
               <strong id="recommendedDungeonSidebar">8 次</strong>
               <small id="recommendedDungeonFormula" class="recommended-dungeon-formula"></small>
             </div>
+            <div class="setting-help card-settings-live-help" id="cardSettingsHelp" aria-live="polite"></div>
+          </section>
 
-          </div>
-        </details>
+          <section class="settings-card settings-card-collection">
+            <div class="settings-card-head">
+              <div class="settings-card-icon indigo">🔓</div>
+              <div>
+                <h3>收藏／解鎖設定</h3>
+                <p>選擇已解鎖的內容，會影響可使用功能與任務選項。</p>
+              </div>
+            </div>
+            <div class="settings-subgroup-shell">
+              <div class="collection-setting unlock-group-card">
+                <span class="collection-setting-title">藏品－神聖鐵砧</span>
+                <label class="collection-setting-row">
+                  <span>藏品星級</span>
+                  <select id="sacredAnvilStars" aria-label="神聖鐵砧星級">
+                    <option value="0">0 星</option>
+                    <option value="1">1 星</option>
+                    <option value="2">2 星</option>
+                    <option value="3">3 星</option>
+                    <option value="4">4 星</option>
+                    <option value="5">5 星</option>
+                    <option value="6">6 星</option>
+                    <option value="7">7 星</option>
+                    <option value="8">8 星</option>
+                    <option value="9">9 星</option>
+                    <option value="10">10 星</option>
+                  </select>
+                </label>
+                <div class="mining-setting-help" id="miningSettingHelp"></div>
+              </div>
+            </div>
+          </section>
 
-        <div
-          class="setting-help card-settings-live-help"
-          id="cardSettingsHelp"
-          aria-live="polite"
-        ></div>
+          <section class="settings-card settings-card-resources">
+            <div class="settings-card-head">
+              <div class="settings-card-icon green">💎</div>
+              <div>
+                <h3>資源與持有數量</h3>
+                <p>輸入目前持有的體力、材料與寶箱庫存。</p>
+              </div>
+            </div>
+            <div class="settings-resource-grid">
+              <div class="owned-stamina-box" id="ownedStaminaBox">
+                <div class="inventory-title">擁有體力</div>
+                <div class="owned-stamina-input-row">
+                  <input type="text" inputmode="decimal" autocomplete="off" id="ownedStaminaValue" value="0" aria-label="擁有體力數值" />
+                  <select id="ownedStaminaUnit" aria-label="擁有體力單位">
+                    <option value="">空白</option>
+                    <option value="K">K</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+                <small id="ownedStaminaConverted">換算：0 體力</small>
+              </div>
 
-        <div class="collection-setting">
-          <span class="collection-setting-title">藏品－神聖鐵砧</span>
-          <label class="collection-setting-row">
-            <span>藏品星級</span>
-            <select id="sacredAnvilStars" aria-label="神聖鐵砧星級">
-              <option value="0">0 星</option>
-              <option value="1">1 星</option>
-              <option value="2">2 星</option>
-              <option value="3">3 星</option>
-              <option value="4">4 星</option>
-              <option value="5">5 星</option>
-              <option value="6">6 星</option>
-              <option value="7">7 星</option>
-              <option value="8">8 星</option>
-              <option value="9">9 星</option>
-              <option value="10">10 星</option>
-            </select>
-          </label>
+              <div class="owned-stamina-box owned-resource-box" data-owned-resource="spiritStone">
+                <div class="inventory-title">擁有靈石</div>
+                <div class="owned-stamina-input-row">
+                  <input type="text" inputmode="decimal" autocomplete="off" data-owned-resource-value="spiritStone" value="0" aria-label="擁有靈石數值" />
+                  <select data-owned-resource-unit="spiritStone" aria-label="擁有靈石單位">
+                    <option value="">空白</option>
+                    <option value="K">K</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+                <small data-owned-resource-converted="spiritStone">換算：0 靈石</small>
+              </div>
 
-          <div class="mining-setting-help" id="miningSettingHelp"></div>
+              <div class="owned-stamina-box owned-resource-box" data-owned-resource="unchangingStone">
+                <div class="inventory-title">擁有不變石</div>
+                <div class="owned-stamina-input-row">
+                  <input type="text" inputmode="decimal" autocomplete="off" data-owned-resource-value="unchangingStone" value="0" aria-label="擁有不變石數值" />
+                  <select data-owned-resource-unit="unchangingStone" aria-label="擁有不變石單位">
+                    <option value="">空白</option>
+                    <option value="K">K</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+                <small data-owned-resource-converted="unchangingStone">換算：0 不變石</small>
+              </div>
+
+              <div class="owned-stamina-box owned-resource-box" data-owned-resource="petEgg">
+                <div class="inventory-title">擁有寵物蛋</div>
+                <div class="owned-stamina-input-row">
+                  <input type="text" inputmode="decimal" autocomplete="off" data-owned-resource-value="petEgg" value="0" aria-label="擁有寵物蛋數值" />
+                  <select data-owned-resource-unit="petEgg" aria-label="擁有寵物蛋單位">
+                    <option value="">空白</option>
+                    <option value="K">K</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+                <small data-owned-resource-converted="petEgg">換算：0 寵物蛋</small>
+              </div>
+            </div>
+            <div class="inventory-box settings-inventory-card">
+              <div class="inventory-title">寶箱持有數量</div>
+              <div class="inventory-list" id="chestInventoryList"></div>
+              <small>持有少於 10 個時每次開 1；10～99 個每次開 10；100 個以上每次開 50。</small>
+            </div>
+          </section>
         </div>
-
-
-        <div class="owned-stamina-box" id="ownedStaminaBox">
-          <div class="inventory-title">擁有體力</div>
-          <div class="owned-stamina-input-row">
-            <input
-              type="text"
-              inputmode="decimal"
-              autocomplete="off"
-              id="ownedStaminaValue"
-              value="0"
-              aria-label="擁有體力數值"
-            />
-            <select id="ownedStaminaUnit" aria-label="擁有體力單位">
-              <option value="">空白</option>
-              <option value="K">K</option>
-              <option value="M">M</option>
-            </select>
-          </div>
-          <small id="ownedStaminaConverted">換算：0 體力</small>
-        </div>
-
-        <div class="owned-stamina-box owned-resource-box" data-owned-resource="spiritStone">
-          <div class="inventory-title">擁有靈石</div>
-          <div class="owned-stamina-input-row">
-            <input
-              type="text"
-              inputmode="decimal"
-              autocomplete="off"
-              data-owned-resource-value="spiritStone"
-              value="0"
-              aria-label="擁有靈石數值"
-            />
-            <select
-              data-owned-resource-unit="spiritStone"
-              aria-label="擁有靈石單位"
-            >
-              <option value="">空白</option>
-              <option value="K">K</option>
-              <option value="M">M</option>
-            </select>
-          </div>
-          <small data-owned-resource-converted="spiritStone">換算：0 靈石</small>
-        </div>
-
-        <div class="owned-stamina-box owned-resource-box" data-owned-resource="unchangingStone">
-          <div class="inventory-title">擁有不變石</div>
-          <div class="owned-stamina-input-row">
-            <input
-              type="text"
-              inputmode="decimal"
-              autocomplete="off"
-              data-owned-resource-value="unchangingStone"
-              value="0"
-              aria-label="擁有不變石數值"
-            />
-            <select
-              data-owned-resource-unit="unchangingStone"
-              aria-label="擁有不變石單位"
-            >
-              <option value="">空白</option>
-              <option value="K">K</option>
-              <option value="M">M</option>
-            </select>
-          </div>
-          <small data-owned-resource-converted="unchangingStone">換算：0 不變石</small>
-        </div>
-
-        <div class="owned-stamina-box owned-resource-box" data-owned-resource="petEgg">
-          <div class="inventory-title">擁有寵物蛋</div>
-          <div class="owned-stamina-input-row">
-            <input
-              type="text"
-              inputmode="decimal"
-              autocomplete="off"
-              data-owned-resource-value="petEgg"
-              value="0"
-              aria-label="擁有寵物蛋數值"
-            />
-            <select
-              data-owned-resource-unit="petEgg"
-              aria-label="擁有寵物蛋單位"
-            >
-              <option value="">空白</option>
-              <option value="K">K</option>
-              <option value="M">M</option>
-            </select>
-          </div>
-          <small data-owned-resource-converted="petEgg">換算：0 寵物蛋</small>
-        </div>
-
-        <div class="inventory-box">
-          <div class="inventory-title">寶箱持有數量</div>
-          <div class="inventory-list" id="chestInventoryList"></div>
-          <small>持有少於 10 個時每次開 1；10～99 個每次開 10；100 個以上每次開 50。</small>
-        </div>
-
-        </div>
-      </aside>
+</aside>
 
       <aside class="card sidebar right-sidebar" id="actionsSidebarCard" aria-label="操作按鈕">
-        <h2>操作按鈕</h2>
-        <div class="sidebar-note">快速操作、自動套用與歸零功能。</div>
-        <div id="mobileActionsPanel">
-          <div class="actions sidebar-actions" aria-label="操作按鈕">
-          <button class="action-btn action-confirm" id="confirmGenerateCharts" type="button">確認並產出圖表</button>
-          <button class="action-btn action-plan" id="applyThirtyStarPlan" type="button">永續省資源｜只補馬拉松 30 星／14 卡皮幣</button>
-          <button class="action-btn action-plan" id="applyAllStageFivePlan" type="button">永續省資源｜只補馬拉松全 5 階／14 銀卷</button>
-          <button class="action-btn action-plan" id="applyActivityPushPlan" type="button">資源充足｜逐日考古／懸賞方案（週一至週日）</button>
-          <button class="action-btn action-primary" id="applyDailyDefaults" type="button">重套當日無消耗型任務</button>
-          <button class="action-btn action-secondary" id="clearCurrentDay" type="button">當日全部歸零＋重套無消耗型任務</button>
-          <button class="action-btn action-danger" id="zeroCurrentDay" type="button">本日全部歸零</button>
-          <button class="action-btn action-warning" id="resetAllDaysDefaults" type="button">本週全部歸零＋重套無消耗型任務</button>
-          <button class="action-btn action-danger" id="zeroAllDays" type="button">本週全部歸零</button>
+
+        <h2>操作面板</h2>
+        <div class="sidebar-note">執行各種操作與方案，協助你更有效率地規劃每週活動。</div>
+        <div id="mobileActionsPanel" class="actions-panel-shell">
+          <section class="action-group-card report">
+            <div class="action-group-head">
+              <div class="action-group-icon green">📈</div>
+              <div>
+                <h3>報表與分析</h3>
+                <p>產出詳細分析圖表，檢視本週進度與資源分布。</p>
+              </div>
+            </div>
+            <button class="action-btn action-card-btn action-confirm" id="confirmGenerateCharts" type="button">
+              <span class="action-card-main">確認並產出圖表</span>
+              <span class="action-card-sub">彙整並產出本週活動統計與分析圖表。</span>
+            </button>
+          </section>
+
+          <section class="action-group-card plans">
+            <div class="action-group-head">
+              <div class="action-group-icon leaf">🍃</div>
+              <div>
+                <h3>永續省資源方案</h3>
+                <p>使用永續方案，節省資源並達成關鍵目標。</p>
+              </div>
+            </div>
+            <div class="action-card-grid two-col">
+              <button class="action-btn action-card-btn action-blue" id="applyThirtyStarPlan" type="button">
+                <span class="action-card-main">永續省資源｜只補馬拉松 30 星</span>
+                <span class="action-card-sub">30 星／14 卡皮幣</span>
+              </button>
+              <button class="action-btn action-card-btn action-amber" id="applyAllStageFivePlan" type="button">
+                <span class="action-card-main">永續省資源｜只補馬拉松全 5 階</span>
+                <span class="action-card-sub">全 5 階／14 銀卷</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="action-group-card daily-plan">
+            <div class="action-group-head">
+              <div class="action-group-icon violet">🗓️</div>
+              <div>
+                <h3>逐日方案</h3>
+                <p>依照資源充足的情況，執行完整逐日方案。</p>
+              </div>
+            </div>
+            <button class="action-btn action-card-btn action-violet" id="applyActivityPushPlan" type="button">
+              <span class="action-card-main">資源充足｜逐日考古／懸賞方案（週一至週日）</span>
+              <span class="action-card-sub">執行完整逐日考古與懸賞方案，最大化資源收益與進度。</span>
+            </button>
+          </section>
+
+          <section class="action-group-card reset">
+            <div class="action-group-head">
+              <div class="action-group-icon slate">🔄</div>
+              <div>
+                <h3>重套與重置</h3>
+                <p>重套或重置任務與方案，重新規劃本週活動。</p>
+              </div>
+            </div>
+            <div class="action-card-grid four-col">
+              <button class="action-btn action-card-btn action-outline-blue" id="applyDailyDefaults" type="button">
+                <span class="action-card-main">重套當日無消耗型任務</span>
+                <span class="action-card-sub">重新套用當日可重套任務。</span>
+              </button>
+              <button class="action-btn action-card-btn action-outline-green" id="clearCurrentDay" type="button">
+                <span class="action-card-main">當日全部歸零＋重套</span>
+                <span class="action-card-sub">將當日進度全部歸零，並重套無消耗型任務。</span>
+              </button>
+              <button class="action-btn action-card-btn action-outline-orange" id="zeroCurrentDay" type="button">
+                <span class="action-card-main">本日全部歸零</span>
+                <span class="action-card-sub">將本日所有進度歸零。</span>
+              </button>
+              <button class="action-btn action-card-btn action-outline-red" id="resetAllDaysDefaults" type="button">
+                <span class="action-card-main">本週全部歸零＋重套</span>
+                <span class="action-card-sub">將本週進度歸零，並重套無消耗型任務。</span>
+              </button>
+            </div>
+            <div class="action-card-grid single-row">
+              <button class="action-btn action-card-btn action-ghost-red" id="zeroAllDays" type="button">
+                <span class="action-card-main">本週全部歸零</span>
+                <span class="action-card-sub">將本週所有進度歸零，重新開始規劃。</span>
+              </button>
+            </div>
+          </section>
+          <div class="auto-plan-status" id="autoPlanStatus" aria-live="polite"></div>
         </div>
-        <div class="auto-plan-status" id="autoPlanStatus" aria-live="polite"></div>
-        </div>
-      </aside>
+</aside>
 
       <div class="main" id="mainContent">
     <div class="top-tabs-stack" id="topTabsStack">
@@ -6623,10 +7041,61 @@
         `;
       }
 
+
+      function taskIcon(key) {
+        const map = {
+          heroSupply: "🎁",
+          adventurerSupply: "🧰",
+          guildRaid: "⚔️",
+          arena: "🛡️",
+          dungeonCount: "🗝️",
+          goblin: "⛏️",
+          petBase: "🥚",
+          petStone1: "💎",
+          petStone2: "💎",
+          petStone3: "💎",
+          petStone4: "💎",
+          equipBox: "📦",
+          cube: "🧊",
+          tradeShip: "🚢",
+          treasureDraw: "🎰",
+          petEggBundle1: "🥚",
+          petEggBundle3: "🥚",
+          petEggBundle5: "🥚",
+          petEggBundle10: "🥚",
+          adPetEgg: "📺",
+          chestWhite1: "🪙",
+          chestWhite10: "🪙",
+          chestWhite50: "🪙",
+          chestGreen1: "🧰",
+          chestGreen10: "🧰",
+          chestGreen50: "🧰",
+          chestBlue1: "💠",
+          chestBlue10: "💠",
+          chestBlue50: "💠",
+          chestPurple1: "🔮",
+          chestPurple10: "🔮",
+          chestPurple50: "🔮",
+          chestOrange1: "👑",
+          chestOrange10: "👑",
+          chestOrange50: "👑",
+          gemDraw: "💠",
+          horseshoe: "🧲",
+          brandDraw: "🎫",
+          stamina: "⚡",
+          travel: "🧭",
+          hardStage: "⚔️",
+          emeraldPack: "💚",
+          guruTicket: "🎟️"
+        };
+        return map[key] || "•";
+      }
+
       function taskRow({ key, name, meta, scoreHtml, max, step, className = "", extraHtml = "" }) {
         const value = toInt(activeData()[key]);
         return `
-          <div class="task-row ${className} ${value > 0 ? "has-value" : ""}">
+          <div class="task-row ${className} ${value > 0 ? "has-value" : ""}" data-task-key="${key}">
+            <div class="task-row-icon"><span class="task-icon-badge">${taskIcon(key)}</span></div>
             <div class="task-info">
               <div class="task-name">${name}</div>
               <div class="task-meta">${meta}</div>
