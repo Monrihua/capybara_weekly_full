@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v202</title>
+  <title>水豚每週活動計算機｜週一至週日 v203</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -2439,7 +2439,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v202</div>
+      <div class="prototype-badge">週一至週日 v203</div>
     </header>
 
     <div class="app-shell">
@@ -2628,7 +2628,7 @@
           <button class="action-btn action-confirm" id="confirmGenerateCharts" type="button">確認並產出圖表</button>
           <button class="action-btn action-plan" id="applyThirtyStarPlan" type="button">永續省資源｜只補馬拉松 30 星／14 卡皮幣</button>
           <button class="action-btn action-plan" id="applyAllStageFivePlan" type="button">永續省資源｜只補馬拉松全週 5 階</button>
-          <button class="action-btn action-plan" id="applyActivityPushPlan" type="button">資源充足｜逐日考古／懸賞方案（週一至週日）</button>
+          <button class="action-btn action-plan" id="applyActivityPushPlan" type="button">比較當日考古／懸賞目標與搭配方案</button>
           <button class="action-btn action-primary" id="applyDailyDefaults" type="button">重套當日無消耗型任務</button>
           <button class="action-btn action-secondary" id="clearCurrentDay" type="button">當日全部歸零＋重套無消耗型任務</button>
           <button class="action-btn action-warning" id="resetAllDaysDefaults" type="button">本週全部歸零＋重套無消耗型任務</button>
@@ -2852,8 +2852,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v202";
+      const STORAGE_KEY = "capybara-weekly-full-v203";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v202",
         "capybara-weekly-full-v201",
         "capybara-weekly-full-v200",
         "capybara-weekly-full-v140",
@@ -8274,7 +8275,7 @@ async function downloadChartAsImage() {
           resourceButton.dataset.activeDay = state.activeDay;
           resourceButton.textContent = hasAppliedPlan
             ? `重新選擇${shortDayLabels[state.activeDay]}方案`
-            : "資源充足｜逐日考古／懸賞方案（週一至週日）";
+            : "比較當日考古／懸賞目標與搭配方案";
         }
       }
 
@@ -8893,10 +8894,11 @@ async function downloadChartAsImage() {
       }
 
       function getMondayAutoPlanOptions() {
-        const preferredPrefix = state.settings.weeklyCard ? "hard" : "travel";
+        // 所有目前已解鎖的遊歷與困難副本都必須一起比較。
+        // 週卡只負責解鎖 hard5／hard10／hard20，不能排除遊歷選項，
+        // 否則缺 645 體時會被迫用 675 體，而不是平衡方案的 650 體。
         return [...optionMap.values()]
           .filter(isStaminaUnlocked)
-          .filter(option => option.id.startsWith(preferredPrefix))
           .sort((a, b) =>
             b.stamina - a.stamina ||
             a.label.localeCompare(b.label, "zh-Hant")
@@ -9311,6 +9313,7 @@ async function downloadChartAsImage() {
       let pendingSundayPlans = null;
       let pendingDailyPlanComparison = null;
       let pendingWeeklyAutoPlanResults = null;
+      let pendingWeeklyAutoPlanContext = null;
 
       function applyMinimumSundayFreeTasks() {
         applyBaseTasksForDay("sun");
@@ -9500,11 +9503,22 @@ async function downloadChartAsImage() {
         document.body.classList.add("modal-open");
       }
 
-      function closeDailyPlanModal() {
+      function closeDailyPlanModal(options = {}) {
+        const cancelPendingWeekly =
+          options.cancelPendingWeekly !== false &&
+          !planSelectionInProgress &&
+          Boolean(pendingWeeklyAutoPlanContext);
+
         els.dailyPlanModal.hidden = true;
         if (els.chartModal.hidden) {
           document.body.classList.remove("modal-open");
         }
+
+        if (cancelPendingWeekly) {
+          cancelPendingWeeklyAutoPlan();
+          return;
+        }
+
         if (!planSelectionInProgress) {
           planSelectionContext = null;
         }
@@ -11548,7 +11562,13 @@ async function downloadChartAsImage() {
       function finishWeeklyAutoPlanWithSunday() {
         if (!pendingWeeklyAutoPlanResults) return;
         const results = pendingWeeklyAutoPlanResults;
+        const originalDay = pendingWeeklyAutoPlanContext?.originalDay || "mon";
         pendingWeeklyAutoPlanResults = null;
+        pendingWeeklyAutoPlanContext = null;
+        planSelectionContext = null;
+        state.activeDay = originalDay;
+        renderAll();
+
         const hasWarning = results.some(item => item.isWarning);
         els.autoPlanStatus.className =
           `auto-plan-status show ${hasWarning ? "warning" : "success"}`;
@@ -11561,6 +11581,28 @@ async function downloadChartAsImage() {
             </div>
           `).join("")}
           <div>週一至週日方案皆已完成。</div>
+        `;
+      }
+
+      function cancelPendingWeeklyAutoPlan() {
+        const context = pendingWeeklyAutoPlanContext;
+        pendingWeeklyAutoPlanResults = null;
+        pendingWeeklyAutoPlanContext = null;
+        pendingSundayPlans = null;
+        pendingDailyPlanComparison = null;
+        planSelectionContext = null;
+
+        if (context?.beforeState) {
+          state = deepClone(context.beforeState);
+        } else if (context?.originalDay) {
+          state.activeDay = context.originalDay;
+        }
+
+        renderAll();
+        els.autoPlanStatus.className = "auto-plan-status show warning";
+        els.autoPlanStatus.innerHTML = `
+          <strong>已取消本週批次方案</strong>
+          <div>週一至週六已套用的變更與資源消耗都已還原，並返回原本星期。</div>
         `;
       }
 
@@ -11970,6 +12012,7 @@ async function downloadChartAsImage() {
 
       function applyWeeklyAutoPlan(targetStages = STANDARD_WEEKLY_TARGETS) {
         const originalDay = state.activeDay;
+        const beforeState = deepClone(state);
         const results = [];
 
         const captureResult = dayLabel => {
@@ -11982,34 +12025,50 @@ async function downloadChartAsImage() {
           });
         };
 
-        state.activeDay = "mon";
-        applyThirtyStarPlan(targetStages.mon || STANDARD_WEEKLY_TARGETS.mon);
-        captureResult("週一");
+        try {
+          state.activeDay = "mon";
+          applyThirtyStarPlan(targetStages.mon || STANDARD_WEEKLY_TARGETS.mon);
+          captureResult("週一");
 
-        state.activeDay = "tue";
-        applyTuesdayAutoPlan(targetStages.tue || STANDARD_WEEKLY_TARGETS.tue);
-        captureResult("週二");
+          state.activeDay = "tue";
+          applyTuesdayAutoPlan(targetStages.tue || STANDARD_WEEKLY_TARGETS.tue);
+          captureResult("週二");
 
-        state.activeDay = "wed";
-        applyWednesdayAutoPlan(targetStages.wed || STANDARD_WEEKLY_TARGETS.wed);
-        captureResult("週三");
+          state.activeDay = "wed";
+          applyWednesdayAutoPlan(targetStages.wed || STANDARD_WEEKLY_TARGETS.wed);
+          captureResult("週三");
 
-        state.activeDay = "thu";
-        applyThursdayAutoPlan(targetStages.thu || STANDARD_WEEKLY_TARGETS.thu);
-        captureResult("週四");
+          state.activeDay = "thu";
+          applyThursdayAutoPlan(targetStages.thu || STANDARD_WEEKLY_TARGETS.thu);
+          captureResult("週四");
 
-        state.activeDay = "fri";
-        applyFridayAutoPlan(targetStages.fri || STANDARD_WEEKLY_TARGETS.fri);
-        captureResult("週五");
+          state.activeDay = "fri";
+          applyFridayAutoPlan(targetStages.fri || STANDARD_WEEKLY_TARGETS.fri);
+          captureResult("週五");
 
-        state.activeDay = "sat";
-        applySaturdayAutoPlan(targetStages.sat || STANDARD_WEEKLY_TARGETS.sat);
-        captureResult("週六");
+          state.activeDay = "sat";
+          applySaturdayAutoPlan(targetStages.sat || STANDARD_WEEKLY_TARGETS.sat);
+          captureResult("週六");
 
-        state.activeDay = "sun";
-        pendingWeeklyAutoPlanResults = results;
-        openSundayResourcePlans();
-        state.activeDay = originalDay;
+          // 週日選擇期間，畫面與 state.activeDay 都維持週日。
+          // 使用者關閉視窗時，整批回滾；選定後才正式完成交易。
+          state.activeDay = "sun";
+          pendingWeeklyAutoPlanResults = results;
+          pendingWeeklyAutoPlanContext = {
+            originalDay,
+            beforeState,
+            targetStages: deepClone(targetStages)
+          };
+          planSelectionContext = { dayKey: "sun", source: "weekly" };
+          openSundayResourcePlans();
+        } catch (error) {
+          state = beforeState;
+          pendingWeeklyAutoPlanResults = null;
+          pendingWeeklyAutoPlanContext = null;
+          planSelectionContext = null;
+          renderAll();
+          throw error;
+        }
       }
 
       function applyMinimumWednesdayFreeTasks() {
@@ -13541,21 +13600,71 @@ async function downloadChartAsImage() {
       }
 
       /* 單一方案歷史服務：只返還該方案造成的差額，不覆蓋其他日期 */
+      const ACTIVITY_PLAN_HISTORY_SCHEMA = 203;
       const ACTIVITY_PLAN_HISTORY_KEY =
-        "capybara-weekly-activity-plan-history-v201";
+        "capybara-weekly-activity-plan-history-v203";
+      const LEGACY_ACTIVITY_PLAN_HISTORY_KEYS = [
+        "capybara-weekly-activity-plan-history-v201"
+      ];
 
       function deepClone(value) {
+        if (value === undefined || value === null) return value;
+        if (typeof structuredClone === "function") {
+          try {
+            return structuredClone(value);
+          } catch {}
+        }
         return JSON.parse(JSON.stringify(value));
       }
 
+      function isValidPlanSnapshot(snapshot, dayKey) {
+        return Boolean(
+          snapshot &&
+          snapshot.dayKey === dayKey &&
+          snapshot.day && typeof snapshot.day === "object" &&
+          snapshot.shared && typeof snapshot.shared === "object" &&
+          Number.isFinite(Number(snapshot.shared.stamina)) &&
+          snapshot.shared.resources && typeof snapshot.shared.resources === "object" &&
+          snapshot.shared.inventory && typeof snapshot.shared.inventory === "object"
+        );
+      }
+
+      function isValidPlanRecord(record, dayKey) {
+        return Boolean(
+          record &&
+          record.schemaVersion === ACTIVITY_PLAN_HISTORY_SCHEMA &&
+          record.dayKey === dayKey &&
+          isValidPlanSnapshot(record.before, dayKey) &&
+          isValidPlanSnapshot(record.after, dayKey)
+        );
+      }
+
       function safeLoadPlanHistory() {
+        let records = {};
         try {
-          const saved = JSON.parse(localStorage.getItem(ACTIVITY_PLAN_HISTORY_KEY));
-          return saved && typeof saved === "object" ? saved : {};
+          const raw = localStorage.getItem(ACTIVITY_PLAN_HISTORY_KEY);
+          const saved = raw ? JSON.parse(raw) : null;
+          const source =
+            saved?.schemaVersion === ACTIVITY_PLAN_HISTORY_SCHEMA &&
+            saved.records && typeof saved.records === "object"
+              ? saved.records
+              : {};
+          records = Object.fromEntries(
+            Object.entries(source).filter(([dayKey, record]) =>
+              dayOrder.includes(dayKey) && isValidPlanRecord(record, dayKey)
+            )
+          );
         } catch (error) {
           console.warn("略過損壞的方案歷史", error);
-          return {};
+          records = {};
         }
+
+        // v201／v202 的歷史結構曾包含已移除欄位，不能安全套用差額。
+        // 升級後直接丟棄舊歷史，避免 deepClone(undefined) 或錯誤返還資源。
+        for (const key of LEGACY_ACTIVITY_PLAN_HISTORY_KEYS) {
+          try { localStorage.removeItem(key); } catch {}
+        }
+        return records;
       }
 
       let appliedPlanHistory = safeLoadPlanHistory();
@@ -13566,7 +13675,10 @@ async function downloadChartAsImage() {
         try {
           localStorage.setItem(
             ACTIVITY_PLAN_HISTORY_KEY,
-            JSON.stringify(appliedPlanHistory)
+            JSON.stringify({
+              schemaVersion: ACTIVITY_PLAN_HISTORY_SCHEMA,
+              records: appliedPlanHistory
+            })
           );
           return true;
         } catch (error) {
@@ -13631,6 +13743,20 @@ async function downloadChartAsImage() {
         savePlanHistory();
       }
 
+      function restoreAllAppliedPlans(options = {}) {
+        let restored = 0;
+        for (const dayKey of dayOrder) {
+          if (restoreAppliedPlan(dayKey, {
+            render: false,
+            silent: true
+          })) {
+            restored += 1;
+          }
+        }
+        if (options.render !== false) renderAll();
+        return restored;
+      }
+
       function beginTrackedPlanApplication(choice) {
         const pending = pendingDailyPlanComparison;
         const dayKey = pending?.dayKey || state.activeDay;
@@ -13666,6 +13792,7 @@ async function downloadChartAsImage() {
         }
 
         storeAppliedPlan({
+          schemaVersion: ACTIVITY_PLAN_HISTORY_SCHEMA,
           dayKey: application.dayKey,
           weekMode: application.before.weekMode,
           selectedName: application.selectedName,
@@ -13676,6 +13803,25 @@ async function downloadChartAsImage() {
       }
 
       function revertPlanValue(current, before, after) {
+        // 欄位在方案前後都不存在：保留目前值。
+        if (before === undefined && after === undefined) {
+          return deepClone(current);
+        }
+
+        // 方案新增了欄位：只有目前仍等於方案結果時才移除。
+        if (before === undefined) {
+          return JSON.stringify(current) === JSON.stringify(after)
+            ? undefined
+            : deepClone(current);
+        }
+
+        // 方案移除了欄位：目前仍維持移除狀態時才補回。
+        if (after === undefined) {
+          return current === undefined
+            ? deepClone(before)
+            : deepClone(current);
+        }
+
         if (
           typeof current === "number" &&
           typeof before === "number" &&
@@ -13706,23 +13852,25 @@ async function downloadChartAsImage() {
         }
 
         if (
-          before && after && current &&
+          before && after &&
           typeof before === "object" &&
-          typeof after === "object" &&
-          typeof current === "object"
+          typeof after === "object"
         ) {
+          const currentObject =
+            current && typeof current === "object" ? current : {};
           const keys = new Set([
             ...Object.keys(before),
             ...Object.keys(after),
-            ...Object.keys(current)
+            ...Object.keys(currentObject)
           ]);
           const result = {};
           for (const key of keys) {
-            result[key] = revertPlanValue(
-              current[key],
+            const reverted = revertPlanValue(
+              currentObject[key],
               before[key],
               after[key]
             );
+            if (reverted !== undefined) result[key] = reverted;
           }
           return result;
         }
@@ -13734,7 +13882,10 @@ async function downloadChartAsImage() {
 
       function restoreAppliedPlan(dayKey, options = {}) {
         const record = getAppliedPlan(dayKey);
-        if (!record?.before || !record?.after) return false;
+        if (!isValidPlanRecord(record, dayKey)) {
+          if (record) clearAppliedPlan(dayKey);
+          return false;
+        }
 
         state.days[dayKey] = revertPlanValue(
           state.days[dayKey],
@@ -13744,23 +13895,23 @@ async function downloadChartAsImage() {
 
         const currentStamina = getOwnedStaminaAmount();
         const staminaDelta =
-          toInt(record.after.shared.stamina) -
-          toInt(record.before.shared.stamina);
+          toInt(record.after.shared?.stamina) -
+          toInt(record.before.shared?.stamina);
         setOwnedStaminaAmount(Math.max(0, currentStamina - staminaDelta));
 
         for (const key of Object.keys(ownedResourceLabels)) {
           const current = getOwnedResourceAmount(key);
           const delta =
-            toInt(record.after.shared.resources[key]) -
-            toInt(record.before.shared.resources[key]);
+            toInt(record.after.shared?.resources?.[key]) -
+            toInt(record.before.shared?.resources?.[key]);
           setOwnedResourceAmount(key, Math.max(0, current - delta));
         }
 
         for (const key of Object.keys(chestConfigs)) {
           const current = toInt(state.inventory[key]);
           const delta =
-            toInt(record.after.shared.inventory[key]) -
-            toInt(record.before.shared.inventory[key]);
+            toInt(record.after.shared?.inventory?.[key]) -
+            toInt(record.before.shared?.inventory?.[key]);
           state.inventory[key] = Math.max(0, current - delta);
         }
 
@@ -13796,12 +13947,12 @@ async function downloadChartAsImage() {
       });
 
       document.getElementById("applyThirtyStarPlan").addEventListener("click", () => {
-        clearAllAppliedPlans();
+        restoreAllAppliedPlans({ render: false });
         applyWeeklyAutoPlan(STANDARD_WEEKLY_TARGETS);
       });
 
       document.getElementById("applyAllStageFivePlan").addEventListener("click", () => {
-        clearAllAppliedPlans();
+        restoreAllAppliedPlans({ render: false });
         applyWeeklyAutoPlan(ALL_STAGE_FIVE_TARGETS);
       });
 
