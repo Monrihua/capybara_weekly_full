@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v140</title>
+  <title>水豚每週活動計算機｜週一至週日 v200</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -13,6 +13,7 @@
       --card: #ffffff;
       --text: #14213d;
       --muted: #667085;
+      --sub: #667085;
       --line: #dbe2ea;
       --blue: #2457d6;
       --blue-soft: #edf3ff;
@@ -2438,7 +2439,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v140</div>
+      <div class="prototype-badge">週一至週日 v200</div>
     </header>
 
     <div class="app-shell">
@@ -2851,8 +2852,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v140";
+      const STORAGE_KEY = "capybara-weekly-full-v200";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v140",
         "capybara-weekly-full-v139",
         "capybara-weekly-full-v138",
         "capybara-weekly-full-v137",
@@ -2881,6 +2883,8 @@
         "capybara-weekly-full-v114",
         "capybara-weekly-full-v113",
         "capybara-weekly-full-v112",
+        "capybara-weekly-full-v111",
+        "capybara-weekly-full-v110",
         "capybara-weekly-full-v109",
         "capybara-weekly-full-v108",
         "capybara-weekly-full-v107",
@@ -3583,6 +3587,7 @@
       function defaultState() {
         const settings = defaultSettings();
         return {
+          schemaVersion: 200,
           activeDay: "mon",
           weekMode: "archaeology",
           settings,
@@ -3617,11 +3622,12 @@
         };
       }
 
+      let loadedStorageKey = null;
+      let storageWarningShown = false;
       let state = loadState();
 
       function migrateLegacyAdPetEggCounts() {
-        if (localStorage.getItem(STORAGE_KEY)) return;
-        if (!localStorage.getItem("capybara-weekly-full-v51")) return;
+        if (loadedStorageKey !== "capybara-weekly-full-v51") return;
         if (!state.settings.watchAds) return;
 
         let refundEggs = 0;
@@ -4061,7 +4067,7 @@
 
       function sanitizeOwnedStaminaInput(rawValue) {
         let value = String(rawValue ?? "")
-          .replace(/,/g, ".")
+          .replace(/,/g, "")
           .replace(/[^\d.]/g, "");
 
         const firstDot = value.indexOf(".");
@@ -4153,186 +4159,177 @@
         return Math.min(count, 200) * 20 + Math.max(0, count - 200) * 2;
       }
 
+      function safeParseStorage(key) {
+        try {
+          const raw = localStorage.getItem(key);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          return parsed && typeof parsed === "object" ? parsed : null;
+        } catch (error) {
+          console.warn(`略過無法解析的舊資料：${key}`, error);
+          return null;
+        }
+      }
+
+      function normalizeStructuredState(source, base) {
+        const settings = { ...base.settings, ...(source.settings || {}) };
+        const sourceDays = source.days || {};
+
+        return {
+          schemaVersion: 200,
+          activeDay: dayOrder.includes(source.activeDay)
+            ? source.activeDay
+            : "mon",
+          weekMode: source.weekMode === "bounty"
+            ? "bounty"
+            : "archaeology",
+          settings,
+          ownedStamina: {
+            ...base.ownedStamina,
+            ...(source.ownedStamina || {})
+          },
+          ownedResources: {
+            spiritStone: {
+              ...base.ownedResources.spiritStone,
+              ...((source.ownedResources || {}).spiritStone || {})
+            },
+            unchangingStone: {
+              ...base.ownedResources.unchangingStone,
+              ...((source.ownedResources || {}).unchangingStone || {})
+            },
+            petEgg: {
+              ...base.ownedResources.petEgg,
+              ...((source.ownedResources || {}).petEgg || {})
+            }
+          },
+          inventory: {
+            ...base.inventory,
+            ...(source.inventory || {})
+          },
+          days: {
+            mon: {
+              ...defaultMonday(settings),
+              ...(sourceDays.mon || {}),
+              staminaCounts: {
+                ...defaultMonday(settings).staminaCounts,
+                ...((sourceDays.mon || {}).staminaCounts || {})
+              }
+            },
+            tue: {
+              ...defaultTuesday(settings),
+              ...(sourceDays.tue || {})
+            },
+            wed: normalizeWednesday(sourceDays.wed, settings),
+            thu: normalizeThursday(sourceDays.thu, settings),
+            fri: normalizeFriday(sourceDays.fri, settings),
+            sat: normalizeSaturday(sourceDays.sat, settings),
+            sun: normalizeSunday(sourceDays.sun, settings)
+          }
+        };
+      }
+
+      function isRecognizedFlatLegacyState(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) {
+          return false;
+        }
+        return [
+          "monthlyCard", "weeklyCard", "lifetimeCard", "watchAds",
+          "staminaCounts", "heroSupply", "adventurerSupply",
+          "dungeonCount", "guildRaid", "arena", "equipBox"
+        ].some(key => Object.prototype.hasOwnProperty.call(value, key));
+      }
+
+      function normalizeFlatLegacyState(legacy, base) {
+        const settings = {
+          ...base.settings,
+          monthlyCard: Boolean(legacy.monthlyCard),
+          weeklyCard: Boolean(legacy.weeklyCard),
+          lifetimeCard: Boolean(legacy.lifetimeCard),
+          watchAds: Boolean(legacy.watchAds),
+          tradeCard: Boolean(legacy.tradeCard),
+          mineCard: Boolean(legacy.mineCard),
+          sacredAnvilStars: clamp(toInt(legacy.sacredAnvilStars), 0, 10)
+        };
+
+        return {
+          schemaVersion: 200,
+          activeDay: "mon",
+          weekMode: "archaeology",
+          settings,
+          ownedStamina: { value: 0, unit: "K" },
+          ownedResources: {
+            spiritStone: { value: 0, unit: "K" },
+            unchangingStone: { value: 0, unit: "" },
+            petEgg: { value: 0, unit: "K" }
+          },
+          inventory: defaultChestInventory(),
+          days: {
+            mon: {
+              ...defaultMonday(settings),
+              staminaCounts: {
+                ...defaultMonday(settings).staminaCounts,
+                ...(legacy.staminaCounts || {})
+              },
+              heroSupply: toInt(legacy.heroSupply),
+              adventurerSupply: toInt(legacy.adventurerSupply),
+              dungeonCount: toInt(legacy.dungeonCount),
+              guildRaid: clamp(toInt(legacy.guildRaid), 0, 2),
+              arena: clamp(toInt(legacy.arena), 0, 25),
+              equipBox: toInt(legacy.equipBox),
+              cube: toInt(legacy.cube),
+              goblin: toInt(legacy.goblin),
+              emeraldPack: toInt(legacy.emeraldPack)
+            },
+            tue: defaultTuesday(settings),
+            wed: defaultWednesday(settings),
+            thu: defaultThursday(settings),
+            fri: defaultFriday(settings),
+            sat: defaultSaturday(settings),
+            sun: defaultSunday(settings)
+          }
+        };
+      }
+
       function loadState() {
         const base = defaultState();
 
-        try {
-          const current = JSON.parse(localStorage.getItem(STORAGE_KEY));
-          if (current && current.settings && current.days) {
-            const settings = { ...base.settings, ...current.settings };
-            return {
-              activeDay: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"].includes(current.activeDay) ? current.activeDay : "mon",
-              weekMode: current.weekMode === "bounty" ? "bounty" : "archaeology",
-              settings,
-              ownedStamina: {
-                ...base.ownedStamina,
-                ...(current.ownedStamina || {})
-              },
-              ownedResources: {
-                spiritStone: {
-                  ...base.ownedResources.spiritStone,
-                  ...((current.ownedResources || {}).spiritStone || {})
-                },
-                unchangingStone: {
-                  ...base.ownedResources.unchangingStone,
-                  ...((current.ownedResources || {}).unchangingStone || {})
-                },
-                petEgg: {
-                  ...base.ownedResources.petEgg,
-                  ...((current.ownedResources || {}).petEgg || {})
-                }
-              },
-              inventory: {
-                ...base.inventory,
-                ...(current.inventory || {})
-              },
-              days: {
-                mon: {
-                  ...defaultMonday(settings),
-                  ...(current.days.mon || {}),
-                  staminaCounts: {
-                    ...defaultMonday(settings).staminaCounts,
-                    ...((current.days.mon || {}).staminaCounts || {})
-                  }
-                },
-                tue: {
-                  ...defaultTuesday(settings),
-                  ...(current.days.tue || {})
-                },
-                wed: normalizeWednesday(current.days.wed, settings),
-                thu: normalizeThursday(current.days.thu, settings),
-                fri: normalizeFriday(current.days.fri, settings),
-                sat: normalizeSaturday(current.days.sat, settings),
-                sun: normalizeSunday(current.days.sun, settings)
-              }
-            };
+        for (const key of [STORAGE_KEY, ...LEGACY_KEYS]) {
+          const stored = safeParseStorage(key);
+          if (!stored) continue;
+
+          loadedStorageKey = key;
+          if (stored.settings && stored.days) {
+            return normalizeStructuredState(stored, base);
           }
-
-          for (const key of LEGACY_KEYS) {
-            const legacy = JSON.parse(localStorage.getItem(key));
-            if (!legacy || typeof legacy !== "object") continue;
-
-            // v8～v10 已使用 settings／days 結構，完整保留週一與週二紀錄。
-            if (legacy.settings && legacy.days) {
-              const settings = { ...base.settings, ...legacy.settings };
-
-              return {
-                activeDay: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"].includes(legacy.activeDay)
-                  ? legacy.activeDay
-                  : "mon",
-                weekMode: legacy.weekMode === "bounty" ? "bounty" : "archaeology",
-                settings,
-                ownedStamina: {
-                  ...base.ownedStamina,
-                  ...(legacy.ownedStamina || {})
-                },
-                ownedResources: {
-                  spiritStone: {
-                    ...base.ownedResources.spiritStone,
-                    ...((legacy.ownedResources || {}).spiritStone || {})
-                  },
-                  unchangingStone: {
-                    ...base.ownedResources.unchangingStone,
-                    ...((legacy.ownedResources || {}).unchangingStone || {})
-                  },
-                  petEgg: {
-                    ...base.ownedResources.petEgg,
-                    ...((legacy.ownedResources || {}).petEgg || {})
-                  }
-                },
-                inventory: {
-                  ...base.inventory,
-                  ...(legacy.inventory || {})
-                },
-                days: {
-                  mon: {
-                    ...defaultMonday(settings),
-                    ...(legacy.days.mon || {}),
-                    staminaCounts: {
-                      ...defaultMonday(settings).staminaCounts,
-                      ...((legacy.days.mon || {}).staminaCounts || {})
-                    }
-                  },
-                  tue: {
-                    ...defaultTuesday(settings),
-                    ...(legacy.days.tue || {})
-                  },
-                  wed: normalizeWednesday(legacy.days.wed, settings),
-                  thu: normalizeThursday(legacy.days.thu, settings),
-                  fri: normalizeFriday(legacy.days.fri, settings),
-                  sat: normalizeSaturday(legacy.days.sat, settings),
-                  sun: normalizeSunday(legacy.days.sun, settings)
-                }
-              };
-            }
-
-            // 更早期的單日扁平資料格式。
-            const settings = {
-              monthlyCard: Boolean(legacy.monthlyCard),
-              weeklyCard: Boolean(legacy.weeklyCard),
-              lifetimeCard: Boolean(legacy.lifetimeCard),
-              watchAds: Boolean(legacy.watchAds),
-              tradeCard: Boolean(legacy.tradeCard)
-            };
-
-            return {
-              activeDay: "mon",
-              weekMode: "archaeology",
-              settings,
-              ownedStamina: {
-                value: 0,
-                unit: "K"
-              },
-              ownedResources: {
-                spiritStone: {
-                  value: 0,
-                  unit: "K"
-                },
-                unchangingStone: {
-                  value: 0,
-                  unit: ""
-                },
-                petEgg: {
-                  value: 0,
-                  unit: "K"
-                }
-              },
-              inventory: defaultChestInventory(),
-              days: {
-                mon: {
-                  ...defaultMonday(settings),
-                  staminaCounts: {
-                    ...defaultMonday(settings).staminaCounts,
-                    ...(legacy.staminaCounts || {})
-                  },
-                  heroSupply: toInt(legacy.heroSupply),
-                  adventurerSupply: toInt(legacy.adventurerSupply),
-                  dungeonCount: toInt(legacy.dungeonCount),
-                  guildRaid: clamp(toInt(legacy.guildRaid), 0, 2),
-                  arena: clamp(toInt(legacy.arena), 0, 25),
-                  equipBox: toInt(legacy.equipBox),
-                  cube: toInt(legacy.cube),
-                  goblin: toInt(legacy.goblin),
-                  emeraldPack: toInt(legacy.emeraldPack)
-                },
-                tue: defaultTuesday(settings),
-                wed: defaultWednesday(settings),
-                thu: defaultThursday(settings),
-                fri: defaultFriday(settings),
-                sat: defaultSaturday(settings),
-                sun: defaultSunday(settings)
-              }
-            };
+          if (isRecognizedFlatLegacyState(stored)) {
+            return normalizeFlatLegacyState(stored, base);
           }
-        } catch {
-          return base;
+          loadedStorageKey = null;
         }
 
         return base;
       }
 
       function saveState() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        state.schemaVersion = 200;
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          storageWarningShown = false;
+          return true;
+        } catch (error) {
+          console.error("儲存資料失敗", error);
+          if (!storageWarningShown && document.body) {
+            storageWarningShown = true;
+            const status = document.getElementById("autoPlanStatus");
+            if (status) {
+              status.className = "auto-plan-status show warning";
+              status.innerHTML =
+                "<strong>瀏覽器無法儲存資料</strong>" +
+                "<div>請確認沒有使用禁止網站儲存的模式，並避免直接關閉此頁。</div>";
+            }
+          }
+          return false;
+        }
       }
 
       function activeData() {
@@ -4756,9 +4753,12 @@
         const resourceBlocked =
           !canAffordTaskIncrease(state.activeDay, key, step);
         const guildBountyLocked =
-          state.activeDay === "mon" &&
+          state.activeDay !== "sun" &&
           isGuildBountyKey(key) &&
-          getGuildBountyCompletedCount() >= 15;
+          getGuildBountyCompletedCount(
+            activeData(),
+            getGuildBountyDefinitionsForDay(state.activeDay)
+          ) >= 15;
 
         return `
           <div class="task-counter" data-counter-key="${key}" data-counter-step="${step}">
@@ -5907,7 +5907,7 @@
               </div>
             </div>
 
-            <div id="staminaOptions">${renderStaminaOptions("mon")}</div>
+            <div class="stamina-options" data-stamina-options-day="mon">${renderStaminaOptions("mon")}</div>
 
             <div class="task-list" style="margin-top: 9px;">
               ${taskRow({
@@ -6281,7 +6281,7 @@
               <div class="mini-stat"><span>計分倍率</span><strong>200 → 20</strong></div>
             </div>
 
-            <div id="staminaOptions">${renderStaminaOptions("wed")}</div>
+            <div class="stamina-options" data-stamina-options-day="wed">${renderStaminaOptions("wed")}</div>
 
             <div class="task-list" style="margin-top: 9px;">
               ${taskRow({
@@ -6724,7 +6724,7 @@
               <div class="mini-stat"><span>計分倍率</span><strong>200 → 20</strong></div>
             </div>
 
-            <div id="staminaOptions">${renderStaminaOptions("sat")}</div>
+            <div class="stamina-options" data-stamina-options-day="sat">${renderStaminaOptions("sat")}</div>
 
             <div class="task-list" style="margin-top: 9px;">
               ${taskRow({
@@ -7711,68 +7711,149 @@ function getDayActivitySnapshot(dayKey) {
 function buildReportTaskLines(dayKey) {
   const day = state.days[dayKey];
   const lines = [];
+  const handled = new Set();
+
+  const appendCount = (key, label, unit = "次") => {
+    const count = toInt(day[key]);
+    handled.add(key);
+    if (count > 0) lines.push(`${label} ${format(count)} ${unit}`);
+  };
+
+  const appendCommon = () => {
+    appendCount("dungeonCount", "通關任意副本");
+    appendCount("guildRaid", "公會討伐");
+    appendCount("arena", "挑戰競技場");
+    appendCount("goblin", "哥布林礦工挖礦");
+    appendCount("emeraldPack", "領取翡翠石禮包", "包");
+  };
+
+  if (["mon", "wed", "sat"].includes(dayKey)) {
+    const stamina = dayKey === "mon"
+      ? getMondayStaminaSummary()
+      : dayKey === "wed"
+        ? getWednesdayStaminaSummary()
+        : getSaturdayStaminaSummary();
+    handled.add("staminaCounts");
+    if (stamina.stamina > 0) {
+      lines.push(`消耗體力 ${format(stamina.stamina)} 點（${format(stamina.actions)} 次操作）`);
+    }
+  }
+
+  appendCommon();
 
   if (dayKey === "mon") {
-    const stamina = getMondayStaminaSummary();
-    if (stamina.stamina > 0) lines.push(`消耗體力 ${format(stamina.stamina)}`);
-    if (day.heroSupply > 0) lines.push(`英雄補給寶箱 ${format(day.heroSupply)} 次`);
-    if (day.adventurerSupply > 0) lines.push(`冒險者補給寶箱 ${format(day.adventurerSupply)} 次`);
-    if (day.equipBox > 0) lines.push(`指定裝備寶箱 ${format(day.equipBox)} 次`);
-  } else if (dayKey === "tue") {
-    const pet = getTuesdayPetSummary();
-    if (day.goblin > 0) lines.push(`哥布林礦工挖礦 ${format(day.goblin)} 次`);
-    if (pet.actions > 0) {
-      const stoneText = pet.unchangingStoneTotal > 0 ? `・不變石 ${format(pet.unchangingStoneTotal)}` : "";
-      lines.push(`寵物培育 ${format(pet.actions)} 次（靈石 ${format(pet.spiritStones)}${stoneText}）`);
-    }
-    if (day.tradeShip > 0) lines.push(`卡皮貿易 ${format(day.tradeShip)} 次`);
-    if (day.treasureDraw > 0) lines.push(`寶石抽獎 ${format(day.treasureDraw)} 次`);
-  } else if (dayKey === "wed") {
-    const eggs = getWednesdayPetEggSummary();
-    if (day.guildRaid > 0) lines.push(`公會討伐 ${format(day.guildRaid)} 次`);
-    if (eggs.openedEggs > 0) lines.push(`開啟寵物蛋 ${format(eggs.openedEggs)} 顆`);
-    const stamina = getWednesdayStaminaSummary();
-    if (stamina.stamina > 0) lines.push(`考古體力 ${format(stamina.stamina)}`);
-    if (day.brandDraw > 0) lines.push(`祈願／限時祈願 ${format(day.brandDraw)} 次`);
-  } else if (dayKey === "thu") {
-    if (day.dungeonCount > 0) lines.push(`通關任意副本 ${format(day.dungeonCount)} 次`);
-    const chestLines = [];
-    for (const [key, config] of Object.entries(chestConfigs)) {
-      const count = toInt(day[key]);
-      if (count > 0) chestLines.push(`${config.name}${format(count)} 個`);
-    }
-    if (chestLines.length > 0) lines.push(`開啟寶箱：${chestLines.join("、")}`);
-    if (day.tradeShip > 0) lines.push(`卡皮貿易 ${format(day.tradeShip)} 次`);
-  } else if (dayKey === "fri") {
-    if (day.guruTicket > 0) lines.push(`消耗咕嚕礦場門票 ${format(day.guruTicket)} 張`);
-    if (day.gemDraw > 0) lines.push(`珍寶商店抽寶石 ${format(day.gemDraw)} 次`);
-    const refine = getFridayGemRefineSummary();
-    if (refine.actions > 0) lines.push(`寶石洗煉 ${format(refine.actions)} 次（試劑 ${format(refine.reagents)}）`);
-  } else if (dayKey === "sat") {
-    const stamina = getSaturdayStaminaSummary();
-    if (day.dungeonTicket > 0) lines.push(`消耗地牢挑戰券 ${format(day.dungeonTicket)} 次`);
-    if (day.horseshoe > 0) lines.push(`坐騎升級 消耗金蹄鐵 ${format(day.horseshoe)} 個`);
-    if (stamina.stamina > 0) lines.push(`考古體力 ${format(stamina.stamina)}`);
-  } else {
-    const eggs = getSundayPetEggSummary();
+    appendCount("heroSupply", "英雄補給寶箱");
+    appendCount("adventurerSupply", "冒險者補給寶箱");
+    appendCount("equipBox", "限定／指定裝備寶箱");
+    appendCount("cube", "靈能洗練消耗神兵魔方", "個");
+    appendCount("tradeShip", "卡皮貿易", "艘");
+    appendCount("guruTicket", "消耗咕嚕礦場門票", "張");
+  }
+
+  if (["tue", "sun"].includes(dayKey)) {
     const pet = getPetCultivationSummary(day);
-    if (day.arena > 0) lines.push(`挑戰競技場 ${format(day.arena)} 次`);
-    if (day.heroSupply > 0) lines.push(`英雄補給寶箱 ${format(day.heroSupply)} 次`);
-    if (day.adventurerSupply > 0) lines.push(`冒險者補給寶箱 ${format(day.adventurerSupply)} 次`);
-    const chestLines = [];
-    for (const [key, config] of Object.entries(chestConfigs)) {
-      const count = toInt(day[key]);
-      if (count > 0) chestLines.push(`${config.name}${format(count)} 個`);
+    for (const key of ["petBase", "petStone1", "petStone2", "petStone3", "petStone4"]) {
+      handled.add(key);
     }
-    if (chestLines.length > 0) lines.push(`開啟寶箱：${chestLines.join("、")}`);
-    if (day.horseshoe > 0) lines.push(`坐騎升級 消耗金蹄鐵 ${format(day.horseshoe)} 個`);
-    if (day.gemDraw > 0) lines.push(`珍寶商店抽寶石 ${format(day.gemDraw)} 次`);
-    if (day.equipBox > 0) lines.push(`限定秘藏箱／傳說秘寶箱 ${format(day.equipBox)} 次`);
-    if (eggs.openedEggs > 0) lines.push(`開啟寵物蛋 ${format(eggs.openedEggs)} 顆`);
     if (pet.actions > 0) {
-      const stoneText = pet.unchangingStoneTotal > 0 ? `・不變石 ${format(pet.unchangingStoneTotal)}` : "";
-      lines.push(`寵物培育 ${format(pet.actions)} 次（靈石 ${format(pet.spiritStones)}${stoneText}）`);
+      const stoneText = pet.unchangingStoneTotal > 0
+        ? `、不變石 ${format(pet.unchangingStoneTotal)} 個`
+        : "";
+      lines.push(
+        `寵物培育 ${format(pet.actions)} 次（靈石 ${format(pet.spiritStones)} 個${stoneText}）`
+      );
     }
+  }
+
+  if (["wed", "sun"].includes(dayKey)) {
+    const eggs = dayKey === "wed"
+      ? getWednesdayPetEggSummary()
+      : getSundayPetEggSummary();
+    for (const key of ["adPetEgg", "petEggBundle1", "petEggBundle3", "petEggBundle5", "petEggBundle10"]) {
+      handled.add(key);
+    }
+    if (eggs.openedEggs > 0) {
+      lines.push(
+        `開啟寵物蛋 ${format(eggs.openedEggs)} 顆（消耗 ${format(eggs.consumedEggs)} 顆、贈送 ${format(eggs.bonusEggs)} 顆）`
+      );
+    }
+  }
+
+  if (["thu", "sun"].includes(dayKey)) {
+    const chestParts = [];
+    for (const [key, config] of Object.entries(chestConfigs)) {
+      handled.add(key);
+      const count = toInt(day[key]);
+      if (count > 0) chestParts.push(`${config.name} ${format(count)} 個`);
+    }
+    handled.add("chestOpenHistory");
+    if (chestParts.length > 0) {
+      lines.push(`開啟寶箱：${chestParts.join("、")}`);
+    }
+  }
+
+  const daySpecific = {
+    tue: [
+      ["tradeShip", "卡皮貿易", "艘"],
+      ["treasureDraw", "珍寶商店抽取秘寶", "次"]
+    ],
+    wed: [["brandDraw", "祈願／限時祈願抽取烙印", "次"]],
+    thu: [
+      ["tradeShip", "卡皮貿易", "艘"],
+      ["treasureDraw", "珍寶商店抽取秘寶", "次"]
+    ],
+    fri: [
+      ["guruTicket", "消耗咕嚕礦場門票", "張"],
+      ["gemDraw", "珍寶商店抽取寶石", "次"],
+      ["treasureDraw", "珍寶商店抽取秘寶", "次"]
+    ],
+    sat: [
+      ["dungeonTicket", "消耗地牢挑戰券", "張"],
+      ["horseshoe", "坐騎升級消耗金蹄鐵", "個"],
+      ["brandDraw", "祈願／限時祈願抽取烙印", "次"]
+    ],
+    sun: [
+      ["heroSupply", "英雄補給寶箱", "次"],
+      ["adventurerSupply", "冒險者補給寶箱", "次"],
+      ["equipBox", "限定／傳說秘寶箱抽裝備", "次"],
+      ["horseshoe", "坐騎升級消耗金蹄鐵", "個"],
+      ["gemDraw", "珍寶商店抽取寶石", "次"]
+    ]
+  };
+
+  for (const [key, label, unit] of daySpecific[dayKey] || []) {
+    appendCount(key, label, unit);
+  }
+
+  if (dayKey === "fri") {
+    const refine = getFridayGemRefineSummary();
+    for (const key of ["gemRefineImmortal", "gemRefineTranscendent", "gemRefinePeerless"]) {
+      handled.add(key);
+    }
+    if (refine.actions > 0) {
+      lines.push(`寶石洗煉 ${format(refine.actions)} 次（高級煉金試劑 ${format(refine.reagents)} 個）`);
+    }
+  }
+
+  if (dayKey !== "sun") {
+    const colorLabels = { white: "白色", purple: "紫色", gold: "金色" };
+    for (const item of getGuildBountyDefinitionsForDay(dayKey)) {
+      handled.add(item.key);
+      const count = toInt(day[item.key]);
+      if (state.weekMode === "bounty" && count > 0) {
+        lines.push(
+          `公會懸賞：${colorLabels[item.color] || item.color}「${item.name}」×${format(count)}`
+        );
+      }
+    }
+  }
+
+  // Future fields are surfaced instead of silently disappearing from the report.
+  const internalKeys = new Set(["staminaCounts", "chestOpenHistory"]);
+  for (const [key, value] of Object.entries(day)) {
+    if (handled.has(key) || internalKeys.has(key) || typeof value !== "number") continue;
+    const count = toInt(value);
+    if (count > 0) lines.push(`${key} ${format(count)}`);
   }
 
   return lines;
@@ -8153,20 +8234,33 @@ async function downloadChartAsImage() {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
+      function getDefaultDailyPlanButtonLabel(dayKey = state.activeDay) {
+        return dayKey === "sun"
+          ? "比較週日馬拉松資源方案"
+          : `比較${shortDayLabels[dayKey]}考古／懸賞目標與搭配方案`;
+      }
+
       function updateDailyAutoPlanButton() {
-        if (!els.dailyAutoPlanButton) return;
-        els.dailyAutoPlanButton.dataset.activeDay = state.activeDay;
-        els.dailyAutoPlanButton.textContent = state.activeDay === "mon"
-          ? "比較週一考古／懸賞目標與搭配方案"
-          : state.activeDay === "tue"
-            ? "比較週二考古／懸賞目標與搭配方案"
-            : state.activeDay === "wed"
-              ? (state.weekMode === "bounty"
-                  ? "週三懸賞多方案｜逐日製作中"
-                  : "比較週三考古目標與搭配方案")
-              : state.activeDay === "sun"
-                ? "比較週日資源方案"
-                : "資源充足方案｜將逐日補上";
+        const hasAppliedPlan = Boolean(getAppliedPlan(state.activeDay));
+        const label = hasAppliedPlan
+          ? `重新選擇${shortDayLabels[state.activeDay]}方案`
+          : getDefaultDailyPlanButtonLabel(state.activeDay);
+
+        if (els.dailyAutoPlanButton) {
+          els.dailyAutoPlanButton.dataset.activeDay = state.activeDay;
+          els.dailyAutoPlanButton.dataset.hasAppliedPlan = hasAppliedPlan
+            ? "true"
+            : "false";
+          els.dailyAutoPlanButton.textContent = label;
+        }
+
+        const resourceButton = document.getElementById("applyActivityPushPlan");
+        if (resourceButton) {
+          resourceButton.dataset.activeDay = state.activeDay;
+          resourceButton.textContent = hasAppliedPlan
+            ? `重新選擇${shortDayLabels[state.activeDay]}方案`
+            : "資源充足｜逐日考古／懸賞方案（週一至週日）";
+        }
       }
 
       function getGuildBountySummaryForDay(dayKey) {
@@ -8712,16 +8806,12 @@ async function downloadChartAsImage() {
       }
 
       function getMondayAutoPlanOptions() {
-        const optionIds = state.settings.weeklyCard
-          ? ["hard1", "hard2", "hard3", "hard5", "hard10", "hard20"]
-          : state.settings.monthlyCard
-            ? ["travel1", "travel3", "travel5", "travel10", "travel20", "travel50"]
-            : ["travel1", "travel3", "travel5", "travel10", "travel20"];
-
-        return optionIds
-          .map(id => optionMap.get(id))
-          .filter(Boolean)
-          .sort((a, b) => b.stamina - a.stamina);
+        return [...optionMap.values()]
+          .filter(isStaminaUnlocked)
+          .sort((a, b) =>
+            b.stamina - a.stamina ||
+            a.label.localeCompare(b.label, "zh-Hant")
+          );
       }
 
       function findMinimumActionStaminaPlan(requiredStamina, availableStamina) {
@@ -9500,6 +9590,9 @@ async function downloadChartAsImage() {
         els.dailyPlanModal.hidden = true;
         if (els.chartModal.hidden) {
           document.body.classList.remove("modal-open");
+        }
+        if (!planSelectionInProgress) {
+          planSelectionContext = null;
         }
       }
 
@@ -11503,34 +11596,18 @@ async function downloadChartAsImage() {
           return;
         }
 
-        if (dayKey === "wed") {
-          openWednesdayActivityPlanComparison(9, STANDARD_WEEKLY_TARGETS.wed || 5);
+        if (["wed", "thu", "fri", "sat"].includes(dayKey)) {
+          openUnifiedActivityPlan(
+            dayKey,
+            9,
+            STANDARD_WEEKLY_TARGETS[dayKey] || 5
+          );
           return;
         }
 
         if (dayKey === "sun") {
-          state.activeDay = "sun";
-          openSundayAutoPlan();
-          return;
+          openSundayResourcePlans();
         }
-
-        pendingDailyPlanComparison = { mode: "notReady", dayKey };
-        renderPlanComparisonModal({
-          title: `${shortDayLabels[dayKey]}｜資源充足方案`,
-          subtitle: "目前先逐一完成週一的完整多方案邏輯，後續會依相同架構逐日補上。",
-          plans: [{
-            name: "尚未完成本日多方案",
-            badge: "逐日製作中",
-            feasible: false,
-            highlight: false,
-            metrics: [
-              { label: "目前進度", value: "週一已完成" },
-              { label: "本日狀態", value: "尚未重做" }
-            ],
-            detail: "原本只補馬拉松的兩個永續方案仍可從右側操作按鈕使用；這裡只負責新的考古／懸賞優先方案。"
-          }],
-          buttons: []
-        });
       }
 
       function openSundayAutoPlan() {
@@ -11630,34 +11707,54 @@ async function downloadChartAsImage() {
       }
 
       function applySelectedDailyPlan(choice) {
-        if (pendingDailyPlanComparison?.mode === "sunday") {
-          applySelectedSundayPlan(choice);
-          return;
+        const application = beginTrackedPlanApplication(choice);
+        planSelectionInProgress = true;
+
+        try {
+          if (pendingDailyPlanComparison?.mode === "unifiedActivity") {
+            applyUnifiedActivityPlan(choice);
+            return;
+          }
+
+          if (pendingDailyPlanComparison?.mode === "sundayResource") {
+            applySundayResourcePlan(choice);
+            return;
+          }
+
+          if (pendingDailyPlanComparison?.mode === "sunday") {
+            applySelectedSundayPlan(choice);
+            return;
+          }
+
+          if (pendingDailyPlanComparison?.mode === "mondayActivity") {
+            applyMondayActivityPlan(choice);
+            return;
+          }
+
+          if (pendingDailyPlanComparison?.mode === "tuesdayActivity") {
+            applyTuesdayActivityPlan(choice);
+            return;
+          }
+
+          if (pendingDailyPlanComparison?.mode === "wednesdayActivity") {
+            applyWednesdayActivityPlan(choice);
+            return;
+          }
+
+          if (pendingDailyPlanComparison?.mode !== "daily") return;
+          const { dayKey, plans } = pendingDailyPlanComparison;
+          const selected = plans.find(plan => plan.key === choice);
+          if (!selected?.feasible) return;
+
+          closeDailyPlanModal();
+          pendingDailyPlanComparison = null;
+          applyDailyStrategy(dayKey, choice);
+        } finally {
+          planSelectionInProgress = false;
+          finishTrackedPlanApplication(application);
+          planSelectionContext = null;
+          updateDailyAutoPlanButton();
         }
-
-        if (pendingDailyPlanComparison?.mode === "mondayActivity") {
-          applyMondayActivityPlan(choice);
-          return;
-        }
-
-        if (pendingDailyPlanComparison?.mode === "tuesdayActivity") {
-          applyTuesdayActivityPlan(choice);
-          return;
-        }
-
-        if (pendingDailyPlanComparison?.mode === "wednesdayActivity") {
-          applyWednesdayActivityPlan(choice);
-          return;
-        }
-
-        if (pendingDailyPlanComparison?.mode !== "daily") return;
-        const { dayKey, plans } = pendingDailyPlanComparison;
-        const selected = plans.find(plan => plan.key === choice);
-        if (!selected?.feasible) return;
-
-        closeDailyPlanModal();
-        pendingDailyPlanComparison = null;
-        applyDailyStrategy(dayKey, choice);
       }
 
       const ACTIVITY_PUSH_ARCHAEOLOGY_TARGET = 320000;
@@ -12433,9 +12530,16 @@ async function downloadChartAsImage() {
 
       function applyDailyDefaults() {
         const day = activeData();
-        day.dungeonCount = getRecommendedDungeon().total;
-        day.guildRaid = 2;
-        day.arena = 5;
+
+        if (Object.prototype.hasOwnProperty.call(day, "dungeonCount")) {
+          day.dungeonCount = getRecommendedDungeon().total;
+        }
+        if (Object.prototype.hasOwnProperty.call(day, "guildRaid")) {
+          day.guildRaid = 2;
+        }
+        if (Object.prototype.hasOwnProperty.call(day, "arena")) {
+          day.arena = 5;
+        }
 
         if (state.activeDay === "mon" || state.activeDay === "sun") {
           day.heroSupply = state.settings.watchAds ? 1 : 0;
@@ -12454,28 +12558,44 @@ async function downloadChartAsImage() {
       function adjustDungeonForSettings(oldSettings) {
         const oldRecommended = getRecommendedDungeon(oldSettings).total;
         const newRecommended = getRecommendedDungeon(state.settings).total;
-        const delta = newRecommended - oldRecommended;
+        if (oldRecommended === newRecommended) return;
 
         for (const day of Object.values(state.days)) {
-          day.dungeonCount = Math.max(0, toInt(day.dungeonCount) + delta);
+          if (!Object.prototype.hasOwnProperty.call(day, "dungeonCount")) {
+            continue;
+          }
+          if (toInt(day.dungeonCount) === oldRecommended) {
+            day.dungeonCount = newRecommended;
+          }
         }
       }
 
       function adjustAdRewards(oldWatchAds) {
         if (oldWatchAds === state.settings.watchAds) return;
 
-        const direction = state.settings.watchAds ? 1 : -1;
+        const oldHero = oldWatchAds ? 1 : 0;
+        const newHero = state.settings.watchAds ? 1 : 0;
+        const oldAdventurer = oldWatchAds ? 4 : 1;
+        const newAdventurer = state.settings.watchAds ? 4 : 1;
+        const oldEggAds = oldWatchAds ? 3 : 0;
+        const newEggAds = state.settings.watchAds ? 3 : 0;
+
         for (const dayKey of ["mon", "sun"]) {
           const day = state.days[dayKey];
-          day.heroSupply = Math.max(0, day.heroSupply + direction);
-          day.adventurerSupply = Math.max(
-            0,
-            day.adventurerSupply + direction * 3
-          );
+          if (toInt(day.heroSupply) === oldHero) {
+            day.heroSupply = newHero;
+          }
+          if (toInt(day.adventurerSupply) === oldAdventurer) {
+            day.adventurerSupply = newAdventurer;
+          }
         }
 
-        applyAdPetEggBasicCount("wed", "adjust");
-        applyAdPetEggBasicCount("sun", "adjust");
+        for (const dayKey of ["wed", "sun"]) {
+          const day = state.days[dayKey];
+          if (toInt(day.adPetEgg) === oldEggAds) {
+            day.adPetEgg = newEggAds;
+          }
+        }
       }
 
 
@@ -12523,6 +12643,19 @@ async function downloadChartAsImage() {
         refreshOwnedStaminaScores();
       });
 
+      function refreshOwnedResourceDependentViews(resourceKey) {
+        const relevantDays = {
+          spiritStone: ["tue", "sun"],
+          unchangingStone: ["tue", "sun"],
+          petEgg: ["wed", "sun"]
+        }[resourceKey] || [];
+
+        if (relevantDays.includes(state.activeDay)) {
+          renderTaskPanel();
+          renderSummary();
+        }
+      }
+
       els.ownedResourceValues.forEach(input => {
         input.addEventListener("input", () => {
           const key = input.dataset.ownedResourceValue;
@@ -12544,6 +12677,7 @@ async function downloadChartAsImage() {
               : toNonNegativeNumber(cleaned);
 
           updateOwnedResourceDisplay(key);
+          refreshOwnedResourceDependentViews(key);
           saveState();
         });
 
@@ -12558,6 +12692,7 @@ async function downloadChartAsImage() {
 
           input.value = state.ownedResources[key].value;
           updateOwnedResourceDisplay(key);
+          refreshOwnedResourceDependentViews(key);
           saveState();
         });
       });
@@ -12571,6 +12706,7 @@ async function downloadChartAsImage() {
             ["", "K", "M"].includes(unit) ? unit : "";
 
           updateOwnedResourceDisplay(key);
+          refreshOwnedResourceDependentViews(key);
           saveState();
         });
       });
@@ -12582,7 +12718,7 @@ async function downloadChartAsImage() {
         state.inventory[input.dataset.inventoryInput] = toInt(input.value);
         saveState();
 
-        if (state.activeDay === "thu") {
+        if (["thu", "sun"].includes(state.activeDay)) {
           renderTaskPanel();
           renderSummary();
         }
@@ -12758,7 +12894,48 @@ async function downloadChartAsImage() {
         }
       }
 
-      function applyCounterAdjust(descriptor, focusAfter = false) {
+      let pendingCounterSaveTimer = 0;
+
+      function scheduleCounterSave() {
+        clearTimeout(pendingCounterSaveTimer);
+        pendingCounterSaveTimer = setTimeout(() => {
+          pendingCounterSaveTimer = 0;
+          saveState();
+        }, 160);
+      }
+
+      function updateCounterDisplayWithoutRerender(descriptor) {
+        if (descriptor.type === "chest") {
+          const input = els.taskPanel.querySelector(
+            `[data-chest-open-input="${descriptor.key}"]`
+          );
+          if (input) input.value = toInt(activeData()[descriptor.key]);
+
+          const inventoryInput = els.chestInventoryList.querySelector(
+            `[data-inventory-input="${descriptor.key}"]`
+          );
+          if (inventoryInput) {
+            inventoryInput.value = toInt(state.inventory[descriptor.key]);
+          }
+        } else if (descriptor.type === "task") {
+          const input = els.taskPanel.querySelector(
+            `[data-task-input="${descriptor.key}"]`
+          );
+          if (input) input.value = toInt(activeData()[descriptor.key]);
+        } else if (descriptor.type === "stamina") {
+          const input = els.taskPanel.querySelector(
+            `[data-stamina-input="${descriptor.key}"]`
+          );
+          if (input) {
+            input.value = toInt(activeData().staminaCounts?.[descriptor.key]);
+          }
+        }
+
+        renderSummary();
+        scheduleCounterSave();
+      }
+
+      function applyCounterAdjust(descriptor, focusAfter = false, lightweight = false) {
         if (!descriptor) return false;
         let changed = false;
 
@@ -12792,18 +12969,27 @@ async function downloadChartAsImage() {
 
         if (!changed) return false;
 
-        renderAll();
-        if (focusAfter) focusAdjustedCounter(descriptor);
+        if (lightweight) {
+          updateCounterDisplayWithoutRerender(descriptor);
+        } else {
+          renderAll();
+          if (focusAfter) focusAdjustedCounter(descriptor);
+        }
         return true;
       }
 
       function stopCounterHold() {
         if (!counterHoldState) return;
 
+        const descriptor = counterHoldState.descriptor;
         clearTimeout(counterHoldState.delayTimer);
         clearTimeout(counterHoldState.repeatTimer);
+        clearTimeout(pendingCounterSaveTimer);
+        pendingCounterSaveTimer = 0;
         counterHoldState = null;
         suppressCounterClickUntil = Date.now() + 450;
+        renderAll();
+        focusAdjustedCounter(descriptor);
       }
 
       els.taskPanel.addEventListener("pointerdown", event => {
@@ -12828,12 +13014,12 @@ async function downloadChartAsImage() {
           repeatTimer: 0
         };
 
-        applyCounterAdjust(descriptor, false);
+        applyCounterAdjust(descriptor, false, true);
 
         const repeat = () => {
           if (!counterHoldState) return;
 
-          const changed = applyCounterAdjust(descriptor, false);
+          const changed = applyCounterAdjust(descriptor, false, true);
           if (!changed) {
             stopCounterHold();
             return;
@@ -12930,26 +13116,48 @@ async function downloadChartAsImage() {
         }
       });
 
+      function refreshTaskPanelPreservingInput(input, selector) {
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        renderTaskPanel();
+        renderSummary();
+        saveState();
+
+        const nextInput = els.taskPanel.querySelector(selector);
+        if (!nextInput) return;
+        nextInput.focus({ preventScroll: true });
+        if (start != null && end != null && typeof nextInput.setSelectionRange === "function") {
+          const max = nextInput.value.length;
+          nextInput.setSelectionRange(Math.min(start, max), Math.min(end, max));
+        }
+      }
+
       els.taskPanel.addEventListener("input", event => {
         const taskInput = event.target.closest("input[data-task-input]");
         if (taskInput) {
-          updateTaskValue(taskInput.dataset.taskInput, taskInput.value, taskInput);
-          saveState();
-          renderSummary();
+          const key = taskInput.dataset.taskInput;
+          updateTaskValue(key, taskInput.value, taskInput);
+          refreshTaskPanelPreservingInput(
+            taskInput,
+            `[data-task-input="${key}"]`
+          );
           return;
         }
 
         const staminaInput = event.target.closest("input[data-stamina-input]");
         if (staminaInput) {
+          const key = staminaInput.dataset.staminaInput;
           const actualCount = setStaminaCount(
             state.activeDay,
-            staminaInput.dataset.staminaInput,
+            key,
             staminaInput.value
           );
 
           staminaInput.value = actualCount;
-          saveState();
-          renderSummary();
+          refreshTaskPanelPreservingInput(
+            staminaInput,
+            `[data-stamina-input="${key}"]`
+          );
         }
       });
 
@@ -13037,9 +13245,12 @@ async function downloadChartAsImage() {
 
           if (
             direction > 0 &&
-            state.activeDay === "mon" &&
+            state.activeDay !== "sun" &&
             isGuildBountyKey(key) &&
-            getGuildBountyCompletedCount() >= 15
+            getGuildBountyCompletedCount(
+              activeData(),
+              getGuildBountyDefinitionsForDay(state.activeDay)
+            ) >= 15
           ) {
             return;
           }
@@ -13081,12 +13292,12 @@ async function downloadChartAsImage() {
       }, true);
 
 
-      /* v139：週三至週六與週日統一多方案 */
-      function v139CloneState() {
+      /* 統一活動方案引擎：週三至週六與週日資源方案 */
+      function cloneStateForPlanSimulation() {
         return JSON.parse(JSON.stringify(state));
       }
 
-      function v139ApplyBasicTasks(dayKey) {
+      function applyUnifiedBasicTasks(dayKey) {
         if (dayKey === "wed") applyMinimumWednesdayFreeTasks();
         if (dayKey === "thu") applyMinimumThursdayFreeTasks();
         if (dayKey === "fri") applyMinimumFridayFreeTasks();
@@ -13097,14 +13308,14 @@ async function downloadChartAsImage() {
         }
       }
 
-      function v139GetStaminaSummary(dayKey) {
+      function getUnifiedStaminaSummary(dayKey) {
         if (dayKey === "wed") return getWednesdayStaminaSummary();
         if (dayKey === "sat") return getSaturdayStaminaSummary();
         return { stamina: 0, actions: 0, archaeologyScore: 0 };
       }
 
-      function v139AddStaminaTo(dayKey, targetStamina) {
-        const current = v139GetStaminaSummary(dayKey).stamina;
+      function addUnifiedStaminaTo(dayKey, targetStamina) {
+        const current = getUnifiedStaminaSummary(dayKey).stamina;
         const missing = Math.max(0, toInt(targetStamina) - current);
         if (missing <= 0) return { stamina: 0, actions: 0, counts: {} };
         const plan = findMinimumActionStaminaPlan(missing, getOwnedStaminaAmount());
@@ -13120,7 +13331,7 @@ async function downloadChartAsImage() {
         return plan;
       }
 
-      function v139ApplyEggPlan(dayKey, plan) {
+      function applyUnifiedEggPlan(dayKey, plan) {
         if (!plan) return;
         const day = state.days[dayKey];
         for (const [key, count] of Object.entries(plan.counts || {})) {
@@ -13133,7 +13344,7 @@ async function downloadChartAsImage() {
         }
       }
 
-      function v139AddEggsToOpened(dayKey, targetOpened) {
+      function addUnifiedEggsToOpened(dayKey, targetOpened) {
         const summary = dayKey === "sun"
           ? getSundayPetEggSummary()
           : getWednesdayPetEggSummary();
@@ -13144,11 +13355,11 @@ async function downloadChartAsImage() {
           getOwnedResourceAmount("petEgg")
         );
         if (!plan) throw new Error("持有寵物蛋不足");
-        v139ApplyEggPlan(dayKey, plan);
+        applyUnifiedEggPlan(dayKey, plan);
         return plan;
       }
 
-      function v139ApplyChestPlan(dayKey, plan) {
+      function applyUnifiedChestPlan(dayKey, plan) {
         if (!plan) return;
         for (const [key, prefix] of Object.entries(plan.selections || {})) {
           for (const batch of prefix.batches || []) {
@@ -13158,18 +13369,18 @@ async function downloadChartAsImage() {
         }
       }
 
-      function v139AddChestPoints(dayKey, requiredAdditionalPoints) {
+      function addUnifiedChestPoints(dayKey, requiredAdditionalPoints) {
         const needed = Math.max(0, toInt(requiredAdditionalPoints));
         if (needed <= 0) {
           return { chestPoints: 0, operations: 0, openedBoxes: 0, selections: {} };
         }
         const plan = findThursdayChestPlan(needed);
         if (!plan) throw new Error("持有寶箱不足");
-        v139ApplyChestPlan(dayKey, plan);
+        applyUnifiedChestPlan(dayKey, plan);
         return plan;
       }
 
-      function v139CountStaminaActionsDelta(dayKey, beforeDay) {
+      function countUnifiedStaminaActionsDelta(dayKey, beforeDay) {
         const after = state.days[dayKey];
         return Object.keys(after.staminaCounts || {}).reduce(
           (sum, key) => sum + Math.max(0, toInt(after.staminaCounts[key]) - toInt(beforeDay.staminaCounts?.[key])),
@@ -13177,7 +13388,7 @@ async function downloadChartAsImage() {
         );
       }
 
-      function v139GetDayAdditions(dayKey, beforeDay) {
+      function getUnifiedDayAdditions(dayKey, beforeDay) {
         const day = state.days[dayKey];
         const result = {};
         for (const key of Object.keys(day)) {
@@ -13185,20 +13396,20 @@ async function downloadChartAsImage() {
             result[key] = Math.max(0, toInt(day[key]) - toInt(beforeDay[key]));
           }
         }
-        result.staminaActions = v139CountStaminaActionsDelta(dayKey, beforeDay);
+        result.staminaActions = countUnifiedStaminaActionsDelta(dayKey, beforeDay);
         const beforeStamina = (() => {
           const snapshot = state;
           const now = state.days[dayKey];
           state.days[dayKey] = beforeDay;
-          const value = v139GetStaminaSummary(dayKey).stamina;
+          const value = getUnifiedStaminaSummary(dayKey).stamina;
           state.days[dayKey] = now;
           return value;
         })();
-        result.stamina = Math.max(0, v139GetStaminaSummary(dayKey).stamina - beforeStamina);
+        result.stamina = Math.max(0, getUnifiedStaminaSummary(dayKey).stamina - beforeStamina);
         return result;
       }
 
-      function v139ArchaeologyMetrics(dayKey, activityStage, marathonStage, additions, operations) {
+      function getUnifiedArchaeologyMetrics(dayKey, activityStage, marathonStage, additions, operations) {
         const scores = getScoresForDay(dayKey);
         const marathonTarget = marathonStages[clamp(toInt(marathonStage), 1, marathonStages.length) - 1].score;
         const archaeologyTarget = archaeologyStages[clamp(toInt(activityStage), 1, archaeologyStages.length) - 1].score;
@@ -13246,7 +13457,7 @@ async function downloadChartAsImage() {
         return metrics;
       }
 
-      function v139BountyRecommendation(dayKey, activityStage) {
+      function getUnifiedBountyRecommendation(dayKey, activityStage) {
         const summary = getGuildBountySummaryForDay(dayKey);
         const target = guildBountyStages[clamp(toInt(activityStage), 1, guildBountyStages.length) - 1].score;
         const remaining = Math.max(0, target - summary.totalScore);
@@ -13275,26 +13486,26 @@ async function downloadChartAsImage() {
         };
       }
 
-      function v139EnsureBountyPersonal(dayKey) {
+      function ensureUnifiedBountyPersonal(dayKey) {
         const day = state.days[dayKey];
-        v139ApplyBasicTasks(dayKey);
+        applyUnifiedBasicTasks(dayKey);
         day.guildRaid = Math.max(toInt(day.guildRaid), 2);
         day.arena = Math.max(toInt(day.arena), 3);
         day.dungeonCount = Math.max(toInt(day.dungeonCount), 10);
         day.goblin = Math.max(toInt(day.goblin), 100);
         if (dayKey === "wed") {
-          v139AddStaminaTo("wed", 100);
+          addUnifiedStaminaTo("wed", 100);
           const eggs = getWednesdayPetEggSummary();
-          v139AddEggsToOpened("wed", Math.max(500, eggs.openedEggs));
+          addUnifiedEggsToOpened("wed", Math.max(500, eggs.openedEggs));
         } else if (dayKey === "thu") {
           day.tradeShip = Math.max(toInt(day.tradeShip), 2);
           const currentPoints = getChestSummary("thu").chestPoints;
-          v139AddChestPoints("thu", Math.max(0, 650 - currentPoints));
+          addUnifiedChestPoints("thu", Math.max(0, 650 - currentPoints));
         } else if (dayKey === "fri") {
           day.guruTicket = Math.max(toInt(day.guruTicket), 2);
           day.gemDraw = Math.max(toInt(day.gemDraw), 10);
         } else if (dayKey === "sat") {
-          v139AddStaminaTo("sat", 100);
+          addUnifiedStaminaTo("sat", 100);
           day.horseshoe = Math.max(toInt(day.horseshoe), 1000);
         }
         const summary = getGuildBountySummaryForDay(dayKey);
@@ -13303,17 +13514,17 @@ async function downloadChartAsImage() {
         }
       }
 
-      function v139EnsureMarathonFloor(dayKey, marathonTarget) {
+      function ensureUnifiedMarathonFloor(dayKey, marathonTarget) {
         let scores = getScoresForDay(dayKey);
         let missing = Math.max(0, marathonTarget - scores.marathon);
         let operations = 0;
         if (missing <= 0) return operations;
 
         if (dayKey === "wed") {
-          const plan = v139AddEggsToOpened("wed", getWednesdayPetEggSummary().openedEggs + Math.ceil(missing / 60));
+          const plan = addUnifiedEggsToOpened("wed", getWednesdayPetEggSummary().openedEggs + Math.ceil(missing / 60));
           operations += plan.actions;
         } else if (dayKey === "thu") {
-          const plan = v139AddChestPoints("thu", Math.ceil(missing / 48));
+          const plan = addUnifiedChestPoints("thu", Math.ceil(missing / 48));
           operations += plan.operations;
         } else if (dayKey === "fri") {
           const add = Math.ceil(missing / 3000);
@@ -13329,23 +13540,23 @@ async function downloadChartAsImage() {
         return operations;
       }
 
-      function v139ExecuteArchaeologyPlan(dayKey, strategy, activityStage, marathonStage) {
+      function executeUnifiedArchaeologyPlan(dayKey, strategy, activityStage, marathonStage) {
         const beforeDay = JSON.parse(JSON.stringify(state.days[dayKey]));
         const beforeEgg = dayKey === "wed" ? getWednesdayPetEggSummary() : null;
         const beforeChest = dayKey === "thu" ? getChestSummary("thu") : null;
-        v139ApplyBasicTasks(dayKey);
+        applyUnifiedBasicTasks(dayKey);
         const marathonTarget = marathonStages[clamp(toInt(marathonStage), 1, marathonStages.length) - 1].score;
         const activityTarget = archaeologyStages[clamp(toInt(activityStage), 1, archaeologyStages.length) - 1].score;
-        let operations = v139EnsureMarathonFloor(dayKey, marathonTarget);
+        let operations = ensureUnifiedMarathonFloor(dayKey, marathonTarget);
 
         if (dayKey === "wed") {
           if (strategy !== "egg-only") {
-            const staminaPlan = v139AddStaminaTo("wed", 200);
+            const staminaPlan = addUnifiedStaminaTo("wed", 200);
             operations += staminaPlan.actions;
           }
           let missing = Math.max(0, activityTarget - getWednesdayScores().archaeology);
           if (strategy === "egg-only" || strategy === "egg-200-egg") {
-            const plan = v139AddEggsToOpened("wed", getWednesdayPetEggSummary().openedEggs + Math.ceil(missing / 20));
+            const plan = addUnifiedEggsToOpened("wed", getWednesdayPetEggSummary().openedEggs + Math.ceil(missing / 20));
             operations += plan.actions;
           } else {
             const add = Math.ceil(missing / 1000);
@@ -13361,7 +13572,7 @@ async function downloadChartAsImage() {
           }
           let missing = Math.max(0, activityTarget - getThursdayScores().archaeology);
           if (strategy === "chest-only" || strategy === "chest-trade-chest") {
-            const plan = v139AddChestPoints("thu", Math.ceil(missing / 15));
+            const plan = addUnifiedChestPoints("thu", Math.ceil(missing / 15));
             operations += plan.operations;
           } else {
             const add = Math.ceil(missing / 1000);
@@ -13392,7 +13603,7 @@ async function downloadChartAsImage() {
             state.days.sat.horseshoe += add;
             operations += add;
           } else {
-            const staminaPlan = v139AddStaminaTo("sat", 200);
+            const staminaPlan = addUnifiedStaminaTo("sat", 200);
             operations += staminaPlan.actions;
             const missing = Math.max(0, activityTarget - getSaturdayScores().archaeology);
             const add = Math.ceil(missing / 1000);
@@ -13403,7 +13614,7 @@ async function downloadChartAsImage() {
 
         const scores = getScoresForDay(dayKey);
         if (scores.archaeology < activityTarget) throw new Error("無法補足所選考古階段");
-        const additions = v139GetDayAdditions(dayKey, beforeDay);
+        const additions = getUnifiedDayAdditions(dayKey, beforeDay);
         if (dayKey === "wed") {
           const afterEgg = getWednesdayPetEggSummary();
           additions.openedEggs = Math.max(0, afterEgg.openedEggs - beforeEgg.openedEggs);
@@ -13418,16 +13629,16 @@ async function downloadChartAsImage() {
         return { additions, operations, scores };
       }
 
-      function v139ExecuteBountyPlan(dayKey, activityStage, marathonStage) {
+      function executeUnifiedBountyPlan(dayKey, activityStage, marathonStage) {
         const beforeDay = JSON.parse(JSON.stringify(state.days[dayKey]));
         const beforeEgg = dayKey === "wed" ? getWednesdayPetEggSummary() : null;
         const beforeChest = dayKey === "thu" ? getChestSummary("thu") : null;
-        v139EnsureBountyPersonal(dayKey);
+        ensureUnifiedBountyPersonal(dayKey);
         const marathonTarget = marathonStages[clamp(toInt(marathonStage), 1, marathonStages.length) - 1].score;
-        let operations = v139EnsureMarathonFloor(dayKey, marathonTarget);
-        const recommendation = v139BountyRecommendation(dayKey, activityStage);
+        let operations = ensureUnifiedMarathonFloor(dayKey, marathonTarget);
+        const recommendation = getUnifiedBountyRecommendation(dayKey, activityStage);
         if (!recommendation.ok) throw new Error(recommendation.text);
-        const additions = v139GetDayAdditions(dayKey, beforeDay);
+        const additions = getUnifiedDayAdditions(dayKey, beforeDay);
         if (dayKey === "wed") {
           const afterEgg = getWednesdayPetEggSummary();
           additions.openedEggs = Math.max(0, afterEgg.openedEggs - beforeEgg.openedEggs);
@@ -13447,7 +13658,7 @@ async function downloadChartAsImage() {
         return { additions, operations, recommendation, summary };
       }
 
-      function v139BountyMetrics(dayKey, activityStage, marathonStage, result) {
+      function getUnifiedBountyMetrics(dayKey, activityStage, marathonStage, result) {
         const scores = getScoresForDay(dayKey);
         const marathonTarget = marathonStages[clamp(toInt(marathonStage), 1, marathonStages.length) - 1].score;
         const target = guildBountyStages[clamp(toInt(activityStage), 1, guildBountyStages.length) - 1].score;
@@ -13487,7 +13698,7 @@ async function downloadChartAsImage() {
         return metrics;
       }
 
-      function v139PlanDefinitions(dayKey, weekMode) {
+      function unifiedPlanDefinitions(dayKey, weekMode) {
         if (weekMode === "bounty") {
           const names = {
             wed: "基本任務＋懸賞缺項＋寵物蛋補足馬拉松底線",
@@ -13521,18 +13732,18 @@ async function downloadChartAsImage() {
         return [];
       }
 
-      function v139BuildUnifiedPlans(dayKey, activityStage, marathonStage) {
-        return v139PlanDefinitions(dayKey, state.weekMode).map((definition, index) => {
-          const original = v139CloneState();
+      function buildUnifiedActivityPlans(dayKey, activityStage, marathonStage) {
+        return unifiedPlanDefinitions(dayKey, state.weekMode).map((definition, index) => {
+          const original = cloneStateForPlanSimulation();
           try {
             state.activeDay = dayKey;
             const result = state.weekMode === "bounty"
-              ? v139ExecuteBountyPlan(dayKey, activityStage, marathonStage)
-              : v139ExecuteArchaeologyPlan(dayKey, definition.key, activityStage, marathonStage);
-            const resultState = v139CloneState();
+              ? executeUnifiedBountyPlan(dayKey, activityStage, marathonStage)
+              : executeUnifiedArchaeologyPlan(dayKey, definition.key, activityStage, marathonStage);
+            const resultState = cloneStateForPlanSimulation();
             const metrics = state.weekMode === "bounty"
-              ? v139BountyMetrics(dayKey, activityStage, marathonStage, result)
-              : v139ArchaeologyMetrics(dayKey, activityStage, marathonStage, result.additions, result.operations);
+              ? getUnifiedBountyMetrics(dayKey, activityStage, marathonStage, result)
+              : getUnifiedArchaeologyMetrics(dayKey, activityStage, marathonStage, result.additions, result.operations);
             return {
               ...definition,
               feasible: true,
@@ -13560,20 +13771,20 @@ async function downloadChartAsImage() {
         });
       }
 
-      function v139UnifiedControls(dayKey, activityStage, marathonStage) {
+      function buildUnifiedPlanControls(dayKey, activityStage, marathonStage) {
         const activityName = state.weekMode === "bounty" ? "懸賞" : "考古";
         const stages = state.weekMode === "bounty" ? guildBountyStages : archaeologyStages;
         return `
           <label class="plan-choice-control">
             <span>馬拉松最高優先底線</span>
-            <select data-v139-marathon-stage>
+            <select data-unified-marathon-stage>
               <option value="3" ${toInt(marathonStage) === 3 ? "selected" : ""}>第 3 階｜30 星／14 卡皮幣標準配置</option>
               <option value="5" ${toInt(marathonStage) === 5 ? "selected" : ""}>第 5 階｜本日高投入底線</option>
             </select>
           </label>
           <label class="plan-choice-control">
             <span>${activityName}目標階段</span>
-            <select data-v139-activity-stage>
+            <select data-unified-activity-stage>
               ${stages.map((stage, index) => `<option value="${index + 1}" ${toInt(activityStage) === index + 1 ? "selected" : ""}>第 ${index + 1} 階｜${format(stage.score)} 分</option>`).join("")}
             </select>
           </label>
@@ -13586,11 +13797,11 @@ async function downloadChartAsImage() {
         `;
       }
 
-      function v139OpenUnifiedActivity(dayKey, activityStage = 9, marathonStage = 5) {
+      function openUnifiedActivityPlan(dayKey, activityStage = 9, marathonStage = 5) {
         state.activeDay = dayKey;
-        const plans = v139BuildUnifiedPlans(dayKey, activityStage, marathonStage);
+        const plans = buildUnifiedActivityPlans(dayKey, activityStage, marathonStage);
         pendingDailyPlanComparison = {
-          mode: "v139UnifiedActivity",
+          mode: "unifiedActivity",
           dayKey,
           activityStage: toInt(activityStage),
           marathonStage: toInt(marathonStage),
@@ -13601,7 +13812,7 @@ async function downloadChartAsImage() {
           subtitle: state.weekMode === "bounty"
             ? "基本任務 → 懸賞個人任務 → 馬拉松底線 → 懸賞目標。"
             : "基本任務 → 馬拉松底線 → 依方案補足考古目標。",
-          controlsHtml: v139UnifiedControls(dayKey, activityStage, marathonStage),
+          controlsHtml: buildUnifiedPlanControls(dayKey, activityStage, marathonStage),
           plans,
           buttons: plans.map(plan => ({
             key: plan.key,
@@ -13612,8 +13823,8 @@ async function downloadChartAsImage() {
         });
       }
 
-      function v139ApplyUnifiedPlan(choice) {
-        if (pendingDailyPlanComparison?.mode !== "v139UnifiedActivity") return;
+      function applyUnifiedActivityPlan(choice) {
+        if (pendingDailyPlanComparison?.mode !== "unifiedActivity") return;
         const selected = pendingDailyPlanComparison.plans.find(plan => plan.key === choice);
         if (!selected?.feasible || !selected.resultState) return;
         const dayKey = pendingDailyPlanComparison.dayKey;
@@ -13633,8 +13844,8 @@ async function downloadChartAsImage() {
         `;
       }
 
-      function v139SimulateSundayPlan(key, name) {
-        const original = v139CloneState();
+      function simulateSundayResourcePlan(key, name) {
+        const original = cloneStateForPlanSimulation();
         try {
           state.activeDay = "sun";
           const before = JSON.parse(JSON.stringify(state.days.sun));
@@ -13658,11 +13869,11 @@ async function downloadChartAsImage() {
             operations = add;
             detail = `追加抽寶石 ${format(add)} 次`;
           } else if (key === "egg") {
-            const plan = v139AddEggsToOpened("sun", getSundayPetEggSummary().openedEggs + Math.ceil(missing / 60));
+            const plan = addUnifiedEggsToOpened("sun", getSundayPetEggSummary().openedEggs + Math.ceil(missing / 60));
             operations = plan.actions;
             detail = `計分開啟寵物蛋 ${format(plan.opened)} 顆，實耗 ${format(plan.consumed)} 顆`;
           } else if (key === "chest") {
-            const plan = v139AddChestPoints("sun", Math.ceil(missing / 48));
+            const plan = addUnifiedChestPoints("sun", Math.ceil(missing / 48));
             operations = plan.operations;
             detail = `追加寶箱積分 ${format(plan.chestPoints)}，開啟 ${format(plan.openedBoxes)} 個寶箱`;
           } else if (key === "cultivation") {
@@ -13675,7 +13886,7 @@ async function downloadChartAsImage() {
           }
           const score = getSundayScores().marathon;
           if (score < target) throw new Error("資源不足，無法達到馬拉松第 5 階");
-          const resultState = v139CloneState();
+          const resultState = cloneStateForPlanSimulation();
           return {
             key,
             name,
@@ -13704,17 +13915,17 @@ async function downloadChartAsImage() {
         }
       }
 
-      function v139OpenSundayPlans() {
+      function openSundayResourcePlans() {
         state.activeDay = "sun";
         const plans = [
-          v139SimulateSundayPlan("equip", "只靠抽裝備"),
-          v139SimulateSundayPlan("horseshoe", "只靠金蹄鐵"),
-          v139SimulateSundayPlan("gem", "只靠抽寶石"),
-          v139SimulateSundayPlan("egg", "只靠寵物蛋"),
-          v139SimulateSundayPlan("chest", "只靠開寶箱"),
-          v139SimulateSundayPlan("cultivation", "只靠寵物培育")
+          simulateSundayResourcePlan("equip", "只靠抽裝備"),
+          simulateSundayResourcePlan("horseshoe", "只靠金蹄鐵"),
+          simulateSundayResourcePlan("gem", "只靠抽寶石"),
+          simulateSundayResourcePlan("egg", "只靠寵物蛋"),
+          simulateSundayResourcePlan("chest", "只靠開寶箱"),
+          simulateSundayResourcePlan("cultivation", "只靠寵物培育")
         ];
-        pendingDailyPlanComparison = { mode: "v139Sunday", dayKey: "sun", plans };
+        pendingDailyPlanComparison = { mode: "sundayResource", dayKey: "sun", plans };
         renderPlanComparisonModal({
           title: "週日｜馬拉松資源方案比較",
           subtitle: "週日沒有考古／懸賞目標，六種方案都只補足馬拉松第 5 階。",
@@ -13723,8 +13934,8 @@ async function downloadChartAsImage() {
         });
       }
 
-      function v139ApplySundayPlan(choice) {
-        if (pendingDailyPlanComparison?.mode !== "v139Sunday") return;
+      function applySundayResourcePlan(choice) {
+        if (pendingDailyPlanComparison?.mode !== "sundayResource") return;
         const selected = pendingDailyPlanComparison.plans.find(plan => plan.key === choice);
         if (!selected?.feasible || !selected.resultState) return;
         state = JSON.parse(JSON.stringify(selected.resultState));
@@ -13736,203 +13947,254 @@ async function downloadChartAsImage() {
         els.autoPlanStatus.innerHTML = `<strong>週日｜已採用「${selected.name}」</strong><div>${selected.detail}</div><div>馬拉松 ${format(score)} 分、${format(getMarathonStars(score))} / 6 星。</div>`;
       }
 
-      const v139PreviousApplySelectedDailyPlan = applySelectedDailyPlan;
-      applySelectedDailyPlan = function(choice) {
-        if (pendingDailyPlanComparison?.mode === "v139UnifiedActivity") {
-          v139ApplyUnifiedPlan(choice);
-          return;
-        }
-        if (pendingDailyPlanComparison?.mode === "v139Sunday") {
-          v139ApplySundayPlan(choice);
-          return;
-        }
-        v139PreviousApplySelectedDailyPlan(choice);
-      };
+      /* 單一方案歷史服務：只返還該方案造成的差額，不覆蓋其他日期 */
+      const ACTIVITY_PLAN_HISTORY_KEY =
+        "capybara-weekly-activity-plan-history-v200";
 
-      const v139PreviousOpenDailyAutoPlanComparison = openDailyAutoPlanComparison;
-      openDailyAutoPlanComparison = function(dayKey) {
-        if (["wed", "thu", "fri", "sat"].includes(dayKey)) {
-          v139OpenUnifiedActivity(dayKey, 9, STANDARD_WEEKLY_TARGETS[dayKey] || 5);
-          return;
-        }
-        if (dayKey === "sun") {
-          v139OpenSundayPlans();
-          return;
-        }
-        v139PreviousOpenDailyAutoPlanComparison(dayKey);
-      };
-
-      updateDailyAutoPlanButton = function() {
-        if (!els.dailyAutoPlanButton) return;
-        els.dailyAutoPlanButton.dataset.activeDay = state.activeDay;
-        els.dailyAutoPlanButton.textContent = state.activeDay === "sun"
-          ? "比較週日馬拉松資源方案"
-          : `比較${shortDayLabels[state.activeDay]}考古／懸賞目標與搭配方案`;
-      };
-
-
-      /* v140：七日方案按鈕與可逆套用狀態 */
-      const V140_ACTIVITY_PLAN_SNAPSHOT_KEY =
-        "capybara-weekly-activity-plan-snapshots-v140";
-
-      function v140DeepClone(value) {
+      function deepClone(value) {
         return JSON.parse(JSON.stringify(value));
       }
 
-      function v140LoadAppliedPlanSnapshots() {
+      function safeLoadPlanHistory() {
         try {
-          const saved = JSON.parse(
-            localStorage.getItem(V140_ACTIVITY_PLAN_SNAPSHOT_KEY)
-          );
+          const saved = JSON.parse(localStorage.getItem(ACTIVITY_PLAN_HISTORY_KEY));
           return saved && typeof saved === "object" ? saved : {};
         } catch (error) {
+          console.warn("略過損壞的方案歷史", error);
           return {};
         }
       }
 
-      let v140AppliedPlanSnapshots = v140LoadAppliedPlanSnapshots();
-      let v140PlanSelectionContext = null;
-      let v140SelectionInProgress = false;
+      let appliedPlanHistory = safeLoadPlanHistory();
+      let planSelectionContext = null;
+      let planSelectionInProgress = false;
 
-      function v140SaveAppliedPlanSnapshots() {
-        localStorage.setItem(
-          V140_ACTIVITY_PLAN_SNAPSHOT_KEY,
-          JSON.stringify(v140AppliedPlanSnapshots)
-        );
+      function savePlanHistory() {
+        try {
+          localStorage.setItem(
+            ACTIVITY_PLAN_HISTORY_KEY,
+            JSON.stringify(appliedPlanHistory)
+          );
+          return true;
+        } catch (error) {
+          console.warn("無法儲存方案歷史", error);
+          return false;
+        }
       }
 
-      function v140GetAppliedPlan(dayKey = state.activeDay) {
-        return v140AppliedPlanSnapshots[dayKey] || null;
+      function getAppliedPlan(dayKey = state.activeDay) {
+        return appliedPlanHistory[dayKey] || null;
       }
 
-      function v140CaptureUndoSnapshot(dayKey, selectedName = "已選方案") {
+      function getSharedResourceAmounts() {
+        return {
+          stamina: getOwnedStaminaAmount(),
+          resources: Object.fromEntries(
+            Object.keys(ownedResourceLabels).map(key => [
+              key,
+              getOwnedResourceAmount(key)
+            ])
+          ),
+          inventory: Object.fromEntries(
+            Object.keys(chestConfigs).map(key => [
+              key,
+              toInt(state.inventory[key])
+            ])
+          )
+        };
+      }
+
+      function capturePlanState(dayKey, selectedName = "已選方案") {
         return {
           dayKey,
           weekMode: state.weekMode,
           selectedName,
-          before: {
-            day: v140DeepClone(state.days[dayKey]),
-            ownedStamina: v140DeepClone(state.ownedStamina),
-            ownedResources: v140DeepClone(state.ownedResources),
-            inventory: v140DeepClone(state.inventory)
-          }
+          day: deepClone(state.days[dayKey]),
+          shared: getSharedResourceAmounts()
         };
       }
 
-      function v140SnapshotFingerprint(snapshot) {
-        return JSON.stringify(snapshot?.before || {});
-      }
-
-      function v140CurrentFingerprint(dayKey) {
+      function planStateFingerprint(snapshot) {
         return JSON.stringify({
-          day: state.days[dayKey],
-          ownedStamina: state.ownedStamina,
-          ownedResources: state.ownedResources,
-          inventory: state.inventory
+          day: snapshot?.day || {},
+          shared: snapshot?.shared || {}
         });
       }
 
-      function v140StoreAppliedPlan(snapshot) {
-        if (!snapshot?.dayKey) return;
-        v140AppliedPlanSnapshots[snapshot.dayKey] = snapshot;
-        v140SaveAppliedPlanSnapshots();
+      function storeAppliedPlan(record) {
+        if (!record?.dayKey || !record.before || !record.after) return;
+        appliedPlanHistory[record.dayKey] = record;
+        savePlanHistory();
       }
 
-      function v140ClearAppliedPlan(dayKey) {
-        if (!dayKey || !v140AppliedPlanSnapshots[dayKey]) return;
-        delete v140AppliedPlanSnapshots[dayKey];
-        v140SaveAppliedPlanSnapshots();
+      function clearAppliedPlan(dayKey) {
+        if (!dayKey || !appliedPlanHistory[dayKey]) return;
+        delete appliedPlanHistory[dayKey];
+        savePlanHistory();
       }
 
-      function v140ClearAllAppliedPlans() {
-        v140AppliedPlanSnapshots = {};
-        v140SaveAppliedPlanSnapshots();
+      function clearAllAppliedPlans() {
+        appliedPlanHistory = {};
+        savePlanHistory();
       }
 
-      function v140RestoreAppliedPlan(dayKey) {
-        const applied = v140GetAppliedPlan(dayKey);
-        if (!applied?.before) return false;
-
-        state.days[dayKey] = v140DeepClone(applied.before.day);
-        state.ownedStamina = v140DeepClone(applied.before.ownedStamina);
-        state.ownedResources = v140DeepClone(applied.before.ownedResources);
-        state.inventory = v140DeepClone(applied.before.inventory);
-        v140ClearAppliedPlan(dayKey);
-        renderAll();
-
-        els.autoPlanStatus.className = "auto-plan-status show success";
-        els.autoPlanStatus.innerHTML = `
-          <strong>${shortDayLabels[dayKey]}｜已返還「${applied.selectedName}」增加的內容</strong>
-          <div>方案造成的體力、資源、寶箱與任務數量已還原；可再次按下比較按鈕重新選擇。</div>
-        `;
-        return true;
-      }
-
-      function v140ActivityPlanButtonLabel(dayKey = state.activeDay) {
-        if (v140GetAppliedPlan(dayKey)) return "重新選擇方案";
-        return dayKey === "sun"
-          ? "比較週日馬拉松資源方案"
-          : `比較${shortDayLabels[dayKey]}考古／懸賞目標與搭配方案`;
-      }
-
-      updateDailyAutoPlanButton = function() {
-        const dailyButton = document.getElementById("dailyAutoPlanButton");
-        const resourceButton = document.getElementById("applyActivityPushPlan");
-        const hasAppliedPlan = Boolean(v140GetAppliedPlan(state.activeDay));
-
-        if (dailyButton) {
-          dailyButton.dataset.activeDay = state.activeDay;
-          dailyButton.dataset.hasAppliedPlan = hasAppliedPlan ? "true" : "false";
-          dailyButton.textContent = v140ActivityPlanButtonLabel(state.activeDay);
-        }
-
-        if (resourceButton) {
-          resourceButton.dataset.activeDay = state.activeDay;
-          resourceButton.textContent =
-            "資源充足｜逐日考古／懸賞方案（週一至週日）";
-        }
-      };
-
-      const v140PreviousCloseDailyPlanModal = closeDailyPlanModal;
-      closeDailyPlanModal = function() {
-        v140PreviousCloseDailyPlanModal();
-        if (!v140SelectionInProgress) {
-          v140PlanSelectionContext = null;
-        }
-      };
-
-      const v140PreviousApplySelectedDailyPlan = applySelectedDailyPlan;
-      applySelectedDailyPlan = function(choice) {
+      function beginTrackedPlanApplication(choice) {
         const pending = pendingDailyPlanComparison;
         const dayKey = pending?.dayKey || state.activeDay;
-        const selected = pending?.plans?.find(plan => plan.key === choice);
-        const shouldTrack =
-          v140PlanSelectionContext?.dayKey === dayKey &&
-          !v140GetAppliedPlan(dayKey);
-        const undoSnapshot = shouldTrack
-          ? v140CaptureUndoSnapshot(dayKey, selected?.name || "已選方案")
-          : null;
-        const beforeFingerprint = undoSnapshot
-          ? v140SnapshotFingerprint(undoSnapshot)
-          : "";
+        if (
+          planSelectionContext?.dayKey !== dayKey ||
+          getAppliedPlan(dayKey)
+        ) {
+          return null;
+        }
 
-        v140SelectionInProgress = true;
-        try {
-          v140PreviousApplySelectedDailyPlan(choice);
-        } finally {
-          v140SelectionInProgress = false;
+        const selected = pending?.plans?.find(plan => plan.key === choice);
+        return {
+          dayKey,
+          selectedName: selected?.name || "已選方案",
+          before: capturePlanState(
+            dayKey,
+            selected?.name || "已選方案"
+          )
+        };
+      }
+
+      function finishTrackedPlanApplication(application) {
+        if (!application) return;
+        const after = capturePlanState(
+          application.dayKey,
+          application.selectedName
+        );
+        if (
+          planStateFingerprint(application.before) ===
+          planStateFingerprint(after)
+        ) {
+          return;
+        }
+
+        storeAppliedPlan({
+          dayKey: application.dayKey,
+          weekMode: application.before.weekMode,
+          selectedName: application.selectedName,
+          before: application.before,
+          after,
+          savedAt: new Date().toISOString()
+        });
+      }
+
+      function revertPlanValue(current, before, after) {
+        if (
+          typeof current === "number" &&
+          typeof before === "number" &&
+          typeof after === "number"
+        ) {
+          return Math.max(0, current - (after - before));
+        }
+
+        if (Array.isArray(before) && Array.isArray(after)) {
+          if (JSON.stringify(current) === JSON.stringify(after)) {
+            return deepClone(before);
+          }
+
+          if (
+            Array.isArray(current) &&
+            after.length >= before.length &&
+            JSON.stringify(after.slice(0, before.length)) ===
+              JSON.stringify(before) &&
+            JSON.stringify(current.slice(0, after.length)) ===
+              JSON.stringify(after)
+          ) {
+            return [
+              ...deepClone(before),
+              ...deepClone(current.slice(after.length))
+            ];
+          }
+          return deepClone(current);
         }
 
         if (
-          undoSnapshot &&
-          v140CurrentFingerprint(dayKey) !== beforeFingerprint
+          before && after && current &&
+          typeof before === "object" &&
+          typeof after === "object" &&
+          typeof current === "object"
         ) {
-          v140StoreAppliedPlan(undoSnapshot);
+          const keys = new Set([
+            ...Object.keys(before),
+            ...Object.keys(after),
+            ...Object.keys(current)
+          ]);
+          const result = {};
+          for (const key of keys) {
+            result[key] = revertPlanValue(
+              current[key],
+              before[key],
+              after[key]
+            );
+          }
+          return result;
         }
-        v140PlanSelectionContext = null;
-        updateDailyAutoPlanButton();
-      };
 
+        return JSON.stringify(current) === JSON.stringify(after)
+          ? deepClone(before)
+          : deepClone(current);
+      }
+
+      function restoreAppliedPlan(dayKey, options = {}) {
+        const record = getAppliedPlan(dayKey);
+        if (!record?.before || !record?.after) return false;
+
+        state.days[dayKey] = revertPlanValue(
+          state.days[dayKey],
+          record.before.day,
+          record.after.day
+        );
+
+        const currentStamina = getOwnedStaminaAmount();
+        const staminaDelta =
+          toInt(record.after.shared.stamina) -
+          toInt(record.before.shared.stamina);
+        setOwnedStaminaAmount(Math.max(0, currentStamina - staminaDelta));
+
+        for (const key of Object.keys(ownedResourceLabels)) {
+          const current = getOwnedResourceAmount(key);
+          const delta =
+            toInt(record.after.shared.resources[key]) -
+            toInt(record.before.shared.resources[key]);
+          setOwnedResourceAmount(key, Math.max(0, current - delta));
+        }
+
+        for (const key of Object.keys(chestConfigs)) {
+          const current = toInt(state.inventory[key]);
+          const delta =
+            toInt(record.after.shared.inventory[key]) -
+            toInt(record.before.shared.inventory[key]);
+          state.inventory[key] = Math.max(0, current - delta);
+        }
+
+        clearAppliedPlan(dayKey);
+        if (options.render !== false) renderAll();
+
+        if (!options.silent) {
+          els.autoPlanStatus.className = "auto-plan-status show success";
+          els.autoPlanStatus.innerHTML = `
+            <strong>${shortDayLabels[dayKey]}｜已返還「${record.selectedName}」的差額</strong>
+            <div>只返還此方案增加或消耗的任務與資源；其他日期及後續手動修改不會被整份覆蓋。</div>
+          `;
+        }
+        return true;
+      }
+
+      function openOrRestoreDailyPlan() {
+        const targetDay = state.activeDay;
+        const existing = getAppliedPlan(targetDay);
+        if (existing) {
+          restoreAppliedPlan(targetDay, { render: false, silent: true });
+          renderAll();
+        }
+
+        planSelectionContext = { dayKey: targetDay };
+        openDailyAutoPlanComparison(targetDay);
+      }
 
       document.getElementById("confirmGenerateCharts").addEventListener("click", () => {
         renderAll();
@@ -13941,46 +14203,35 @@ async function downloadChartAsImage() {
       });
 
       document.getElementById("applyThirtyStarPlan").addEventListener("click", () => {
-        v140ClearAllAppliedPlans();
+        clearAllAppliedPlans();
         applyWeeklyAutoPlan(STANDARD_WEEKLY_TARGETS);
       });
 
       document.getElementById("applyAllStageFivePlan").addEventListener("click", () => {
-        v140ClearAllAppliedPlans();
+        clearAllAppliedPlans();
         applyWeeklyAutoPlan(ALL_STAGE_FIVE_TARGETS);
       });
 
-      function v140OpenOrRestoreDailyPlan() {
-        const targetDay = state.activeDay;
-        if (v140GetAppliedPlan(targetDay)) {
-          v140RestoreAppliedPlan(targetDay);
-          return;
-        }
-
-        v140PlanSelectionContext = { dayKey: targetDay };
-        openDailyAutoPlanComparison(targetDay);
-      }
-
       document.getElementById("applyActivityPushPlan").addEventListener(
         "click",
-        v140OpenOrRestoreDailyPlan
+        openOrRestoreDailyPlan
       );
 
       if (els.dailyAutoPlanButton) {
         els.dailyAutoPlanButton.addEventListener(
           "click",
-          v140OpenOrRestoreDailyPlan
+          openOrRestoreDailyPlan
         );
       }
 
       document.getElementById("applyDailyDefaults").addEventListener("click", () => {
-        v140ClearAppliedPlan(state.activeDay);
+        clearAppliedPlan(state.activeDay);
         applyDailyDefaults();
         renderAll();
       });
 
       document.getElementById("clearCurrentDay").addEventListener("click", () => {
-        v140ClearAppliedPlan(state.activeDay);
+        clearAppliedPlan(state.activeDay);
         els.autoPlanStatus.className = "auto-plan-status";
         els.autoPlanStatus.innerHTML = "";
         resetDayToDefaults(state.activeDay);
@@ -13988,7 +14239,7 @@ async function downloadChartAsImage() {
       });
 
       document.getElementById("resetAllDaysDefaults").addEventListener("click", () => {
-        v140ClearAllAppliedPlans();
+        clearAllAppliedPlans();
         els.autoPlanStatus.className = "auto-plan-status";
         els.autoPlanStatus.innerHTML = "";
         resetAllDaysToDefaults();
@@ -13996,7 +14247,7 @@ async function downloadChartAsImage() {
       });
 
       document.getElementById("zeroAllDays").addEventListener("click", () => {
-        v140ClearAllAppliedPlans();
+        clearAllAppliedPlans();
         els.autoPlanStatus.className = "auto-plan-status";
         els.autoPlanStatus.innerHTML = "";
         zeroAllDaysTasks();
@@ -14017,20 +14268,20 @@ async function downloadChartAsImage() {
       });
 
       els.dailyPlanModal.addEventListener("change", event => {
-        if (pendingDailyPlanComparison?.mode === "v139UnifiedActivity") {
+        if (pendingDailyPlanComparison?.mode === "unifiedActivity") {
           if (
-            !event.target.matches("[data-v139-activity-stage]") &&
-            !event.target.matches("[data-v139-marathon-stage]")
+            !event.target.matches("[data-unified-activity-stage]") &&
+            !event.target.matches("[data-unified-marathon-stage]")
           ) return;
           const activityStage = toInt(
-            els.dailyPlanControls.querySelector("[data-v139-activity-stage]")?.value ||
+            els.dailyPlanControls.querySelector("[data-unified-activity-stage]")?.value ||
             pendingDailyPlanComparison.activityStage
           );
           const marathonStage = toInt(
-            els.dailyPlanControls.querySelector("[data-v139-marathon-stage]")?.value ||
+            els.dailyPlanControls.querySelector("[data-unified-marathon-stage]")?.value ||
             pendingDailyPlanComparison.marathonStage
           );
-          v139OpenUnifiedActivity(pendingDailyPlanComparison.dayKey, activityStage, marathonStage);
+          openUnifiedActivityPlan(pendingDailyPlanComparison.dayKey, activityStage, marathonStage);
           return;
         }
 
