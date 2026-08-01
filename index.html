@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v213</title>
+  <title>水豚每週活動計算機｜週一至週日 v218</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -4478,6 +4478,1069 @@
       .setting-row { min-height: 44px; }
     }
 
+  
+
+    /* v214｜更貼近圖 3 / 圖 4 的任務與操作面板 */
+    @media (min-width: 901px) {
+      .hero {
+        display: none;
+      }
+      .page {
+        max-width: 100%;
+        padding: 0;
+      }
+      .app-shell {
+        padding: 12px;
+        min-height: 100vh;
+        grid-template-columns: 112px minmax(0, 1fr) 0;
+        gap: 14px;
+      }
+      .desktop-app-nav {
+        top: 12px;
+        min-height: calc(100vh - 24px);
+        border-radius: 24px;
+      }
+      #actionsSidebarCard[hidden] { display:none !important; }
+      #sidebarCard[hidden] { display:none !important; }
+      #mainContent[hidden] { display:none !important; }
+
+      body[data-active-panel="tasks"] #mainContent,
+      body[data-active-panel="actions"] #actionsSidebarCard,
+      body[data-active-panel="settings"] #sidebarCard,
+      body[data-active-panel="stats"] #mainContent {
+        grid-column: 2 / span 1;
+      }
+
+      /* Actions mockup */
+      #actionsSidebarCard {
+        padding: 22px 26px;
+        border-radius: 28px;
+      }
+      #actionsSidebarCard > h2 {
+        font-size: 26px;
+        line-height: 1.1;
+        letter-spacing: -.03em;
+        color: #14233c;
+      }
+      #actionsSidebarCard > .sidebar-note {
+        margin-top: 2px;
+        font-size: 15px;
+        color: #738297;
+      }
+      .actions-mockup-shell {
+        gap: 14px;
+        margin-top: 16px;
+      }
+      .action-mockup-group {
+        border: 1px solid #dce5ef;
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        border-radius: 24px;
+        padding: 18px 20px;
+        box-shadow: 0 8px 18px rgba(20,33,61,.04);
+      }
+      .action-mockup-section-head {
+        margin-bottom: 14px;
+      }
+      .action-group-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #182946;
+        font-size: 16px;
+        font-weight: 900;
+      }
+      .action-group-label .group-icon {
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #eff5ff;
+        border: 1px solid #dde8f7;
+        font-size: 20px;
+      }
+      .action-mockup-section-head p {
+        margin: 6px 0 0 46px;
+        font-size: 13px;
+        color: #758399;
+      }
+      .action-mockup-grid { display:grid; gap:16px; }
+      .action-mockup-grid.two { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .action-mockup-grid.four { grid-template-columns: repeat(4, minmax(0,1fr)); }
+      .action-mockup-card {
+        min-height: 102px;
+        display:grid;
+        grid-template-columns: 76px minmax(0,1fr) 46px;
+        align-items:center;
+        gap:18px;
+        padding: 20px 22px;
+        border-radius: 20px;
+        border: 1px solid #dbe5f0;
+        background: linear-gradient(180deg, #fff 0%, #fcfdff 100%);
+        text-align:left;
+      }
+      .action-mockup-card.hero { min-height: 128px; border-color:#9dd1a9; background: linear-gradient(180deg, #fafdff 0%, #f5fcf6 100%); }
+      .action-mockup-card.blue { border-color:#bfd2ff; }
+      .action-mockup-card.amber { border-color:#f0c98f; }
+      .action-mockup-card.violet { border-color:#cfb8ff; }
+      .action-mockup-card.compact { min-height: 140px; grid-template-columns: 1fr 42px; gap:14px; padding: 18px 18px 18px 22px; }
+      .action-mockup-card.warning-banner {
+        margin-top: 14px;
+        min-height: 86px;
+        grid-template-columns: 1fr;
+        gap: 0;
+        border-style: dashed;
+        border-color: #f0c3c3;
+        background: linear-gradient(180deg, #fff8f8 0%, #fff 100%);
+      }
+      .card-left-icon {
+        width: 64px;
+        height: 64px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        border-radius: 18px;
+        background: linear-gradient(180deg, #4a83f4, #2d63d9);
+        color:#fff;
+        font-size: 34px;
+        box-shadow: 0 12px 20px rgba(48,102,217,.22);
+      }
+      .action-mockup-card.amber .card-left-icon { background: linear-gradient(180deg, #eca72d, #e28a06); box-shadow: 0 12px 20px rgba(226,138,6,.22); }
+      .action-mockup-card.violet .card-left-icon { background: linear-gradient(180deg, #8e63f1, #6f49dd); box-shadow: 0 12px 20px rgba(111,73,221,.22); }
+      .action-mockup-card.hero .card-left-icon { background: linear-gradient(180deg, #62b46d, #449a51); box-shadow: 0 12px 20px rgba(68,154,81,.22); }
+      .action-card-main {
+        display:block;
+        font-size: 18px;
+        font-weight: 900;
+        line-height: 1.35;
+        color:#18304f;
+      }
+      .action-card-highlight {
+        display:block;
+        margin-top: 6px;
+        font-size: 16px;
+        font-weight: 900;
+      }
+      .action-mockup-card.blue .action-card-main,
+      .action-mockup-card.blue .action-card-highlight,
+      .outline-blue .action-card-main { color:#2e58d4; }
+      .action-mockup-card.amber .action-card-main,
+      .action-mockup-card.amber .action-card-highlight,
+      .outline-amber .action-card-main { color:#b96c06; }
+      .action-mockup-card.violet .action-card-main,
+      .outline-red .action-card-main,
+      .outline-green .action-card-main,
+      .warning-banner .action-card-main { color:#5a38cc; }
+      .action-mockup-card.hero .action-card-main { color:#1b6f38; font-size: 21px; }
+      .action-card-sub {
+        display:block;
+        margin-top: 6px;
+        color:#6b7a90;
+        font-size: 14px;
+        line-height:1.5;
+      }
+      .card-arrow {
+        width: 42px;
+        height: 42px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #5a8cf3, #396ddd);
+        color:#fff;
+        font-size: 32px;
+        line-height:1;
+        box-shadow: 0 8px 16px rgba(57,109,221,.2);
+      }
+      .action-mockup-card.hero .card-arrow { background: linear-gradient(180deg, #69b771, #4a9f55); }
+      .action-mockup-card.amber .card-arrow,
+      .outline-amber .card-arrow { background: linear-gradient(180deg, #f0b347, #e29106); box-shadow: 0 8px 16px rgba(226,145,6,.2); }
+      .action-mockup-card.violet .card-arrow { background: linear-gradient(180deg, #9869fb, #754ce2); box-shadow: 0 8px 16px rgba(117,76,226,.2); }
+      .outline-green .card-arrow { background: linear-gradient(180deg, #69b771, #4a9f55); }
+      .outline-red .card-arrow,
+      .warning-banner .card-arrow { background: linear-gradient(180deg, #ed8f8f, #de6666); }
+      .card-arrow.small { width: 38px; height: 38px; font-size: 28px; }
+      .outline-blue { border-color:#c8d8ff; }
+      .outline-green { border-color:#cfe5d3; }
+      .outline-amber { border-color:#f0d6a6; }
+      .outline-red { border-color:#efcbcb; }
+      .action-status-banner {
+        min-height: 74px;
+        border-radius: 18px;
+        border: 1px solid #dce5ef;
+        background: linear-gradient(180deg, #ffffff 0%, #fafcff 100%);
+        padding: 18px 20px;
+      }
+
+      /* Task mockup */
+      body[data-active-panel="tasks"] #mainContent {
+        padding: 16px 18px 18px;
+      }
+      .top-tabs-stack { gap: 12px; }
+      .week-mode-tabs {
+        padding: 10px;
+        border-radius: 22px;
+      }
+      .week-mode-tab {
+        min-height: 56px;
+        font-size: 17px;
+        border-radius: 18px;
+      }
+      .day-tabs {
+        padding: 8px 10px;
+        border-radius: 22px;
+      }
+      .day-tab {
+        min-height: 54px;
+        font-size: 17px;
+        border-radius: 18px;
+      }
+      .day-auto-plan-row { display:none; }
+      #mobileTasksPanel .section-head {
+        padding: 4px 6px 16px;
+        margin-bottom: 0;
+      }
+      #mobileTasksPanel .section-head h2 {
+        font-size: 28px;
+      }
+      #mobileTasksPanel .section-note {
+        font-size: 15px;
+      }
+      #taskPanel {
+        display:grid;
+        gap: 14px;
+      }
+      .task-block {
+        border-radius: 22px;
+        padding: 0;
+        overflow: hidden;
+        border: 1px solid #dce5ef;
+        background:#fff;
+      }
+      .task-block-title {
+        min-height: 56px;
+        margin: 0;
+        padding: 0 18px;
+        border-bottom: 1px solid #ebeff5;
+        background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+      }
+      .task-block-title::before {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: linear-gradient(180deg, #eff8ef, #dff0df);
+      }
+      .task-block-title strong,
+      .task-block-title h3,
+      .task-group-title {
+        font-size: 17px;
+      }
+      .task-block-title span {
+        color:#7b8799;
+      }
+      .task-row {
+        grid-template-columns: 56px minmax(260px, 1fr) minmax(120px, 160px) auto;
+        gap: 12px;
+        align-items:center;
+        padding: 14px 16px;
+        border-radius: 0;
+        border: 0;
+        border-top: 1px solid #edf1f6;
+        background: #fff;
+        box-shadow:none;
+      }
+      .task-row:first-of-type { border-top:0; }
+      .task-row-icon { justify-content:flex-start; }
+      .task-icon-badge {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+        font-size: 20px;
+        background: #f8fbff;
+      }
+      .task-info {
+        display:grid;
+        grid-template-columns: 180px 1fr;
+        align-items:center;
+        gap: 8px 16px;
+      }
+      .task-name {
+        font-size: 16px;
+        color:#1a2f4b;
+      }
+      .task-meta {
+        margin:0;
+        font-size: 13px;
+        line-height:1.45;
+      }
+      .task-score {
+        grid-column: 2;
+        margin:0;
+        align-self:center;
+        justify-self:start;
+        min-width: 120px;
+      }
+      .task-score .marathon,
+      .task-score .archaeology,
+      .task-score .bounty {
+        display:inline-flex;
+        align-items:center;
+        min-height: 28px;
+        padding: 0 10px;
+        border-radius:999px;
+        background:#eef7ee;
+        margin-right: 6px;
+        font-size: 12px;
+      }
+      .task-score .marathon { background:#eef6ff; color:#2f68dc; }
+      .task-score .archaeology { background:#eef9f0; color:#27854c; }
+      .task-score .bounty { background:#f4efff; color:#704ddd; }
+      .task-counter {
+        padding: 4px 6px;
+        min-width: 156px;
+        justify-content: space-between;
+      }
+      .task-counter button {
+        width: 36px;
+        height: 36px;
+      }
+      .task-counter input {
+        width: 52px;
+        font-size: 15px;
+      }
+      .task-bottom-bar {
+        margin-top: 14px;
+        border: 1px solid #dce5ef;
+        border-radius: 22px;
+        background:#fff;
+        min-height: 86px;
+        padding: 18px 20px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap: 18px;
+      }
+      .task-bottom-metrics {
+        display:flex;
+        align-items:center;
+        flex-wrap:wrap;
+        gap: 14px 26px;
+        color:#6c7b91;
+        font-size: 14px;
+      }
+      .task-bottom-metrics strong { color:#1c3150; font-weight:900; }
+      .task-bottom-metrics .dot {
+        display:inline-flex;
+        align-items:center;
+        gap: 6px;
+      }
+      .task-bottom-metrics .dot::before {
+        content:"";
+        width: 12px;
+        height: 12px;
+        border-radius:999px;
+        background:#c9d6e8;
+      }
+      .task-bottom-metrics .dot.green::before { background:#45a54d; }
+      .task-bottom-metrics .dot.blue::before { background:#3d75eb; }
+      .task-bottom-metrics .dot.purple::before { background:#8752e8; }
+      .task-bottom-actions { display:flex; gap: 12px; }
+      .task-footer-btn {
+        min-width: 152px;
+        min-height: 50px;
+        border-radius: 16px;
+        border: 1px solid #d5dfee;
+        background:#fff;
+        font-size: 16px;
+        font-weight: 900;
+        color:#1b3150;
+      }
+      .task-footer-btn.primary {
+        background: linear-gradient(180deg, #3f7ef0, #2f67dc);
+        color:#fff;
+        border-color: transparent;
+      }
+
+      /* closer left nav */
+      .desktop-brand { min-height: 116px; }
+      .desktop-nav-btn { min-height: 92px; }
+      .desktop-nav-btn strong { font-size: 12px; }
+    }
+
+    @media (max-width: 900px) {
+      .actions-mockup-shell { gap: 12px; }
+      .action-mockup-group { border:1px solid #dce5ef; border-radius:18px; padding:14px; background:#fff; }
+      .action-mockup-grid.two,
+      .action-mockup-grid.four { grid-template-columns:1fr; }
+      .action-mockup-card { min-height:86px; display:grid; grid-template-columns: 56px minmax(0,1fr) 36px; gap:12px; padding:14px; border:1px solid #dce5ef; border-radius:16px; }
+      .action-mockup-card.compact { grid-template-columns:1fr 36px; }
+      .card-left-icon { width:46px; height:46px; font-size:24px; }
+      .card-arrow { width:34px; height:34px; font-size:24px; }
+      .task-info { display:block; }
+      .task-row { grid-template-columns: 44px minmax(0,1fr); }
+      .task-score { grid-column: auto; }
+      .task-bottom-bar { border:1px solid #dce5ef; border-radius:18px; background:#fff; padding:14px; display:grid; gap:12px; }
+      .task-bottom-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+      .task-footer-btn { min-height:44px; border-radius:14px; }
+    }
+
+  
+
+    /* v215｜緊湊化與任務列細修 */
+    @media (min-width: 901px) {
+      /* 比較按鈕恢復顯示並改為細長樣式 */
+      .day-auto-plan-row {
+        display: flex !important;
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+      .day-auto-plan-row .day-auto-plan-btn {
+        min-height: 36px;
+        padding: 0 18px;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 800;
+        box-shadow: 0 6px 14px rgba(73,95,214,.14);
+      }
+
+      /* 操作面板更緊湊，盡量一頁放完 */
+      #actionsSidebarCard {
+        padding: 16px 18px;
+      }
+      #actionsSidebarCard > h2 {
+        font-size: 24px;
+      }
+      #actionsSidebarCard > .sidebar-note {
+        font-size: 13px;
+      }
+      .actions-mockup-shell {
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .action-mockup-group {
+        padding: 12px 14px;
+        border-radius: 20px;
+      }
+      .action-mockup-section-head {
+        margin-bottom: 10px;
+      }
+      .action-group-label {
+        font-size: 15px;
+      }
+      .action-group-label .group-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
+        font-size: 17px;
+      }
+      .action-mockup-section-head p {
+        margin: 4px 0 0 40px;
+        font-size: 12px;
+      }
+      .action-mockup-grid {
+        gap: 12px;
+      }
+      .action-mockup-card {
+        width: 100%;
+        min-height: 82px;
+        grid-template-columns: 52px minmax(0,1fr) 36px;
+        gap: 14px;
+        padding: 14px 16px;
+        border-radius: 18px;
+      }
+      .action-mockup-card.hero {
+        min-height: 94px;
+      }
+      .action-mockup-card.compact {
+        min-height: 88px;
+        padding: 14px 14px 14px 18px;
+      }
+      .action-mockup-card.warning-banner {
+        margin-top: 10px;
+        min-height: 62px;
+        padding: 14px 18px;
+      }
+      .card-left-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        font-size: 22px;
+      }
+      .action-card-main {
+        font-size: 15px;
+      }
+      .action-card-highlight {
+        margin-top: 4px;
+        font-size: 13px;
+      }
+      .action-mockup-card.hero .action-card-main {
+        font-size: 17px;
+      }
+      .action-card-sub {
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 1.35;
+      }
+      .card-arrow {
+        width: 30px;
+        height: 30px;
+        font-size: 24px;
+      }
+      .card-arrow.small {
+        width: 28px;
+        height: 28px;
+        font-size: 22px;
+      }
+      .action-status-banner {
+        min-height: 58px;
+        padding: 12px 14px;
+        border-radius: 16px;
+      }
+
+      /* 任務面板列式更接近示意圖 */
+      .task-block-title {
+        justify-content: flex-start;
+        gap: 12px;
+      }
+      .task-block-title .type-badge {
+        margin-left: auto;
+      }
+      .task-block-title span:not(.type-badge) {
+        margin-left: 8px;
+        color: #6f7f96;
+      }
+      .task-row {
+        grid-template-columns: 52px minmax(0,1fr) auto;
+        gap: 12px;
+        padding: 11px 14px;
+      }
+      .task-icon-badge {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+      }
+      .task-info {
+        display: grid;
+        grid-template-columns: 150px minmax(0,1fr) auto;
+        gap: 8px 12px;
+        align-items: center;
+      }
+      .task-name {
+        grid-column: 1;
+        font-size: 15px;
+      }
+      .task-meta {
+        grid-column: 2;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .task-score {
+        grid-column: 3;
+        grid-row: 1;
+        align-self: center;
+        justify-self: start;
+        min-width: 220px;
+        white-space: nowrap;
+      }
+      .task-info .inline-actions {
+        grid-column: 2 / span 2;
+        margin-top: -2px;
+      }
+      .task-score .marathon,
+      .task-score .archaeology,
+      .task-score .bounty,
+      .task-score .arena-cost {
+        min-height: 24px;
+        padding: 0 8px;
+        font-size: 11px;
+      }
+      .task-counter {
+        min-width: 132px;
+        padding: 3px 5px;
+      }
+      .task-counter button {
+        width: 32px;
+        height: 32px;
+      }
+      .task-counter input {
+        width: 44px;
+        height: 32px;
+        font-size: 14px;
+      }
+      .stamina-options .task-row .task-info {
+        grid-template-columns: 120px minmax(0,1fr) auto;
+      }
+      .task-bottom-bar {
+        margin-top: 10px;
+        min-height: 72px;
+        padding: 14px 16px;
+      }
+      .task-bottom-metrics {
+        gap: 10px 18px;
+        font-size: 13px;
+      }
+      .task-bottom-metrics .dot {
+        font-weight: 700;
+        color: #304257;
+      }
+      .task-bottom-metrics .dot::before {
+        width: 14px;
+        height: 14px;
+        box-shadow: 0 0 0 2px rgba(255,255,255,.9) inset, 0 0 0 1px rgba(0,0,0,.06);
+      }
+      .task-bottom-metrics .dot.green::before { background:#2e9f46; }
+      .task-bottom-metrics .dot.blue::before { background:#2f73f0; }
+      .task-bottom-metrics .dot.purple::before { background:#874de8; }
+      .task-footer-btn {
+        min-width: 132px;
+        min-height: 44px;
+        font-size: 15px;
+      }
+    }
+
+  
+
+    /* v216｜圓點顏色加深＋減少不必要換行 */
+    @media (min-width: 901px) {
+      /* 分類標題左側圓點改成更明顯的顏色 */
+      .task-block-title::before {
+        width: 30px;
+        height: 30px;
+        border-radius: 999px;
+        border: 1px solid rgba(0,0,0,.03);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 1px 2px rgba(20,33,61,.04);
+      }
+      /* 依目前任務區塊順序給更飽和的色系 */
+      #taskPanel .task-block:nth-of-type(1) .task-block-title::before { background: #d3ead8; }
+      #taskPanel .task-block:nth-of-type(2) .task-block-title::before { background: #cfe0ff; }
+      #taskPanel .task-block:nth-of-type(3) .task-block-title::before { background: #d9c8ff; }
+      #taskPanel .task-block:nth-of-type(4) .task-block-title::before { background: #f3d4aa; }
+      #taskPanel .task-block:nth-of-type(5) .task-block-title::before { background: #c9efe0; }
+      #taskPanel .task-block:nth-of-type(6) .task-block-title::before { background: #ccd8ff; }
+      #taskPanel .task-block:nth-of-type(7) .task-block-title::before { background: #f1cad0; }
+
+      .task-block-title strong,
+      .task-block-title .task-group-title {
+        white-space: nowrap;
+      }
+      .task-block-title span:not(.type-badge) {
+        white-space: nowrap;
+      }
+      .type-badge {
+        white-space: nowrap;
+      }
+
+      /* 任務列資訊拉寬，優先避免名稱換行 */
+      .task-info {
+        grid-template-columns: 240px minmax(280px, 1fr) auto;
+        gap: 8px 14px;
+      }
+      .task-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .task-meta {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .task-score {
+        min-width: 240px;
+        white-space: nowrap;
+      }
+      .task-info .inline-actions {
+        white-space: nowrap;
+      }
+
+      /* 特別長名稱額外加寬，避免硬換行 */
+      .task-row[data-task-key="equipBox"] .task-info,
+      .task-row[data-task-key="emeraldPack"] .task-info,
+      .task-row[data-task-key="guruTicket"] .task-info,
+      .task-row[data-task-key="brandDraw"] .task-info {
+        grid-template-columns: 330px minmax(220px, 1fr) auto;
+      }
+      .task-row[data-task-key="equipBox"] .task-name,
+      .task-row[data-task-key="emeraldPack"] .task-name,
+      .task-row[data-task-key="guruTicket"] .task-name,
+      .task-row[data-task-key="brandDraw"] .task-name {
+        font-size: 14px;
+      }
+
+      /* stamina 方案列的說明與標籤盡量保持單行 */
+      .stamina-options .task-row .task-info {
+        grid-template-columns: 110px minmax(0, 1fr) auto;
+      }
+      .stamina-options .task-row .task-name,
+      .stamina-options .task-row .task-meta,
+      .stamina-options .task-row .task-score {
+        white-space: nowrap;
+      }
+
+      /* 底部摘要也避免不必要換行 */
+      .task-bottom-metrics span,
+      .task-bottom-metrics strong {
+        white-space: nowrap;
+      }
+    }
+
+  
+
+    /* v217｜任務列固定五欄＋分類圓點強化 */
+    @media (min-width: 901px) {
+      /* 分類點改成清楚的實心色點，避免被淡底吃掉 */
+      #taskPanel .task-block-title::before {
+        width: 22px !important;
+        height: 22px !important;
+        flex: 0 0 22px !important;
+        border-radius: 999px !important;
+        border: 4px solid rgba(255,255,255,.96) !important;
+        box-shadow: 0 0 0 1px rgba(15,23,42,.10), 0 2px 7px rgba(15,23,42,.10) !important;
+        background: #3f7cf0 !important;
+      }
+      #taskPanel .task-block-title:has(.type-free)::before { background:#31a852 !important; }
+      #taskPanel .task-block-title:has(.type-shared)::before { background:#3779ee !important; }
+      #taskPanel .task-block-title:has(.type-arch)::before { background:#8650e5 !important; }
+      #taskPanel .task-block-title:has(.type-bounty)::before { background:#d68a18 !important; }
+      #taskPanel .task-block-title:has(.type-marathon)::before { background:#e65b67 !important; }
+
+      /* 分組標題全部靠左，右側分類標籤固定靠右 */
+      #taskPanel .task-block-title {
+        display:flex !important;
+        align-items:center !important;
+        justify-content:flex-start !important;
+        min-height:52px !important;
+        padding:0 16px !important;
+        gap:10px !important;
+      }
+      #taskPanel .task-block-title > strong,
+      #taskPanel .task-block-title > h3,
+      #taskPanel .task-block-title > .task-group-title {
+        margin:0 !important;
+        text-align:left !important;
+        white-space:nowrap !important;
+      }
+      #taskPanel .task-block-title > .type-badge {
+        margin-left:auto !important;
+        white-space:nowrap !important;
+      }
+      #taskPanel .task-block-title > span:not(.type-badge) {
+        margin-left:4px !important;
+        white-space:nowrap !important;
+        overflow:hidden !important;
+        text-overflow:ellipsis !important;
+      }
+
+      /* 所有一般任務與寶箱任務共用相同五欄與高度 */
+      #taskPanel .task-row {
+        display:grid !important;
+        grid-template-columns: 44px 240px minmax(280px,1fr) 290px 138px !important;
+        align-items:center !important;
+        column-gap:12px !important;
+        min-height:64px !important;
+        padding:8px 14px !important;
+        box-sizing:border-box !important;
+        border-radius:0 !important;
+        border-left:0 !important;
+        border-right:0 !important;
+        background:#fff !important;
+      }
+      #taskPanel .task-row + .task-row {
+        border-top:1px solid #e8edf4 !important;
+      }
+      #taskPanel .task-row.has-value {
+        background:#fbfdff !important;
+      }
+      #taskPanel .task-row-icon {
+        grid-column:1 !important;
+        display:flex !important;
+        align-items:center !important;
+        justify-content:flex-start !important;
+      }
+      #taskPanel .task-icon-badge {
+        width:32px !important;
+        height:32px !important;
+        border-radius:11px !important;
+        font-size:18px !important;
+      }
+      #taskPanel .task-name {
+        grid-column:2 !important;
+        margin:0 !important;
+        font-size:14px !important;
+        line-height:1.3 !important;
+        font-weight:900 !important;
+        white-space:nowrap !important;
+        overflow:hidden !important;
+        text-overflow:ellipsis !important;
+        color:#142b49 !important;
+      }
+      #taskPanel .task-meta {
+        grid-column:3 !important;
+        margin:0 !important;
+        min-width:0 !important;
+        display:flex !important;
+        align-items:center !important;
+        gap:8px !important;
+        font-size:12px !important;
+        line-height:1.35 !important;
+        color:#718096 !important;
+        white-space:nowrap !important;
+      }
+      #taskPanel .task-meta-text {
+        min-width:0 !important;
+        overflow:hidden !important;
+        text-overflow:ellipsis !important;
+        white-space:nowrap !important;
+      }
+      #taskPanel .task-meta .inline-actions {
+        flex:0 0 auto !important;
+        margin:0 !important;
+        white-space:nowrap !important;
+      }
+      #taskPanel .task-meta .tiny-btn {
+        min-height:24px !important;
+        padding:0 9px !important;
+        border-radius:999px !important;
+        font-size:10px !important;
+      }
+      #taskPanel .task-score {
+        grid-column:4 !important;
+        margin:0 !important;
+        min-width:0 !important;
+        display:flex !important;
+        align-items:center !important;
+        justify-content:flex-start !important;
+        flex-wrap:nowrap !important;
+        gap:5px !important;
+        white-space:nowrap !important;
+        overflow:hidden !important;
+      }
+      #taskPanel .task-score > span {
+        flex:0 0 auto !important;
+        margin:0 !important;
+      }
+      #taskPanel .task-counter,
+      #taskPanel .chest-open-counter {
+        grid-column:5 !important;
+        justify-self:end !important;
+        margin:0 !important;
+        min-width:132px !important;
+        height:42px !important;
+        padding:3px 5px !important;
+        border:1px solid #d8e2ef !important;
+        border-radius:999px !important;
+        background:#fff !important;
+        display:grid !important;
+        grid-template-columns:34px 54px 34px !important;
+        align-items:center !important;
+        gap:4px !important;
+      }
+      #taskPanel .task-counter button,
+      #taskPanel .chest-open-counter button {
+        width:34px !important;
+        height:34px !important;
+        border-radius:10px !important;
+      }
+      #taskPanel .task-counter input,
+      #taskPanel .chest-open-counter input {
+        width:54px !important;
+        height:34px !important;
+        border:0 !important;
+        background:transparent !important;
+        box-shadow:none !important;
+        font-size:14px !important;
+        font-weight:900 !important;
+      }
+
+      /* 寶箱任務使用同一列語言 */
+      #taskPanel .chest-task-row .task-score .chest-opened-score {
+        color:#69798f !important;
+        background:#f2f5f9 !important;
+        min-height:24px !important;
+        padding:0 8px !important;
+        border-radius:999px !important;
+        display:inline-flex !important;
+        align-items:center !important;
+        font-size:11px !important;
+      }
+
+      /* 特殊區塊內列也維持相同高度，不再忽高忽低 */
+      #taskPanel .task-list .task-row {
+        min-height:64px !important;
+      }
+      #taskPanel .guild-bounty-counter .task-row {
+        min-height:64px !important;
+      }
+    }
+
+  
+
+    /* v218｜懸賞卡片補回填滿底色、控制項與操作面板漸層按鈕 */
+    @media (min-width: 901px) {
+      /* 懸賞任務卡片恢復為填滿底色，並把標題／說明改成上下兩行 */
+      #taskPanel .guild-bounty-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+      #taskPanel .guild-bounty-counter {
+        margin-bottom: 0 !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
+        box-shadow: 0 6px 18px rgba(26, 43, 75, .05);
+      }
+      #taskPanel .guild-bounty-counter.white {
+        background: linear-gradient(180deg, #fbfcff 0%, #f5f7fb 100%) !important;
+        border: 1px solid #cfd9ea !important;
+      }
+      #taskPanel .guild-bounty-counter.purple {
+        background: linear-gradient(180deg, #f4edff 0%, #ece0ff 100%) !important;
+        border: 1px solid #bda3ef !important;
+      }
+      #taskPanel .guild-bounty-counter.gold {
+        background: linear-gradient(180deg, #fff4c9 0%, #f9e9a8 100%) !important;
+        border: 1px solid #dfb43f !important;
+      }
+      #taskPanel .guild-bounty-counter .task-row {
+        display: grid !important;
+        grid-template-columns: 40px minmax(0, 1fr) 126px !important;
+        grid-template-areas:
+          "icon name counter"
+          "icon meta counter"
+          "icon score counter";
+        row-gap: 4px !important;
+        align-items: center !important;
+        min-height: 92px !important;
+        padding: 11px 14px !important;
+        background: transparent !important;
+        border: 0 !important;
+      }
+      #taskPanel .guild-bounty-counter .task-row-icon {
+        grid-area: icon !important;
+        grid-column: auto !important;
+        justify-content: center !important;
+        align-self: start !important;
+        padding-top: 2px;
+      }
+      #taskPanel .guild-bounty-counter .task-icon-badge {
+        width: 28px !important;
+        height: 28px !important;
+        border-radius: 10px !important;
+        font-size: 15px !important;
+        background: rgba(255,255,255,.72) !important;
+      }
+      #taskPanel .guild-bounty-counter .task-name {
+        grid-area: name !important;
+        grid-column: auto !important;
+        align-self: end !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        font-size: 13px !important;
+        line-height: 1.28 !important;
+      }
+      #taskPanel .guild-bounty-counter .task-meta {
+        grid-area: meta !important;
+        grid-column: auto !important;
+        display: block !important;
+        align-self: start !important;
+        min-width: 0 !important;
+        color: #6e7891 !important;
+        font-size: 11px !important;
+        line-height: 1.3 !important;
+        white-space: normal !important;
+      }
+      #taskPanel .guild-bounty-counter .task-meta .task-meta-text {
+        display: block !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+      }
+      #taskPanel .guild-bounty-counter .task-score {
+        grid-area: score !important;
+        grid-column: auto !important;
+        min-width: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 6px !important;
+        flex-wrap: wrap !important;
+        overflow: visible !important;
+        white-space: normal !important;
+      }
+      #taskPanel .guild-bounty-counter .bounty-progress-note {
+        font-size: 11px !important;
+        color: #66758b !important;
+        font-weight: 700 !important;
+      }
+      #taskPanel .guild-bounty-counter .task-counter {
+        grid-area: counter !important;
+        grid-column: auto !important;
+        justify-self: end !important;
+        align-self: center !important;
+        min-width: 116px !important;
+        width: 116px !important;
+        height: 40px !important;
+        padding: 3px 4px !important;
+        display: grid !important;
+        grid-template-columns: 30px 44px 30px !important;
+      }
+      #taskPanel .guild-bounty-counter .task-counter button {
+        width: 30px !important;
+        height: 30px !important;
+      }
+      #taskPanel .guild-bounty-counter .task-counter input {
+        width: 44px !important;
+        height: 30px !important;
+        font-size: 14px !important;
+      }
+
+      /* 操作面板卡片改為填滿漸層 */
+      #actionsSidebarCard .action-mockup-card {
+        border: 0 !important;
+        color: #fff !important;
+        box-shadow: 0 14px 28px rgba(25, 42, 73, .13) !important;
+      }
+      #actionsSidebarCard .action-mockup-card .action-card-main,
+      #actionsSidebarCard .action-mockup-card .action-card-highlight,
+      #actionsSidebarCard .action-mockup-card .action-card-sub {
+        color: #fff !important;
+      }
+      #actionsSidebarCard .action-mockup-card .card-left-icon {
+        background: rgba(255,255,255,.16) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 8px 18px rgba(0,0,0,.12) !important;
+        color: #fff !important;
+      }
+      #actionsSidebarCard .action-mockup-card .card-arrow {
+        background: rgba(255,255,255,.16) !important;
+        color: #fff !important;
+        box-shadow: none !important;
+      }
+      #actionsSidebarCard .action-mockup-card.hero {
+        background: linear-gradient(135deg, #19a95f 0%, #4dbb71 100%) !important;
+      }
+      #actionsSidebarCard .action-mockup-card.blue,
+      #actionsSidebarCard .action-mockup-card.outline-blue {
+        background: linear-gradient(135deg, #2b60d6 0%, #4c7cf0 100%) !important;
+      }
+      #actionsSidebarCard .action-mockup-card.amber,
+      #actionsSidebarCard .action-mockup-card.outline-amber {
+        background: linear-gradient(135deg, #d88508 0%, #f0ae33 100%) !important;
+      }
+      #actionsSidebarCard .action-mockup-card.violet {
+        background: linear-gradient(135deg, #6d52e8 0%, #9166f4 100%) !important;
+      }
+      #actionsSidebarCard .action-mockup-card.outline-green {
+        background: linear-gradient(135deg, #238f4f 0%, #59b66f 100%) !important;
+      }
+      #actionsSidebarCard .action-mockup-card.outline-red,
+      #actionsSidebarCard .action-mockup-card.warning-banner {
+        background: linear-gradient(135deg, #d84a4a 0%, #ef7676 100%) !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -4487,7 +5550,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v213</div>
+      <div class="prototype-badge">週一至週日 v218</div>
     </header>
 
     <div class="app-shell" id="appShell">
@@ -4637,89 +5700,107 @@
 
         <h2>操作面板</h2>
         <div class="sidebar-note">執行各種操作與方案，協助你更有效率地規劃每週活動。</div>
-        <div id="mobileActionsPanel" class="actions-panel-shell">
-          <section class="action-group-card report">
-            <div class="action-group-head">
-              <div class="action-group-icon green">📈</div>
-              <div>
-                <h3>報表與分析</h3>
-                <p>產出詳細分析圖表，檢視本週進度與資源分布。</p>
-              </div>
+        <div id="mobileActionsPanel" class="actions-panel-shell actions-mockup-shell">
+          <section class="action-mockup-group report-group">
+            <div class="action-mockup-section-head">
+              <div class="action-group-label"><span class="group-icon">📊</span><strong>報表與分析</strong></div>
+              <p>產出詳細分析圖表，檢視本週進度與資源分布。</p>
             </div>
-            <button class="action-btn action-card-btn action-confirm" id="confirmGenerateCharts" type="button">
-              <span class="action-card-main">確認並產出圖表</span>
-              <span class="action-card-sub">彙整並產出本週活動統計與分析圖表。</span>
+            <button class="action-btn action-mockup-card hero action-confirm" id="confirmGenerateCharts" type="button">
+              <span class="card-left-icon">📈</span>
+              <span class="card-content">
+                <span class="action-card-main">確認並產出圖表</span>
+                <span class="action-card-sub">彙整並產出本週活動統計與分析圖表，協助你掌握整體進度與資源分配。</span>
+              </span>
+              <span class="card-arrow">›</span>
             </button>
           </section>
 
-          <section class="action-group-card plans">
-            <div class="action-group-head">
-              <div class="action-group-icon leaf">🍃</div>
-              <div>
-                <h3>永續省資源方案</h3>
-                <p>使用永續方案，節省資源並達成關鍵目標。</p>
-              </div>
+          <section class="action-mockup-group plans-group">
+            <div class="action-mockup-section-head">
+              <div class="action-group-label"><span class="group-icon">🍃</span><strong>永續省資源方案</strong></div>
+              <p>使用永續方案，節省資源並達成關鍵目標。</p>
             </div>
-            <div class="action-card-grid two-col">
-              <button class="action-btn action-card-btn action-blue" id="applyThirtyStarPlan" type="button">
-                <span class="action-card-main">永續省資源｜只補馬拉松 30 星</span>
-                <span class="action-card-sub">30 星／14 卡皮幣</span>
+            <div class="action-mockup-grid two">
+              <button class="action-btn action-mockup-card blue" id="applyThirtyStarPlan" type="button">
+                <span class="card-left-icon">🛡️</span>
+                <span class="card-content">
+                  <span class="action-card-main">永續省資源｜只補馬拉松 30 星</span>
+                  <span class="action-card-highlight">30 星／14 卡皮幣</span>
+                  <span class="action-card-sub">僅補足馬拉松至 30 星，節省資源並維持穩定收益。</span>
+                </span>
+                <span class="card-arrow">›</span>
               </button>
-              <button class="action-btn action-card-btn action-amber" id="applyAllStageFivePlan" type="button">
-                <span class="action-card-main">永續省資源｜只補馬拉松全 5 階</span>
-                <span class="action-card-sub">全 5 階／14 銀卷</span>
+              <button class="action-btn action-mockup-card amber" id="applyAllStageFivePlan" type="button">
+                <span class="card-left-icon">🛡️</span>
+                <span class="card-content">
+                  <span class="action-card-main">永續省資源｜只補馬拉松全 5 階</span>
+                  <span class="action-card-highlight">全 5 階／14 銀卷</span>
+                  <span class="action-card-sub">僅補足馬拉松至全 5 階，節省資源並確保關鍵獎勵。</span>
+                </span>
+                <span class="card-arrow">›</span>
               </button>
             </div>
           </section>
 
-          <section class="action-group-card daily-plan">
-            <div class="action-group-head">
-              <div class="action-group-icon violet">🗓️</div>
-              <div>
-                <h3>逐日方案</h3>
-                <p>依照資源充足的情況，執行完整逐日方案。</p>
-              </div>
+          <section class="action-mockup-group daily-group">
+            <div class="action-mockup-section-head">
+              <div class="action-group-label"><span class="group-icon">🗓️</span><strong>逐日方案</strong></div>
+              <p>依照資源充足的情況，執行完整逐日方案。</p>
             </div>
-            <button class="action-btn action-card-btn action-violet" id="applyActivityPushPlan" type="button">
-              <span class="action-card-main">資源充足｜逐日考古／懸賞方案（週一至週日）</span>
-              <span class="action-card-sub">執行完整逐日考古與懸賞方案，最大化資源收益與進度。</span>
+            <button class="action-btn action-mockup-card violet" id="applyActivityPushPlan" type="button">
+              <span class="card-left-icon">📅</span>
+              <span class="card-content">
+                <span class="action-card-main">資源充足｜逐日考古／懸賞方案（週一至週日）</span>
+                <span class="action-card-sub">執行完整逐日考古與懸賞方案，最大化資源收益與進度。</span>
+              </span>
+              <span class="card-arrow">›</span>
             </button>
           </section>
 
-          <section class="action-group-card reset">
-            <div class="action-group-head">
-              <div class="action-group-icon slate">🔄</div>
-              <div>
-                <h3>重套與重置</h3>
-                <p>重套或重置任務與方案，重新規劃本週活動。</p>
-              </div>
+          <section class="action-mockup-group reset-group">
+            <div class="action-mockup-section-head">
+              <div class="action-group-label"><span class="group-icon">🔄</span><strong>重套與重置</strong></div>
+              <p>重套或重置任務與方案，重新規劃本週活動。</p>
             </div>
-            <div class="action-card-grid four-col">
-              <button class="action-btn action-card-btn action-outline-blue" id="applyDailyDefaults" type="button">
-                <span class="action-card-main">重套當日無消耗型任務</span>
-                <span class="action-card-sub">重新套用當日可重套任務。</span>
+            <div class="action-mockup-grid four">
+              <button class="action-btn action-mockup-card compact outline-blue" id="applyDailyDefaults" type="button">
+                <span class="card-content">
+                  <span class="action-card-main">重套當日無消耗型任務</span>
+                  <span class="action-card-sub">重新套用當日可重套的無消耗型任務。</span>
+                </span>
+                <span class="card-arrow small">›</span>
               </button>
-              <button class="action-btn action-card-btn action-outline-green" id="clearCurrentDay" type="button">
-                <span class="action-card-main">當日全部歸零＋重套</span>
-                <span class="action-card-sub">將當日進度全部歸零，並重套無消耗型任務。</span>
+              <button class="action-btn action-mockup-card compact outline-green" id="clearCurrentDay" type="button">
+                <span class="card-content">
+                  <span class="action-card-main">當日全部歸零＋重套無消耗型任務</span>
+                  <span class="action-card-sub">將當日進度全部歸零，並重套無消耗型任務。</span>
+                </span>
+                <span class="card-arrow small">›</span>
               </button>
-              <button class="action-btn action-card-btn action-outline-orange" id="zeroCurrentDay" type="button">
-                <span class="action-card-main">本日全部歸零</span>
-                <span class="action-card-sub">將本日所有進度歸零。</span>
+              <button class="action-btn action-mockup-card compact outline-amber" id="zeroCurrentDay" type="button">
+                <span class="card-content">
+                  <span class="action-card-main">本日全部歸零</span>
+                  <span class="action-card-sub">將本日所有進度歸零，可重新規劃今日活動。</span>
+                </span>
+                <span class="card-arrow small">›</span>
               </button>
-              <button class="action-btn action-card-btn action-outline-red" id="resetAllDaysDefaults" type="button">
-                <span class="action-card-main">本週全部歸零＋重套</span>
-                <span class="action-card-sub">將本週進度歸零，並重套無消耗型任務。</span>
+              <button class="action-btn action-mockup-card compact outline-red" id="resetAllDaysDefaults" type="button">
+                <span class="card-content">
+                  <span class="action-card-main">本週全部歸零＋重套</span>
+                  <span class="action-card-sub">將本週進度歸零，並重套無消耗型任務。</span>
+                </span>
+                <span class="card-arrow small">›</span>
               </button>
             </div>
-            <div class="action-card-grid single-row">
-              <button class="action-btn action-card-btn action-ghost-red" id="zeroAllDays" type="button">
+            <button class="action-btn action-mockup-card warning-banner" id="zeroAllDays" type="button">
+              <span class="card-content">
                 <span class="action-card-main">本週全部歸零</span>
                 <span class="action-card-sub">將本週所有進度歸零，重新開始規劃。</span>
-              </button>
-            </div>
+              </span>
+            </button>
           </section>
-          <div class="auto-plan-status" id="autoPlanStatus" aria-live="polite"></div>
+          <div class="auto-plan-status action-status-banner" id="autoPlanStatus" aria-live="polite"></div>
         </div>
 </aside>
 
@@ -4984,9 +6065,22 @@
           <section class="card section-card">
             <div class="section-head">
               <h2 id="dayTaskTitle">週一任務</h2>
-              <div class="section-note">所有數量欄位皆可用 −／＋（可長按加速）或鍵盤 ↑／↓</div>
+              <div class="section-note">完成下列任務累積活動分數，達成每週目標領取更多獎勵！</div>
             </div>
             <div id="taskPanel"></div>
+            <div class="task-bottom-bar">
+              <div class="task-bottom-metrics">
+                <span>週一預估得分 <strong id="taskBottomPredictedScore">0 分</strong></span>
+                <span>每日任務總數：<strong id="taskBottomTaskCount">0 項</strong></span>
+                <span class="dot green">無消耗</span>
+                <span class="dot blue">共用消耗</span>
+                <span class="dot purple">依星期變化</span>
+              </div>
+              <div class="task-bottom-actions">
+                <button class="task-footer-btn secondary" id="taskFooterResetAll" type="button">重置全部</button>
+                <button class="task-footer-btn primary" id="taskFooterSaveProgress" type="button">儲存進度</button>
+              </div>
+            </div>
           </section>
         </div>
       </div>
@@ -7079,6 +8173,10 @@
           chestOrange1: "👑",
           chestOrange10: "👑",
           chestOrange50: "👑",
+          bronzeBox: "🟤",
+          silverBox: "⚪",
+          goldBox: "🟡",
+          petBox: "🟣",
           gemDraw: "💠",
           horseshoe: "🧲",
           brandDraw: "🎫",
@@ -7096,12 +8194,9 @@
         return `
           <div class="task-row ${className} ${value > 0 ? "has-value" : ""}" data-task-key="${key}">
             <div class="task-row-icon"><span class="task-icon-badge">${taskIcon(key)}</span></div>
-            <div class="task-info">
-              <div class="task-name">${name}</div>
-              <div class="task-meta">${meta}</div>
-              <div class="task-score">${scoreHtml}</div>
-              ${extraHtml}
-            </div>
+            <div class="task-name">${name}</div>
+            <div class="task-meta"><span class="task-meta-text">${meta}</span>${extraHtml}</div>
+            <div class="task-score">${scoreHtml}</div>
             ${taskCounter(key, { max, step })}
           </div>
         `;
@@ -7845,15 +8940,16 @@
       }
 
       function renderGuildBountyCounter(item, dayKey = "mon") {
-        const colorName = item.color === "gold" ? "金色" : item.color === "purple" ? "紫色" : "白色";
         const day = state.days[dayKey];
+        const completed = toInt(day[item.key]);
+        const totalScore = completed * item.score;
         return `
           <div class="guild-bounty-counter ${item.color}">
             ${taskRow({
               key: item.key,
               name: item.name,
               meta: `${item.action} ${item.need} ${item.unit}／${item.score} 分・輸入已完成件數`,
-              scoreHtml: `<span>${colorName}・目前 ${format(toInt(day[item.key]))} 件・${format(toInt(day[item.key]) * item.score)} 分</span>`
+              scoreHtml: `<span class="bounty-progress-note">已完成 ${format(completed)} 件</span><span class="bounty">懸賞 ${format(totalScore)} 分</span>`
             })}
           </div>
         `;
@@ -8641,30 +9737,21 @@
         const chestPoints = opened * config.pointPerBox;
 
         return `
-          <div class="task-row ${opened > 0 ? "has-value" : ""}">
-            <div class="task-info">
-              <div class="task-name">${config.name}</div>
-              <div class="task-meta">
-                每個獲得 ${config.pointPerBox} 寶箱積分・目前持有 ${format(holding)} 個・
-                ${nextBatch > 0 ? `下一次開 ${format(nextBatch)} 個` : "目前沒有可開啟的寶箱"}
-              </div>
-              <div class="task-score">
-                <span>已開 ${format(opened)} 個・寶箱積分 ${format(chestPoints)}</span>
-                <span class="marathon">馬拉松 ${format(chestPoints * 48)} 分</span>
-                <span class="archaeology">考古 ${format(chestPoints * 15)} 分</span>
-              </div>
+          <div class="task-row chest-task-row ${opened > 0 ? "has-value" : ""}" data-task-key="${key}">
+            <div class="task-row-icon"><span class="task-icon-badge">${taskIcon(key)}</span></div>
+            <div class="task-name">${config.name}</div>
+            <div class="task-meta"><span class="task-meta-text">每個 ${config.pointPerBox} 寶箱積分・持有 ${format(holding)} 個・${nextBatch > 0 ? `下一次開 ${format(nextBatch)} 個` : "目前沒有可開啟的寶箱"}</span></div>
+            <div class="task-score">
+              <span class="chest-opened-score">已開 ${format(opened)} 個・積分 ${format(chestPoints)}</span>
+              <span class="marathon">馬拉松 ${format(chestPoints * 48)} 分</span>
+              <span class="archaeology">考古 ${format(chestPoints * 15)} 分</span>
             </div>
-
             <div class="chest-open-counter" data-chest-key="${key}">
-              <button type="button" data-chest-action="undo"
-                      ${history.length === 0 ? "disabled" : ""}>−</button>
-              <input type="number" value="${opened}" readonly
-                     data-chest-open-input="${key}" aria-label="${config.name}已開數量" />
-              <button type="button" data-chest-action="open"
-                      ${nextBatch === 0 ? "disabled" : ""}>＋</button>
+              <button type="button" data-chest-action="undo" ${history.length === 0 ? "disabled" : ""}>−</button>
+              <input type="number" value="${opened}" readonly data-chest-open-input="${key}" aria-label="${config.name}已開數量" />
+              <button type="button" data-chest-action="open" ${nextBatch === 0 ? "disabled" : ""}>＋</button>
             </div>
           </div>
-
         `;
       }
 
@@ -9293,6 +10380,20 @@
         `;
       }
 
+      function updateTaskFooterSummary() {
+        if (!els.taskPanel) return;
+        const totalRows = els.taskPanel.querySelectorAll('.task-row').length;
+        const scores = getScoresForDay(state.activeDay);
+        const predicted = state.weekMode === 'bounty' ? scores.marathon + getGuildBountySummaryForDay(state.activeDay).totalScore : scores.marathon + scores.archaeology;
+        const scoreText = state.weekMode === 'bounty'
+          ? `馬拉松 ${format(scores.marathon)} 分｜懸賞 ${format(getGuildBountySummaryForDay(state.activeDay).totalScore)} 分`
+          : `馬拉松 ${format(scores.marathon)} 分｜考古 ${format(scores.archaeology)} 分`;
+        const scoreNode = document.getElementById('taskBottomPredictedScore');
+        const countNode = document.getElementById('taskBottomTaskCount');
+        if (scoreNode) scoreNode.textContent = scoreText;
+        if (countNode) countNode.textContent = `${format(totalRows)} 項`;
+      }
+
       function renderTaskPanel() {
         if (state.activeDay === "mon") {
           els.taskPanel.innerHTML = renderMondayTasks();
@@ -9309,6 +10410,7 @@
         } else {
           els.taskPanel.innerHTML = renderSundayTasks();
         }
+        updateTaskFooterSummary();
       }
 
       function parseReward(rewardText) {
@@ -15249,6 +16351,25 @@ async function downloadChartAsImage() {
         if (focusAfter) focusAdjustedCounter(descriptor);
       }
 
+
+      document.addEventListener("click", event => {
+        if (event.target.id === "taskFooterResetAll") {
+          zeroCurrentDayTasks(state.activeDay);
+          if (els.autoPlanStatus) {
+            els.autoPlanStatus.className = "auto-plan-status show success";
+            els.autoPlanStatus.innerHTML = `<strong>${dayLabels[state.activeDay]} 已重置</strong><div>已將目前日期的任務數值全部歸零。</div>`;
+          }
+          renderAll();
+          return;
+        }
+        if (event.target.id === "taskFooterSaveProgress") {
+          saveState();
+          if (els.autoPlanStatus) {
+            els.autoPlanStatus.className = "auto-plan-status show success";
+            els.autoPlanStatus.innerHTML = `<strong>已儲存目前進度</strong><div>${dayLabels[state.activeDay]} 的任務與設定已寫入本機瀏覽器。</div>`;
+          }
+        }
+      });
       els.taskPanel.addEventListener("pointerdown", event => {
         if (event.button != null && event.button !== 0) return;
 
