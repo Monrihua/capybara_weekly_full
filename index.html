@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v203</title>
+  <title>水豚每週活動計算機｜週一至週日 v204</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -2430,6 +2430,50 @@
       }
     }
 
+
+    /* v204：手機圖表預覽固定保留底部操作列 */
+    .chart-modal-body {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .chart-modal-actions {
+      flex: 0 0 auto;
+      position: relative;
+      z-index: 5;
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
+    }
+
+    @media (max-width: 760px) {
+      .chart-modal-dialog {
+        width: 100vw;
+        height: 100dvh;
+        max-height: 100dvh;
+        margin: 0;
+        border-radius: 0;
+      }
+
+      @supports not (height: 100dvh) {
+        .chart-modal-dialog {
+          height: 100vh;
+          max-height: 100vh;
+        }
+      }
+
+      .chart-modal-head {
+        flex: 0 0 auto;
+        padding-top: calc(14px + env(safe-area-inset-top));
+      }
+
+      .chart-modal-actions {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background: #fff;
+        box-shadow: 0 -6px 18px rgba(15, 23, 42, .10);
+      }
+    }
+
 </style>
 </head>
 <body>
@@ -2439,7 +2483,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v203</div>
+      <div class="prototype-badge">週一至週日 v204</div>
     </header>
 
     <div class="app-shell">
@@ -2627,10 +2671,11 @@
           <div class="actions sidebar-actions" aria-label="操作按鈕">
           <button class="action-btn action-confirm" id="confirmGenerateCharts" type="button">確認並產出圖表</button>
           <button class="action-btn action-plan" id="applyThirtyStarPlan" type="button">永續省資源｜只補馬拉松 30 星／14 卡皮幣</button>
-          <button class="action-btn action-plan" id="applyAllStageFivePlan" type="button">永續省資源｜只補馬拉松全週 5 階</button>
-          <button class="action-btn action-plan" id="applyActivityPushPlan" type="button">比較當日考古／懸賞目標與搭配方案</button>
+          <button class="action-btn action-plan" id="applyAllStageFivePlan" type="button">永續省資源｜只補馬拉松全 5 階／14 銀卷</button>
+          <button class="action-btn action-plan" id="applyActivityPushPlan" type="button">資源充足｜逐日考古／懸賞方案（週一至週日）</button>
           <button class="action-btn action-primary" id="applyDailyDefaults" type="button">重套當日無消耗型任務</button>
           <button class="action-btn action-secondary" id="clearCurrentDay" type="button">當日全部歸零＋重套無消耗型任務</button>
+          <button class="action-btn action-danger" id="zeroCurrentDay" type="button">本日全部歸零</button>
           <button class="action-btn action-warning" id="resetAllDaysDefaults" type="button">本週全部歸零＋重套無消耗型任務</button>
           <button class="action-btn action-danger" id="zeroAllDays" type="button">本週全部歸零</button>
         </div>
@@ -2848,12 +2893,14 @@
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v203";
+      const STORAGE_KEY = "capybara-weekly-full-v204";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v203",
         "capybara-weekly-full-v202",
         "capybara-weekly-full-v201",
         "capybara-weekly-full-v200",
@@ -3590,7 +3637,7 @@
       function defaultState() {
         const settings = defaultSettings();
         return {
-          schemaVersion: 202,
+          schemaVersion: 204,
           activeDay: "mon",
           weekMode: "archaeology",
           settings,
@@ -4162,6 +4209,12 @@
         return Math.min(count, 200) * 20 + Math.max(0, count - 200) * 2;
       }
 
+
+      function emeraldPackScore(spentEmeralds) {
+        // 每實際消費 100 翡翠石取得 50 分；不足 100 的尾數不計分。
+        return Math.floor(toInt(spentEmeralds) / 100) * 50;
+      }
+
       function safeParseStorage(key) {
         try {
           const raw = localStorage.getItem(key);
@@ -4179,7 +4232,7 @@
         const sourceDays = source.days || {};
 
         return {
-          schemaVersion: 202,
+          schemaVersion: 204,
           activeDay: dayOrder.includes(source.activeDay)
             ? source.activeDay
             : "mon",
@@ -4255,7 +4308,7 @@
         };
 
         return {
-          schemaVersion: 202,
+          schemaVersion: 204,
           activeDay: "mon",
           weekMode: "archaeology",
           settings,
@@ -4327,6 +4380,30 @@
         return loaded;
       }
 
+
+      function migrateLegacyEmeraldPackValues(loaded) {
+        if (!loaded || !loadedStorageKey || loadedStorageKey === STORAGE_KEY) {
+          return loaded;
+        }
+
+        // v203 以前 emeraldPack 儲存的是「100 翡翠石禮包的購買次數」。
+        // v204 改為直接輸入實際消費額，因此舊值需乘以 100 才能保持原分數。
+        for (const dayKey of dayOrder) {
+          const day = loaded.days?.[dayKey];
+          if (!day || !Object.prototype.hasOwnProperty.call(day, "emeraldPack")) {
+            continue;
+          }
+          day.emeraldPack = toInt(day.emeraldPack) * 100;
+        }
+        return loaded;
+      }
+
+      function migrateLoadedState(loaded) {
+        return migrateLegacyEmeraldPackValues(
+          migrateV201WrongFridaySaturdaySources(loaded)
+        );
+      }
+
       function loadState() {
         const base = defaultState();
 
@@ -4336,10 +4413,10 @@
 
           loadedStorageKey = key;
           if (stored.settings && stored.days) {
-            return migrateV201WrongFridaySaturdaySources(normalizeStructuredState(stored, base));
+            return migrateLoadedState(normalizeStructuredState(stored, base));
           }
           if (isRecognizedFlatLegacyState(stored)) {
-            return migrateV201WrongFridaySaturdaySources(normalizeFlatLegacyState(stored, base));
+            return migrateLoadedState(normalizeFlatLegacyState(stored, base));
           }
           loadedStorageKey = null;
         }
@@ -4348,7 +4425,7 @@
       }
 
       function saveState() {
-        state.schemaVersion = 202;
+        state.schemaVersion = 204;
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
           storageWarningShown = false;
@@ -4454,7 +4531,7 @@
           day.guildRaid * 1000 +
           archaeologyGoblinScore(day.goblin) +
           archaeologyArenaScore(day.arena) +
-          day.emeraldPack * 50;
+          emeraldPackScore(day.emeraldPack);
 
         return { marathon, archaeology };
       }
@@ -4479,7 +4556,7 @@
           archaeologyDungeonScore(day.dungeonCount) +
           day.guildRaid * 1000 +
           archaeologyArenaScore(day.arena) +
-          day.emeraldPack * 50;
+          emeraldPackScore(day.emeraldPack);
 
         return { marathon, archaeology };
       }
@@ -4562,7 +4639,7 @@
           day.guildRaid * 1000 +
           archaeologyGoblinScore(day.goblin) +
           archaeologyArenaScore(day.arena) +
-          day.emeraldPack * 50;
+          emeraldPackScore(day.emeraldPack);
 
         return { marathon, archaeology };
       }
@@ -4633,7 +4710,7 @@
           day.guildRaid * 1000 +
           archaeologyGoblinScore(day.goblin) +
           archaeologyArenaScore(day.arena) +
-          day.emeraldPack * 50;
+          emeraldPackScore(day.emeraldPack);
 
         return { marathon, archaeology };
       }
@@ -4679,7 +4756,7 @@
           day.guildRaid * 1000 +
           archaeologyGoblinScore(day.goblin) +
           archaeologyArenaScore(day.arena) +
-          day.emeraldPack * 50;
+          emeraldPackScore(day.emeraldPack);
 
         return { marathon, archaeology };
       }
@@ -4700,7 +4777,7 @@
           day.guildRaid * 1000 +
           archaeologyGoblinScore(day.goblin) +
           archaeologyArenaScore(day.arena) +
-          day.emeraldPack * 50;
+          emeraldPackScore(day.emeraldPack);
 
         return { marathon, archaeology };
       }
@@ -5954,9 +6031,10 @@
 
               ${taskRow({
                 key: "emeraldPack",
-                name: "購買價值 100 翡翠石禮包",
-                meta: "50 分／個",
-                scoreHtml: `<span class="archaeology">考古 ${format(day.emeraldPack * 50)} 分</span>`
+                name: "購買翡翠石禮包｜實際消費額",
+                meta: "每消費 100 翡翠石＝50 分；請輸入實際花費",
+                step: 100,
+                scoreHtml: `<span class="archaeology">考古 ${format(emeraldPackScore(day.emeraldPack))} 分</span>`
               })}
             </div>
           </div>
@@ -6134,9 +6212,10 @@
 
               ${taskRow({
                 key: "emeraldPack",
-                name: "購買價值 100 翡翠石禮包",
-                meta: "50 分／個",
-                scoreHtml: `<span class="archaeology">考古 ${format(day.emeraldPack * 50)} 分</span>`
+                name: "購買翡翠石禮包｜實際消費額",
+                meta: "每消費 100 翡翠石＝50 分；請輸入實際花費",
+                step: 100,
+                scoreHtml: `<span class="archaeology">考古 ${format(emeraldPackScore(day.emeraldPack))} 分</span>`
               })}
             </div>
           </div>
@@ -6309,9 +6388,10 @@
 
               ${taskRow({
                 key: "emeraldPack",
-                name: "購買價值 100 翡翠石禮包",
-                meta: "50 分／個",
-                scoreHtml: `<span class="archaeology">考古 ${format(day.emeraldPack * 50)} 分</span>`
+                name: "購買翡翠石禮包｜實際消費額",
+                meta: "每消費 100 翡翠石＝50 分；請輸入實際花費",
+                step: 100,
+                scoreHtml: `<span class="archaeology">考古 ${format(emeraldPackScore(day.emeraldPack))} 分</span>`
               })}
             </div>
           </div>
@@ -6493,9 +6573,10 @@
 
               ${taskRow({
                 key: "emeraldPack",
-                name: "購買價值 100 翡翠石禮包",
-                meta: "50 分／個",
-                scoreHtml: `<span class="archaeology">考古 ${format(day.emeraldPack * 50)} 分</span>`
+                name: "購買翡翠石禮包｜實際消費額",
+                meta: "每消費 100 翡翠石＝50 分；請輸入實際花費",
+                step: 100,
+                scoreHtml: `<span class="archaeology">考古 ${format(emeraldPackScore(day.emeraldPack))} 分</span>`
               })}
             </div>
           </div>
@@ -6617,9 +6698,10 @@
 
               ${taskRow({
                 key: "emeraldPack",
-                name: "購買價值 100 翡翠石禮包",
-                meta: "50 分／個",
-                scoreHtml: `<span class="archaeology">考古 ${format(day.emeraldPack * 50)} 分</span>`
+                name: "購買翡翠石禮包｜實際消費額",
+                meta: "每消費 100 翡翠石＝50 分；請輸入實際花費",
+                step: 100,
+                scoreHtml: `<span class="archaeology">考古 ${format(emeraldPackScore(day.emeraldPack))} 分</span>`
               })}
             </div>
           </div>
@@ -6752,9 +6834,10 @@
 
               ${taskRow({
                 key: "emeraldPack",
-                name: "購買價值 100 翡翠石禮包",
-                meta: "50 分／個",
-                scoreHtml: `<span class="archaeology">考古 ${format(day.emeraldPack * 50)} 分</span>`
+                name: "購買翡翠石禮包｜實際消費額",
+                meta: "每消費 100 翡翠石＝50 分；請輸入實際花費",
+                step: 100,
+                scoreHtml: `<span class="archaeology">考古 ${format(emeraldPackScore(day.emeraldPack))} 分</span>`
               })}
             </div>
           </div>
@@ -7740,7 +7823,7 @@ function buildReportTaskLines(dayKey) {
     appendCount("guildRaid", "公會討伐");
     appendCount("arena", "挑戰競技場");
     appendCount("goblin", "哥布林礦工挖礦");
-    appendCount("emeraldPack", "領取翡翠石禮包", "包");
+    appendCount("emeraldPack", "購買翡翠石禮包實際消費", "翡翠石");
   };
 
   if (["mon", "wed", "sat"].includes(dayKey)) {
@@ -8085,54 +8168,125 @@ function closeChartModal() {
   document.body.classList.remove("modal-open");
 }
 
-async function downloadChartAsImage() {
-  const report = els.chartReport;
-  if (!report || !report.firstElementChild) return;
+async function saveGeneratedImageBlob(blob, filename) {
+  const file = typeof File === "function"
+    ? new File([blob], filename, { type: blob.type || "application/octet-stream" })
+    : null;
 
-  const width = Math.ceil(report.scrollWidth);
-  const height = Math.ceil(report.scrollHeight);
-  const baseStyles = document.querySelector("style").textContent;
+  // iPhone／iPad 對 a[download] 支援不一致；可用系統分享表直接儲存圖片。
+  if (
+    file &&
+    navigator.share &&
+    navigator.canShare &&
+    navigator.canShare({ files: [file] })
+  ) {
+    try {
+      await navigator.share({ files: [file], title: filename });
+      return;
+    } catch (error) {
+      if (error?.name === "AbortError") return;
+    }
+  }
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.rel = "noopener";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+function canvasToPngBlob(canvas) {
+  return new Promise((resolve, reject) => {
+    try {
+      canvas.toBlob(blob => {
+        if (blob) resolve(blob);
+        else reject(new Error("無法建立 PNG 圖片"));
+      }, "image/png", 1);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+function buildReportSvgBlob(report) {
+  const target = report.firstElementChild || report;
+  const width = Math.max(1, Math.ceil(target.scrollWidth));
+  const height = Math.max(1, Math.ceil(target.scrollHeight));
+  const baseStyles = [...document.querySelectorAll("style")]
+    .map(style => style.textContent)
+    .join("\n");
   const html = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
       <foreignObject width="100%" height="100%">
-        <div xmlns="http://www.w3.org/1999/xhtml">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;min-height:${height}px;background:#f6f8fc;">
           <style>${baseStyles}</style>
           ${report.innerHTML}
         </div>
       </foreignObject>
     </svg>
   `;
+  return new Blob([html], { type: "image/svg+xml;charset=utf-8" });
+}
 
-  const blob = new Blob([html], { type: "image/svg+xml;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
+async function downloadChartAsImage() {
+  const report = els.chartReport;
+  if (!report || !report.firstElementChild) return;
+
+  const button = els.downloadChartImage;
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = "產生圖片中…";
+
+  const stamp = formatReportTime().replace(/[/: ]/g, "-");
+  const pngName = `水豚馬拉松-本週任務配置圖表-${stamp}.png`;
 
   try {
-    const image = await new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = url;
-    });
+    if (typeof window.html2canvas === "function") {
+      const target = report.firstElementChild;
+      const scale = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+      const canvas = await window.html2canvas(target, {
+        backgroundColor: "#f6f8fc",
+        scale,
+        useCORS: true,
+        allowTaint: false,
+        logging: false,
+        scrollX: 0,
+        scrollY: 0,
+        width: Math.ceil(target.scrollWidth),
+        height: Math.ceil(target.scrollHeight),
+        windowWidth: Math.ceil(target.scrollWidth),
+        windowHeight: Math.ceil(target.scrollHeight)
+      });
+      const pngBlob = await canvasToPngBlob(canvas);
+      await saveGeneratedImageBlob(pngBlob, pngName);
+      return;
+    }
 
-    const scale = 2;
-    const canvas = document.createElement("canvas");
-    canvas.width = width * scale;
-    canvas.height = height * scale;
-    const ctx = canvas.getContext("2d");
-    ctx.scale(scale, scale);
-    ctx.fillStyle = "#f6f8fc";
-    ctx.fillRect(0, 0, width, height);
-    ctx.drawImage(image, 0, 0, width, height);
-
-    const link = document.createElement("a");
-    const stamp = formatReportTime().replace(/[/: ]/g, "-");
-    link.download = `水豚馬拉松-本週任務配置圖表-${stamp}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
+    // 離線或 CDN 無法載入時，至少下載可直接開啟的 SVG 圖片，不再只顯示失敗。
+    const svgBlob = buildReportSvgBlob(report);
+    await saveGeneratedImageBlob(
+      svgBlob,
+      pngName.replace(/\.png$/i, ".svg")
+    );
   } catch (error) {
-    alert("下載圖片失敗，請改用螢幕截圖，或稍後再試。");
+    console.error("下載圖片失敗", error);
+    try {
+      const svgBlob = buildReportSvgBlob(report);
+      await saveGeneratedImageBlob(
+        svgBlob,
+        pngName.replace(/\.png$/i, ".svg")
+      );
+    } catch (fallbackError) {
+      console.error("SVG 備援下載失敗", fallbackError);
+      alert(`下載圖片失敗：${fallbackError?.message || error?.message || "未知錯誤"}`);
+    }
   } finally {
-    URL.revokeObjectURL(url);
+    button.disabled = false;
+    button.textContent = originalText;
   }
 }
 
@@ -8270,13 +8424,6 @@ async function downloadChartAsImage() {
           els.dailyAutoPlanButton.textContent = label;
         }
 
-        const resourceButton = document.getElementById("applyActivityPushPlan");
-        if (resourceButton) {
-          resourceButton.dataset.activeDay = state.activeDay;
-          resourceButton.textContent = hasAppliedPlan
-            ? `重新選擇${shortDayLabels[state.activeDay]}方案`
-            : "比較當日考古／懸賞目標與搭配方案";
-        }
       }
 
       function getGuildBountySummaryForDay(dayKey) {
@@ -8431,6 +8578,11 @@ async function downloadChartAsImage() {
 
         applyAdPetEggBasicCount("wed", "exact");
         applyAdPetEggBasicCount("sun", "exact");
+      }
+
+      function zeroCurrentDayTasks(dayKey = state.activeDay) {
+        returnAllocatedResourcesForDay(dayKey);
+        state.days[dayKey] = zeroStructure(createDefaultDay(dayKey));
       }
 
       function zeroAllDaysTasks() {
@@ -11964,50 +12116,58 @@ async function downloadChartAsImage() {
 
       function applyActivityPushPlan() {
         const originalDay = state.activeDay;
+        const beforeState = deepClone(state);
         const results = [];
 
-        if (state.weekMode === "archaeology") {
-          for (const dayKey of ["mon", "tue", "wed", "thu", "fri", "sat"]) {
-            results.push(applyArchaeologyPushDay(dayKey));
+        try {
+          if (state.weekMode === "archaeology") {
+            for (const dayKey of ["mon", "tue", "wed", "thu", "fri", "sat"]) {
+              results.push(applyArchaeologyPushDay(dayKey));
+            }
+          } else {
+            for (const dayKey of ["mon", "tue", "wed", "thu", "fri", "sat"]) {
+              state.activeDay = dayKey;
+              const personalOk = ensureBountyPersonalTasks(dayKey);
+              const recommendation = buildBountyPushRecommendation(dayKey);
+              const summary = getGuildBountySummaryForDay(dayKey);
+              const marathon = getScoresForDay(dayKey).marathon;
+              results.push({
+                dayLabel: shortDayLabels[dayKey],
+                isWarning: !personalOk || !recommendation.ok,
+                html: `
+                  <strong>${shortDayLabels[dayKey]}｜優先衝公會懸賞</strong>
+                  <div>${personalOk ? `個人任務已補到 ${format(summary.personalScore)} / 500 分。` : "資源不足，個人任務尚未補滿。"}</div>
+                  <div>${recommendation.html}</div>
+                  <div>目前馬拉松 ${format(marathon)} 分、${format(getMarathonStars(marathon))} / 6 星。</div>
+                `
+              });
+            }
           }
+
+          // 週一至週六先完成試算／套用，週日再由使用者選擇資源方案。
+          // 關閉視窗會由既有交易機制完整回滾七天與共用資源。
           state.activeDay = "sun";
           pendingWeeklyAutoPlanResults = results;
-          openSundayAutoPlan();
-          state.activeDay = originalDay;
-          return;
+          pendingWeeklyAutoPlanContext = {
+            originalDay,
+            beforeState,
+            source: "activityPush"
+          };
+          planSelectionContext = { dayKey: "sun", source: "weekly" };
+          openSundayResourcePlans();
+        } catch (error) {
+          state = beforeState;
+          pendingWeeklyAutoPlanResults = null;
+          pendingWeeklyAutoPlanContext = null;
+          planSelectionContext = null;
+          renderAll();
+          els.autoPlanStatus.className = "auto-plan-status show warning";
+          els.autoPlanStatus.innerHTML = `
+            <strong>七天考古／懸賞方案套用失敗</strong>
+            <div>${error?.message || error}</div>
+            <div>本次變更與資源消耗已全部還原。</div>
+          `;
         }
-
-        for (const dayKey of ["mon", "tue", "wed", "thu", "fri", "sat"]) {
-          state.activeDay = dayKey;
-          const personalOk = ensureBountyPersonalTasks(dayKey);
-          const recommendation = buildBountyPushRecommendation(dayKey);
-          const summary = getGuildBountySummaryForDay(dayKey);
-          const marathon = getScoresForDay(dayKey).marathon;
-          results.push({
-            dayLabel: shortDayLabels[dayKey],
-            isWarning: !personalOk || !recommendation.ok,
-            html: `
-              <strong>${shortDayLabels[dayKey]}｜優先衝公會懸賞</strong>
-              <div>${personalOk ? `個人任務已補到 ${format(summary.personalScore)} / 500 分。` : "資源不足，個人任務尚未補滿。"}</div>
-              <div>${recommendation.html}</div>
-              <div>目前馬拉松 ${format(marathon)} 分、${format(getMarathonStars(marathon))} / 6 星。</div>
-            `
-          });
-        }
-
-        state.activeDay = originalDay;
-        renderAll();
-        const hasWarning = results.some(item => item.isWarning);
-        els.autoPlanStatus.className = `auto-plan-status show ${hasWarning ? "warning" : "success"}`;
-        els.autoPlanStatus.innerHTML = `
-          <strong>資源充足方案｜懸賞優先規劃結果</strong>
-          <div>懸賞板任務隨機出現，因此不會自動填寫「已完成公會任務」件數；請依下列順序優先接取，完成後再手動登錄。</div>
-          ${results.map(item => `
-            <div class="weekly-auto-plan-result">
-              ${item.html}
-            </div>
-          `).join("")}
-        `;
       }
 
       function applyWeeklyAutoPlan(targetStages = STANDARD_WEEKLY_TARGETS) {
@@ -12650,6 +12810,7 @@ async function downloadChartAsImage() {
         if (!counterHoldState) return;
 
         const descriptor = counterHoldState.descriptor;
+        const focusAfter = counterHoldState.focusAfter;
         clearTimeout(counterHoldState.delayTimer);
         clearTimeout(counterHoldState.repeatTimer);
         clearTimeout(pendingCounterSaveTimer);
@@ -12657,7 +12818,7 @@ async function downloadChartAsImage() {
         counterHoldState = null;
         suppressCounterClickUntil = Date.now() + 450;
         renderAll();
-        focusAdjustedCounter(descriptor);
+        if (focusAfter) focusAdjustedCounter(descriptor);
       }
 
       els.taskPanel.addEventListener("pointerdown", event => {
@@ -12678,6 +12839,7 @@ async function downloadChartAsImage() {
         const startedAt = Date.now();
         counterHoldState = {
           descriptor,
+          focusAfter: event.pointerType === "mouse",
           delayTimer: 0,
           repeatTimer: 0
         };
@@ -12804,28 +12966,43 @@ async function downloadChartAsImage() {
         const taskInput = event.target.closest("input[data-task-input]");
         if (taskInput) {
           const key = taskInput.dataset.taskInput;
-          updateTaskValue(key, taskInput.value, taskInput);
-          refreshTaskPanelPreservingInput(
-            taskInput,
-            `[data-task-input="${key}"]`
-          );
+          const beforeValue = taskInput.value;
+          const cursor = taskInput.selectionStart;
+          const actualValue = updateTaskValue(key, beforeValue, taskInput);
+
+          // 只有因上限、資源或格式被修正時才回寫，輸入中不重建 DOM。
+          if (String(actualValue) !== beforeValue) {
+            taskInput.value = actualValue;
+            if (cursor != null && typeof taskInput.setSelectionRange === "function") {
+              const next = Math.min(cursor, taskInput.value.length);
+              taskInput.setSelectionRange(next, next);
+            }
+          }
+          renderSummary();
+          scheduleCounterSave();
           return;
         }
 
         const staminaInput = event.target.closest("input[data-stamina-input]");
         if (staminaInput) {
           const key = staminaInput.dataset.staminaInput;
+          const beforeValue = staminaInput.value;
+          const cursor = staminaInput.selectionStart;
           const actualCount = setStaminaCount(
             state.activeDay,
             key,
-            staminaInput.value
+            beforeValue
           );
 
-          staminaInput.value = actualCount;
-          refreshTaskPanelPreservingInput(
-            staminaInput,
-            `[data-stamina-input="${key}"]`
-          );
+          if (String(actualCount) !== beforeValue) {
+            staminaInput.value = actualCount;
+            if (cursor != null && typeof staminaInput.setSelectionRange === "function") {
+              const next = Math.min(cursor, staminaInput.value.length);
+              staminaInput.setSelectionRange(next, next);
+            }
+          }
+          renderSummary();
+          scheduleCounterSave();
         }
       });
 
@@ -13958,7 +14135,10 @@ async function downloadChartAsImage() {
 
       document.getElementById("applyActivityPushPlan").addEventListener(
         "click",
-        openOrRestoreDailyPlan
+        () => {
+          restoreAllAppliedPlans({ render: false });
+          applyActivityPushPlan();
+        }
       );
 
       if (els.dailyAutoPlanButton) {
@@ -13979,6 +14159,14 @@ async function downloadChartAsImage() {
         els.autoPlanStatus.className = "auto-plan-status";
         els.autoPlanStatus.innerHTML = "";
         resetDayToDefaults(state.activeDay);
+        renderAll();
+      });
+
+      document.getElementById("zeroCurrentDay").addEventListener("click", () => {
+        clearAppliedPlan(state.activeDay);
+        els.autoPlanStatus.className = "auto-plan-status";
+        els.autoPlanStatus.innerHTML = "";
+        zeroCurrentDayTasks(state.activeDay);
         renderAll();
       });
 
