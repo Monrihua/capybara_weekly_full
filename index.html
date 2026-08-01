@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v218</title>
+  <title>水豚每週活動計算機｜週一至週日 v219</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -5541,6 +5541,239 @@
       }
     }
 
+  
+
+    /* v219｜手機版面板一致化 */
+    @media (max-width: 600px) {
+      /* 操作面板：全部卡片統一成填滿漸層、相同骨架 */
+      #actionsSidebarCard .actions-mockup-shell {
+        gap: 12px !important;
+      }
+      #actionsSidebarCard .action-mockup-group {
+        padding: 14px !important;
+        border-radius: 20px !important;
+      }
+      #actionsSidebarCard .action-mockup-grid,
+      #actionsSidebarCard .action-mockup-grid.two,
+      #actionsSidebarCard .action-mockup-grid.four {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+      }
+      #actionsSidebarCard .action-mockup-card,
+      #actionsSidebarCard .action-mockup-card.compact,
+      #actionsSidebarCard .action-mockup-card.warning-banner,
+      #actionsSidebarCard .action-mockup-card.hero {
+        width: 100% !important;
+        min-height: 88px !important;
+        display: grid !important;
+        grid-template-columns: 44px minmax(0, 1fr) 28px !important;
+        align-items: center !important;
+        gap: 10px !important;
+        padding: 14px !important;
+        border: 0 !important;
+        border-radius: 18px !important;
+        box-shadow: 0 12px 24px rgba(20,33,61,.12) !important;
+        color: #fff !important;
+      }
+      #actionsSidebarCard .action-mockup-card.hero { min-height: 96px !important; }
+      #actionsSidebarCard .action-mockup-card .card-left-icon {
+        width: 42px !important;
+        height: 42px !important;
+        border-radius: 12px !important;
+        background: rgba(255,255,255,.16) !important;
+        color: #fff !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.25) !important;
+      }
+      #actionsSidebarCard .action-mockup-card .card-arrow,
+      #actionsSidebarCard .action-mockup-card .card-arrow.small {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 18px !important;
+        background: rgba(255,255,255,.16) !important;
+        color: #fff !important;
+        box-shadow: none !important;
+      }
+      #actionsSidebarCard .action-mockup-card .action-card-main,
+      #actionsSidebarCard .action-mockup-card .action-card-highlight,
+      #actionsSidebarCard .action-mockup-card .action-card-sub {
+        color: #fff !important;
+        text-align: left !important;
+      }
+      #actionsSidebarCard .action-mockup-card .action-card-main {
+        font-size: 14px !important;
+        line-height: 1.35 !important;
+      }
+      #actionsSidebarCard .action-mockup-card.hero .action-card-main {
+        font-size: 15px !important;
+      }
+      #actionsSidebarCard .action-mockup-card .action-card-highlight {
+        margin-top: 2px !important;
+        font-size: 12px !important;
+        line-height: 1.35 !important;
+      }
+      #actionsSidebarCard .action-mockup-card .action-card-sub {
+        margin-top: 2px !important;
+        font-size: 11px !important;
+        line-height: 1.35 !important;
+        opacity: .96;
+      }
+      #actionsSidebarCard .action-mockup-card.hero {
+        background: linear-gradient(135deg, #19a95f 0%, #4dbb71 100%) !important;
+      }
+      #actionsSidebarCard .action-mockup-card.blue,
+      #actionsSidebarCard .action-mockup-card.outline-blue {
+        background: linear-gradient(135deg, #2b60d6 0%, #4c7cf0 100%) !important;
+      }
+      #actionsSidebarCard .action-mockup-card.amber,
+      #actionsSidebarCard .action-mockup-card.outline-amber {
+        background: linear-gradient(135deg, #d88508 0%, #f0ae33 100%) !important;
+      }
+      #actionsSidebarCard .action-mockup-card.violet {
+        background: linear-gradient(135deg, #6d52e8 0%, #9166f4 100%) !important;
+      }
+      #actionsSidebarCard .action-mockup-card.outline-green {
+        background: linear-gradient(135deg, #238f4f 0%, #59b66f 100%) !important;
+      }
+      #actionsSidebarCard .action-mockup-card.outline-red,
+      #actionsSidebarCard .action-mockup-card.warning-banner {
+        background: linear-gradient(135deg, #d84a4a 0%, #ef7676 100%) !important;
+      }
+
+      /* 任務面板：手機改成一致的卡片式兩行結構，避免文字直排與高度亂掉 */
+      #taskPanel .task-list {
+        gap: 10px !important;
+      }
+      #taskPanel .task-row,
+      #taskPanel .chest-task-row {
+        display: grid !important;
+        grid-template-columns: 42px minmax(0, 1fr) auto !important;
+        grid-template-areas:
+          "icon name score"
+          "icon meta score"
+          ". counter counter" !important;
+        align-items: start !important;
+        row-gap: 6px !important;
+        column-gap: 10px !important;
+        min-height: 0 !important;
+        padding: 12px !important;
+        border: 1px solid #dce5ef !important;
+        border-radius: 16px !important;
+        background: #fff !important;
+      }
+      #taskPanel .task-row + .task-row {
+        border-top: 1px solid #dce5ef !important;
+      }
+      #taskPanel .task-row-icon {
+        grid-area: icon !important;
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
+        padding-top: 2px !important;
+      }
+      #taskPanel .task-icon-badge {
+        width: 30px !important;
+        height: 30px !important;
+        border-radius: 10px !important;
+        font-size: 18px !important;
+      }
+      #taskPanel .task-name {
+        grid-area: name !important;
+        grid-column: auto !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        font-size: 14px !important;
+        line-height: 1.35 !important;
+      }
+      #taskPanel .task-meta {
+        grid-area: meta !important;
+        grid-column: auto !important;
+        display: block !important;
+        min-width: 0 !important;
+        white-space: normal !important;
+        font-size: 12px !important;
+        line-height: 1.45 !important;
+      }
+      #taskPanel .task-meta-text {
+        display: block !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        word-break: break-word !important;
+      }
+      #taskPanel .task-score {
+        grid-area: score !important;
+        grid-column: auto !important;
+        justify-self: end !important;
+        align-self: start !important;
+        min-width: 0 !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+        white-space: normal !important;
+      }
+      #taskPanel .task-counter,
+      #taskPanel .chest-open-counter {
+        grid-area: counter !important;
+        grid-column: auto !important;
+        justify-self: end !important;
+        align-self: end !important;
+        min-width: 112px !important;
+        width: 112px !important;
+        height: 40px !important;
+        padding: 3px 4px !important;
+        display: grid !important;
+        grid-template-columns: 30px 42px 30px !important;
+        gap: 3px !important;
+      }
+      #taskPanel .task-counter button,
+      #taskPanel .chest-open-counter button {
+        width: 30px !important;
+        height: 30px !important;
+        border-radius: 10px !important;
+      }
+      #taskPanel .task-counter input,
+      #taskPanel .chest-open-counter input {
+        width: 42px !important;
+        height: 30px !important;
+        font-size: 14px !important;
+      }
+
+      /* 懸賞卡片在手機也維持統一樣式 */
+      #taskPanel .guild-bounty-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+      }
+      #taskPanel .guild-bounty-counter {
+        margin-bottom: 0 !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
+      }
+      #taskPanel .guild-bounty-counter .task-row {
+        display: grid !important;
+        grid-template-columns: 34px minmax(0, 1fr) auto !important;
+        grid-template-areas:
+          "icon name score"
+          "icon meta meta"
+          ". counter counter" !important;
+        min-height: 0 !important;
+        row-gap: 6px !important;
+      }
+
+      /* 小標與面板間距一致 */
+      #actionsSidebarCard h2,
+      #taskPanel h2 {
+        font-size: 18px !important;
+      }
+      .sidebar-note,
+      #taskPanel .task-board-note {
+        font-size: 12px !important;
+        line-height: 1.45 !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -5550,7 +5783,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v218</div>
+      <div class="prototype-badge">週一至週日 v219</div>
     </header>
 
     <div class="app-shell" id="appShell">
