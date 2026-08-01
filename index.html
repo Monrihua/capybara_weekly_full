@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v207</title>
+  <title>水豚每週活動計算機｜週一至週日 v212</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -3279,7 +3279,814 @@
       .stats-section-heading { margin-bottom: 7px; }
     }
 
-</style>
+
+
+    /* v210：保留 v207 視覺，只加寬 -/+ 輸入區 */
+    .counter,
+    .task-counter,
+    .chest-open-counter {
+      grid-template-columns: 34px 68px 34px;
+      gap: 5px;
+    }
+    .counter input,
+    .task-counter input,
+    .chest-open-counter input {
+      width: 68px;
+    }
+    @media (max-width: 600px) {
+      .counter,
+      .task-counter,
+      .chest-open-counter {
+        grid-template-columns: 32px 60px 32px;
+      }
+      .counter input,
+      .task-counter input,
+      .chest-open-counter input {
+        width: 60px;
+      }
+    }
+
+  
+
+    /* v211｜更接近示意圖的儀表板版型（基於 v210，保留功能） */
+    @media (min-width: 901px) {
+      body {
+        background:
+          radial-gradient(circle at top left, rgba(67, 97, 238, 0.05), transparent 24%),
+          radial-gradient(circle at top right, rgba(80, 160, 90, 0.04), transparent 24%),
+          #eef3f9;
+        padding: 18px;
+      }
+
+      .page {
+        max-width: 1560px;
+        min-height: calc(100vh - 36px);
+      }
+
+      .app-shell {
+        grid-template-columns: 96px minmax(0, 1fr);
+        gap: 16px;
+        min-height: calc(100vh - 36px);
+      }
+
+      .desktop-app-nav {
+        top: 18px;
+        min-height: calc(100vh - 36px);
+        border-radius: 24px;
+        background: linear-gradient(180deg, #173355 0%, #1a3556 55%, #16304d 100%);
+        border: 1px solid rgba(22, 41, 68, 0.32);
+        box-shadow: 0 18px 44px rgba(23, 48, 77, .18);
+      }
+
+      .desktop-brand {
+        min-height: 118px;
+        gap: 8px;
+        border-bottom: 1px solid rgba(255,255,255,.10);
+      }
+      .desktop-brand-icon {
+        width: 46px;
+        height: 46px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border-radius: 14px;
+        background: rgba(255,255,255,.10);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.15);
+        font-size: 26px;
+      }
+      .desktop-brand strong {
+        font-size: 12px;
+        line-height: 1.25;
+        font-weight: 900;
+      }
+
+      .desktop-nav-btn {
+        min-height: 84px;
+        gap: 8px;
+        color: #e7eef9;
+      }
+      .desktop-nav-btn span {
+        width: 40px;
+        height: 40px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border-radius: 14px;
+        background: rgba(255,255,255,.07);
+        font-size: 20px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+      }
+      .desktop-nav-btn strong {
+        font-size: 11px;
+        line-height: 1.25;
+        letter-spacing: .01em;
+      }
+      .desktop-nav-btn.active {
+        background: linear-gradient(180deg, rgba(112, 140, 182, .34), rgba(69, 97, 139, .40));
+        box-shadow: inset 4px 0 0 #88b0ff;
+      }
+      .desktop-nav-btn.active span {
+        background: rgba(255,255,255,.14);
+      }
+
+      #sidebarCard,
+      #actionsSidebarCard,
+      #mainContent {
+        border-radius: 24px;
+      }
+      #sidebarCard,
+      #actionsSidebarCard {
+        border: 1px solid #dbe4ef;
+        background: rgba(255,255,255,.9);
+        box-shadow: 0 10px 26px rgba(20,33,61,.06);
+      }
+      #mainContent {
+        gap: 14px;
+      }
+
+      .week-mode-tabs,
+      .day-tabs {
+        gap: 8px;
+      }
+      .week-mode-tab,
+      .day-tab {
+        border-radius: 15px;
+        border: 1px solid #d6deeb;
+        box-shadow: 0 4px 12px rgba(20,33,61,.03);
+        font-weight: 900;
+      }
+      .week-mode-tab.active,
+      .day-tab.active {
+        box-shadow: 0 10px 22px rgba(20,33,61,.10);
+      }
+
+      .day-main-card {
+        border: 1px solid #dbe4ef;
+        border-radius: 24px;
+        box-shadow: 0 10px 26px rgba(20,33,61,.06);
+      }
+
+      .task,
+      .task-card,
+      .section,
+      .card-settings-details,
+      .action-chip,
+      .weekly-marathon-card,
+      .stats-next-reward-section,
+      .stats-detail-fold,
+      .stats-reward-total-section {
+        border-radius: 18px;
+        border-color: #dde5ef;
+      }
+
+      .action-btn,
+      .day-auto-plan-btn,
+      .chart-action-btn,
+      .chart-close-btn,
+      .reward-summary-toggle {
+        border-radius: 14px;
+        font-weight: 900;
+      }
+
+      body[data-active-panel="stats"] #mainContent {
+        padding: 18px;
+        border-radius: 28px;
+        border: 1px solid #d8e1ed;
+        background: linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(249,251,254,.98) 100%);
+        box-shadow: 0 18px 42px rgba(20,33,61,.08);
+      }
+
+      body[data-active-panel="stats"] .stats-view-shell {
+        gap: 16px;
+        padding: 0;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+      }
+
+      body[data-active-panel="stats"] .stats-dashboard-head {
+        align-items: start;
+        min-height: 72px;
+        padding: 0 2px 14px;
+        border-bottom: 1px solid #e6edf5;
+      }
+      .stats-dashboard-kicker {
+        color: #4f67dd;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: .02em;
+      }
+      .stats-dashboard-head h2 {
+        font-size: 28px;
+        line-height: 1.08;
+        letter-spacing: -.03em;
+        color: #12233d;
+        margin-top: 4px;
+      }
+      .stats-dashboard-head p {
+        color: #6b7b90;
+        font-size: 14px;
+      }
+      .stats-dashboard-meta {
+        color: #6b7b90;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .stats-summary-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+      }
+      .stats-kpi-card {
+        min-height: 230px;
+        padding: 16px 16px 14px;
+        border-radius: 18px;
+        border: 1px solid #dde5ef;
+        background: #fff;
+        box-shadow: 0 8px 18px rgba(20,33,61,.05);
+      }
+      .stats-kpi-marathon { border-color: #cedaf4; }
+      .stats-kpi-secondary { border-color: #d2e8d9; }
+      .stats-kpi-week { border-color: #e0d7fa; }
+      .stats-kpi-reward { border-color: #ecdcbf; }
+      .stats-kpi-card::before { display: none; }
+      .stats-kpi-head {
+        min-height: 24px;
+        align-items: center;
+      }
+      .stats-kpi-title {
+        font-size: 15px;
+        font-weight: 900;
+        gap: 6px;
+      }
+      .stats-kpi-marathon .stats-kpi-title { color: #336fe0; }
+      .stats-kpi-secondary .stats-kpi-title { color: #2f8f51; }
+      .stats-kpi-week .stats-kpi-title { color: #7a56e3; }
+      .stats-kpi-reward .stats-kpi-title { color: #d08a11; }
+      .stats-status-badge {
+        min-height: 24px;
+        padding: 0 10px;
+        border-radius: 999px;
+        border: 1px solid #e4ebf3;
+        background: #f4f7fb;
+        color: #6b7b90;
+        font-size: 11px;
+        font-weight: 900;
+      }
+      .stats-kpi-value {
+        margin-top: 18px;
+        display: flex;
+        align-items: flex-end;
+        gap: 4px;
+      }
+      .stats-kpi-value strong {
+        font-size: clamp(26px, 2vw, 38px);
+        line-height: 1;
+        letter-spacing: -.03em;
+        color: #12233d;
+      }
+      .stats-kpi-value span {
+        font-size: 18px;
+        font-weight: 900;
+        margin-bottom: 2px;
+      }
+      .stats-kpi-metrics {
+        margin-top: 10px;
+        min-height: 40px;
+        color: #5d6d81;
+        font-size: 12px;
+      }
+      .stats-kpi-metrics strong { color: #1b2e4c; }
+      .stats-kpi-card .progress {
+        margin-top: 12px;
+        height: 8px;
+        border-radius: 999px;
+        background: #ebeff5;
+      }
+      .stats-kpi-card .progress-bar { border-radius: 999px; }
+      .stats-kpi-marathon .progress-bar { background: linear-gradient(90deg, #4486f8, #2e67d4); }
+      .stats-kpi-secondary .progress-bar { background: linear-gradient(90deg, #59c66c, #34aa56); }
+      .stats-kpi-week .progress-bar { background: linear-gradient(90deg, #a178ff, #784ce4); }
+      .stats-kpi-reward .progress-bar { background: linear-gradient(90deg, #e6b341, #cf8a03); }
+      .stats-next-line {
+        margin-top: 12px;
+        min-height: 34px;
+        font-size: 12px;
+        color: #5f7086;
+        gap: 8px;
+      }
+      .stats-next-line strong {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        padding: 0 11px;
+        border-radius: 999px;
+        background: #edf3ff;
+        color: #5168e1;
+        border: 1px solid #dde5fb;
+        font-size: 11px;
+        font-weight: 900;
+      }
+      .stats-kpi-reward .stats-next-line strong { background: #fff5e6; color: #b77b12; border-color: #f3e2be; }
+      .stats-reward-icons {
+        margin-top: 12px;
+        font-size: 12px;
+        line-height: 1.45;
+        color: #20324f;
+        min-height: 48px;
+      }
+
+      .stats-week-table {
+        border: 1px solid #dbe4ef;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 8px 18px rgba(20,33,61,.05);
+      }
+      .stats-week-head {
+        padding: 0 0 8px;
+        margin-bottom: 0;
+      }
+      .stats-section-kicker {
+        color: #5d6de0;
+        font-size: 12px;
+        font-weight: 900;
+      }
+      .stats-section-heading h3,
+      .stats-week-head h3 {
+        font-size: 20px;
+        line-height: 1.15;
+        letter-spacing: -.02em;
+        color: #12233d;
+      }
+      .stats-week-table-head,
+      .stats-week-row {
+        grid-template-columns: 76px minmax(280px,1.3fr) minmax(280px,1.3fr) 126px;
+      }
+      .stats-week-table-head {
+        padding: 12px 16px;
+        background: #f6f9fd;
+        border-top: 1px solid #edf2f7;
+        border-bottom: 1px solid #edf2f7;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 900;
+      }
+      .stats-week-row {
+        padding: 12px 16px;
+        border-bottom: 1px solid #edf2f7;
+      }
+      .stats-week-row.active { background: #f5f8ff; }
+      .stats-week-day { font-size: 13px; font-weight: 900; color: #1d3150; }
+      .stats-week-status {
+        min-height: 30px;
+        padding: 0 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+      }
+      .stats-week-status.done { background: #ebf8ef; color: #23814f; }
+      .stats-week-status.warn { background: #fff5df; color: #bf7a08; }
+
+      .stats-next-reward-section,
+      .stats-detail-fold,
+      .stats-reward-total-section {
+        border: 1px solid #dbe4ef;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 8px 18px rgba(20,33,61,.05);
+      }
+      .stats-next-reward-grid {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 12px;
+      }
+      .stats-next-reward-card {
+        border: 1px solid #e1e8f2;
+        border-radius: 16px;
+        background: #fbfdff;
+        padding: 12px 14px;
+      }
+      .stats-next-reward-card.marathon { border-color: #cfdbf6; }
+      .stats-next-reward-card.secondary { border-color: #d4e9dc; }
+      .stats-detail-fold > summary {
+        min-height: 54px;
+        border-radius: 14px;
+        background: #f7f9fc;
+        border: 1px solid #e7edf4;
+      }
+      .reward-summary-toggle {
+        border-radius: 999px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .mobile-nav {
+        background: rgba(255,255,255,.96);
+        border-top: 1px solid #e4ebf4;
+        backdrop-filter: blur(10px);
+      }
+      .mobile-nav-btn.active {
+        color: #6b4ee8;
+      }
+
+      body[data-active-panel="stats"] #mainContent {
+        padding: 0;
+        border: 0;
+        box-shadow: none;
+        background: transparent;
+      }
+      .stats-view-shell {
+        border-radius: 20px;
+        border: 1px solid #dfe6f1;
+        background: rgba(255,255,255,.96);
+        box-shadow: 0 8px 20px rgba(20,33,61,.05);
+      }
+      .stats-dashboard-head {
+        padding: 12px 12px 10px;
+        border-bottom: 1px solid #e7edf4;
+      }
+      .stats-dashboard-kicker {
+        color: #5a67de;
+        font-size: 11px;
+        font-weight: 900;
+      }
+      .stats-dashboard-head h2 {
+        font-size: 18px;
+        line-height: 1.15;
+        margin: 4px 0;
+      }
+      .stats-view-tabs {
+        background: #f5f7fb;
+        border: 1px solid #e0e7f1;
+        border-radius: 12px;
+        padding: 3px;
+      }
+      .stats-view-tab {
+        min-height: 38px;
+        border-radius: 10px;
+        font-weight: 900;
+      }
+      .stats-view-tab.active {
+        background: linear-gradient(135deg, #8b66ff, #6c4de2);
+        color: #fff;
+      }
+      .stats-summary-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .stats-kpi-card {
+        min-height: 176px;
+        border-radius: 16px;
+        padding: 12px;
+        border: 1px solid #dde5ef;
+        background: #fff;
+      }
+      .stats-kpi-value strong { font-size: 20px; }
+      .stats-kpi-value span { font-size: 15px; }
+      .stats-kpi-metrics,
+      .stats-next-line,
+      .stats-reward-icons { font-size: 11px; }
+    }
+
+  
+
+    /* v212｜全頁面板一致性重整（僅樣式，不改功能） */
+    :root {
+      --ui-bg: #eef3f9;
+      --ui-surface: #ffffff;
+      --ui-surface-soft: #f8fbff;
+      --ui-line: #dbe4ef;
+      --ui-line-strong: #cfd9e6;
+      --ui-text: #13233d;
+      --ui-sub: #6b7b90;
+      --ui-shadow: 0 10px 24px rgba(20, 33, 61, .06);
+      --ui-shadow-lg: 0 18px 42px rgba(20, 33, 61, .08);
+      --ui-radius-xl: 24px;
+      --ui-radius-lg: 18px;
+      --ui-radius-md: 14px;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(67,97,238,.05), transparent 24%),
+        radial-gradient(circle at top right, rgba(34,197,94,.03), transparent 22%),
+        var(--ui-bg);
+      color: var(--ui-text);
+    }
+
+    .card,
+    .sidebar,
+    .actions,
+    .day-main-card,
+    .weekly-marathon-card,
+    .stats-next-reward-section,
+    .stats-detail-fold,
+    .stats-reward-total-section,
+    .card-settings-details,
+    .task-row,
+    .task-block,
+    .action-chip,
+    .report-section,
+    .report-card {
+      border-color: var(--ui-line);
+      box-shadow: var(--ui-shadow);
+    }
+
+    .day-main-card,
+    #sidebarCard,
+    #actionsSidebarCard,
+    body[data-active-panel="stats"] #mainContent {
+      border: 1px solid var(--ui-line);
+      border-radius: var(--ui-radius-xl);
+      background: rgba(255,255,255,.94);
+      box-shadow: var(--ui-shadow-lg);
+    }
+
+    .week-mode-tabs,
+    .day-tabs {
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .week-mode-tab,
+    .day-tab {
+      min-height: 44px;
+      border-radius: 15px;
+      border: 1px solid var(--ui-line-strong);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      box-shadow: 0 6px 14px rgba(20,33,61,.03);
+      color: #253a5a;
+      font-weight: 900;
+      letter-spacing: .01em;
+    }
+    .week-mode-tab.active,
+    .day-tab.active {
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 10px 20px rgba(20,33,61,.12);
+    }
+
+    .day-main-card {
+      padding: 20px 20px 22px;
+    }
+    .day-main-card > h2,
+    .section-title,
+    .sidebar h2,
+    .actions h2 {
+      color: #13233d;
+      letter-spacing: -.02em;
+    }
+
+    .task-block {
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      border: 1px solid var(--ui-line);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .task-block-title {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed #e7edf5;
+    }
+    .task-block-title h3,
+    .task-block-title strong,
+    .task-block-title .task-group-title {
+      font-size: 16px;
+      color: #183050;
+      font-weight: 900;
+      letter-spacing: -.02em;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 10px;
+    }
+    .task-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      padding: 12px 12px 12px 14px;
+      border: 1px solid var(--ui-line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+      box-shadow: 0 4px 12px rgba(20,33,61,.03);
+    }
+    .task-row.has-value {
+      border-color: #c7d7f3;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+    .task-info {
+      min-width: 0;
+    }
+    .task-name {
+      font-size: 15px;
+      font-weight: 900;
+      color: #1a2f4c;
+      line-height: 1.3;
+    }
+    .task-meta {
+      margin-top: 3px;
+      color: var(--ui-sub);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .task-score {
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: #435673;
+    }
+    .task-score .marathon { color: #2764d9; font-weight: 900; }
+    .task-score .archaeology,
+    .task-score .bounty { color: #2f8d52; font-weight: 900; }
+
+    .task-counter,
+    .counter,
+    .chest-open-counter {
+      gap: 6px;
+      align-items: center;
+    }
+    .task-counter button,
+    .counter button,
+    .chest-open-counter button {
+      width: 36px;
+      height: 36px;
+      border-radius: 11px;
+      border: 1px solid #dbe4ef;
+      background: #f3f6fb;
+      color: #5470da;
+      font-size: 22px;
+      font-weight: 900;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+    }
+    .task-counter input,
+    .counter input,
+    .chest-open-counter input {
+      width: 76px;
+      height: 36px;
+      border-radius: 11px;
+      border: 1px solid #ccd8e6;
+      background: #fff;
+      color: #163050;
+      font-weight: 900;
+      font-size: 15px;
+      text-align: center;
+      box-shadow: inset 0 1px 2px rgba(20,33,61,.04);
+    }
+
+    .sidebar-note,
+    .section-note,
+    .task-note {
+      color: var(--ui-sub);
+    }
+
+    .setting-list,
+    .collection-setting-list {
+      display: grid;
+      gap: 10px;
+    }
+    .setting-row,
+    .collection-setting-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid var(--ui-line);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+    .setting-row input,
+    .collection-setting-row input {
+      accent-color: #4e67de;
+    }
+
+    .card-settings-details {
+      overflow: hidden;
+      border: 1px solid var(--ui-line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      box-shadow: 0 6px 16px rgba(20,33,61,.04);
+    }
+    .card-settings-details > summary {
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      cursor: pointer;
+      background: #f7f9fc;
+      color: #1b3150;
+      font-weight: 900;
+      border-bottom: 1px solid #e9eef5;
+    }
+    .card-settings-content {
+      padding: 14px;
+    }
+
+    .sidebar-actions {
+      display: grid;
+      gap: 9px;
+    }
+    .sidebar-actions .action-btn,
+    .day-auto-plan-btn {
+      min-height: 46px;
+      padding: 11px 14px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      box-shadow: 0 8px 18px rgba(20,33,61,.05);
+      font-weight: 900;
+      letter-spacing: .01em;
+      line-height: 1.35;
+    }
+    .action-confirm { background: linear-gradient(135deg, #15a55d, #1dac6a); color: #fff; }
+    .action-plan { background: linear-gradient(135deg, #285fd4, #7b50e6); color: #fff; }
+    .action-primary { background: linear-gradient(135deg, #2c69db, #3464d4); color: #fff; }
+    .action-secondary { background: #eef2f7; color: #1d3150; border-color: #dde5ef; }
+    .action-warning { background: #f7efe1; color: #8b5c07; border-color: #ecd7b3; }
+    .action-danger { background: #f7e7e7; color: #b42318; border-color: #efc8c8; }
+    .action-btn:hover,
+    .day-auto-plan-btn:hover {
+      transform: translateY(-1px);
+      filter: saturate(1.02);
+    }
+
+    .action-chip,
+    .report-summary-item,
+    .weekly-activity-total {
+      border-radius: 14px;
+      border: 1px solid var(--ui-line);
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(20,33,61,.03);
+    }
+
+    .plan-choice-dialog,
+    .chart-modal-dialog {
+      border-radius: 22px;
+      border: 1px solid #dbe4ef;
+      background: #fff;
+      box-shadow: 0 24px 60px rgba(20,33,61,.18);
+    }
+    .plan-choice-head,
+    .chart-modal-head {
+      border-bottom: 1px solid #e9eef5;
+      background: #fff;
+    }
+    .plan-choice-list {
+      gap: 10px;
+    }
+    .plan-choice-card {
+      border-radius: 16px;
+      border: 1px solid var(--ui-line);
+      background: #fff;
+      box-shadow: 0 6px 14px rgba(20,33,61,.04);
+    }
+    .plan-choice-btn {
+      border-radius: 12px;
+      font-weight: 900;
+    }
+
+    .reward-chip,
+    .reward-total-chip,
+    .stage-card,
+    .weekly-stage-card {
+      border-radius: 14px;
+      border-color: var(--ui-line);
+      background: #fff;
+    }
+
+    @media (max-width: 900px) {
+      .day-main-card,
+      #sidebarCard,
+      #actionsSidebarCard {
+        border-radius: 20px;
+      }
+      .task-row {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .task-counter,
+      .counter,
+      .chest-open-counter {
+        justify-self: end;
+      }
+      .task-counter input,
+      .counter input,
+      .chest-open-counter input {
+        width: 66px;
+      }
+      .task-block,
+      .card-settings-details,
+      .plan-choice-card {
+        border-radius: 16px;
+      }
+      .week-mode-tab,
+      .day-tab { min-height: 42px; }
+    }
+
+  </style>
 </head>
 <body>
   <main class="page">
@@ -3288,19 +4095,19 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v207</div>
+      <div class="prototype-badge">週一至週日 v212</div>
     </header>
 
     <div class="app-shell" id="appShell">
       <nav class="desktop-app-nav" id="desktopAppNav" aria-label="功能切換">
         <div class="desktop-brand" aria-label="水豚每週活動計算機">
           <span class="desktop-brand-icon">🦫</span>
-          <strong>水豚週計</strong>
+          <strong>水豚每週<br>活動計算機</strong>
         </div>
-        <button class="desktop-nav-btn active" type="button" data-mobile-panel="tasks"><span>▣</span><strong>任務面板</strong></button>
-        <button class="desktop-nav-btn" type="button" data-mobile-panel="actions"><span>⚒</span><strong>操作面板</strong></button>
-        <button class="desktop-nav-btn" type="button" data-mobile-panel="stats"><span>▥</span><strong>統計</strong></button>
-        <button class="desktop-nav-btn" type="button" data-mobile-panel="settings"><span>⚙</span><strong>個人化設定</strong></button>
+        <button class="desktop-nav-btn active" type="button" data-mobile-panel="tasks"><span>🗂️</span><strong>任務面板</strong></button>
+        <button class="desktop-nav-btn" type="button" data-mobile-panel="actions"><span>🛠️</span><strong>操作面板</strong></button>
+        <button class="desktop-nav-btn" type="button" data-mobile-panel="stats"><span>📊</span><strong>統計</strong></button>
+        <button class="desktop-nav-btn" type="button" data-mobile-panel="settings"><span>⚙️</span><strong>個人化設定</strong></button>
       </nav>
       <aside class="card sidebar" id="sidebarCard" aria-label="個人化設置">
         <h2 id="sidebarHeading">個人化設置</h2>
@@ -3526,7 +4333,7 @@
             <div>
               <span class="stats-dashboard-kicker">本週活動與獎勵</span>
               <h2>統計總覽</h2>
-              <p id="statsViewSubtitle">快速確認今日進度、七天狀態與下一個獎勵。</p>
+              <p id="statsViewSubtitle">本週活動進度與獎勵總覽。</p>
               <div class="stats-dashboard-meta">目前活動週・週一至週日</div>
             </div>
             <nav class="stats-view-tabs" id="statsViewTabs" aria-label="統計內容切換">
@@ -3622,11 +4429,11 @@
               <div class="section-head weekly-integrated-head stats-week-head">
                 <div>
                   <span class="stats-section-kicker">七天進度</span>
-                  <h3 id="weeklyIntegratedTitle">馬拉松｜聯合考古｜本週總覽</h3>
-                  <div class="section-note">每列可直接切換至該星期；狀態以 30 星方案為基準。</div>
+                  <h3 id="weeklyIntegratedTitle">七天進度總覽</h3>
+                  <div class="section-note">可直接查看週一至週日狀態與本週階段進度。</div>
                 </div>
                 <div class="weekly-summary-head-tools">
-                  <div class="section-note" id="weeklyNextStageText">統計每日已達成階段</div>
+                  <div class="section-note" id="weeklyNextStageText">已達目標／下一個要補</div>
                 </div>
               </div>
 
@@ -8654,8 +9461,8 @@
         };
 
         const labels = dayLabels[state.activeDay];
-        els.marathonTitle.textContent = labels.marathon;
-        els.archaeologyTitle.textContent = labels.archaeology;
+        els.marathonTitle.textContent = "今日馬拉松";
+        els.archaeologyTitle.textContent = state.weekMode === "bounty" ? "今日公會懸賞" : "今日聯合考古";
         els.archaeologyMetricLabel.textContent = "幸運礦鎬";
         els.archaeologyRemainingLabel.textContent = "距離滿階";
         els.dayTaskTitle.textContent = labels.task;
@@ -10595,6 +11402,7 @@ async function downloadChartAsImage() {
       let pendingDailyPlanComparison = null;
       let pendingWeeklyAutoPlanResults = null;
       let pendingWeeklyAutoPlanContext = null;
+      let guidedWeeklyPlanInProgress = false;
 
       function applyMinimumSundayFreeTasks() {
         applyBaseTasksForDay("sun");
@@ -12846,6 +13654,7 @@ async function downloadChartAsImage() {
         const originalDay = pendingWeeklyAutoPlanContext?.originalDay || "mon";
         pendingWeeklyAutoPlanResults = null;
         pendingWeeklyAutoPlanContext = null;
+        guidedWeeklyPlanInProgress = false;
         planSelectionContext = null;
         state.activeDay = originalDay;
         renderAll();
@@ -12872,6 +13681,7 @@ async function downloadChartAsImage() {
         pendingSundayPlans = null;
         pendingDailyPlanComparison = null;
         planSelectionContext = null;
+        guidedWeeklyPlanInProgress = false;
 
         if (context?.beforeState) {
           state = deepClone(context.beforeState);
@@ -12883,8 +13693,42 @@ async function downloadChartAsImage() {
         els.autoPlanStatus.className = "auto-plan-status show warning";
         els.autoPlanStatus.innerHTML = `
           <strong>已取消本週批次方案</strong>
-          <div>週一至週六已套用的變更與資源消耗都已還原，並返回原本星期。</div>
+          <div>週一至週日已選或已套用的變更與資源消耗都已還原，並返回原本星期。</div>
         `;
+      }
+
+      function advanceGuidedWeeklyPlan() {
+        const context = pendingWeeklyAutoPlanContext;
+        if (!context || context.source !== "guidedWeek") return false;
+
+        const queue = Array.isArray(context.queue) ? context.queue : [];
+        const index = Math.max(0, toInt(context.index));
+        const currentDay = queue[index];
+        if (!currentDay || currentDay === "sun") return false;
+
+        pendingWeeklyAutoPlanResults.push({
+          dayLabel: shortDayLabels[currentDay],
+          isWarning: els.autoPlanStatus.classList.contains("warning"),
+          html: els.autoPlanStatus.innerHTML
+        });
+
+        context.index = index + 1;
+        const nextDay = queue[context.index];
+        if (!nextDay) {
+          guidedWeeklyPlanInProgress = false;
+          finishWeeklyAutoPlanWithSunday();
+          return true;
+        }
+
+        state.activeDay = nextDay;
+        renderAll();
+        planSelectionContext = { dayKey: nextDay, source: "weekly" };
+        if (nextDay === "sun") {
+          openSundayResourcePlans();
+        } else {
+          openDailyAutoPlanComparison(nextDay);
+        }
+        return true;
       }
 
       function applySelectedSundayPlan(choice) {
@@ -12989,7 +13833,10 @@ async function downloadChartAsImage() {
         } finally {
           planSelectionInProgress = false;
           finishTrackedPlanApplication(application);
-          planSelectionContext = null;
+          const advancedWeeklyPlan = advanceGuidedWeeklyPlan();
+          if (!advancedWeeklyPlan) {
+            planSelectionContext = null;
+          }
           updateDailyAutoPlanButton();
         }
       }
@@ -13246,57 +14093,19 @@ async function downloadChartAsImage() {
       function applyActivityPushPlan() {
         const originalDay = state.activeDay;
         const beforeState = deepClone(state);
-        const results = [];
-
-        try {
-          if (state.weekMode === "archaeology") {
-            for (const dayKey of ["mon", "tue", "wed", "thu", "fri", "sat"]) {
-              results.push(applyArchaeologyPushDay(dayKey));
-            }
-          } else {
-            for (const dayKey of ["mon", "tue", "wed", "thu", "fri", "sat"]) {
-              state.activeDay = dayKey;
-              const personalOk = ensureBountyPersonalTasks(dayKey);
-              const recommendation = buildBountyPushRecommendation(dayKey);
-              const summary = getGuildBountySummaryForDay(dayKey);
-              const marathon = getScoresForDay(dayKey).marathon;
-              results.push({
-                dayLabel: shortDayLabels[dayKey],
-                isWarning: !personalOk || !recommendation.ok,
-                html: `
-                  <strong>${shortDayLabels[dayKey]}｜優先衝公會懸賞</strong>
-                  <div>${personalOk ? `個人任務已補到 ${format(summary.personalScore)} / 500 分。` : "資源不足，個人任務尚未補滿。"}</div>
-                  <div>${recommendation.html}</div>
-                  <div>目前馬拉松 ${format(marathon)} 分、${format(getMarathonStars(marathon))} / 6 星。</div>
-                `
-              });
-            }
-          }
-
-          // 週一至週六先完成試算／套用，週日再由使用者選擇資源方案。
-          // 關閉視窗會由既有交易機制完整回滾七天與共用資源。
-          state.activeDay = "sun";
-          pendingWeeklyAutoPlanResults = results;
-          pendingWeeklyAutoPlanContext = {
-            originalDay,
-            beforeState,
-            source: "activityPush"
-          };
-          planSelectionContext = { dayKey: "sun", source: "weekly" };
-          openSundayResourcePlans();
-        } catch (error) {
-          state = beforeState;
-          pendingWeeklyAutoPlanResults = null;
-          pendingWeeklyAutoPlanContext = null;
-          planSelectionContext = null;
-          renderAll();
-          els.autoPlanStatus.className = "auto-plan-status show warning";
-          els.autoPlanStatus.innerHTML = `
-            <strong>七天考古／懸賞方案套用失敗</strong>
-            <div>${error?.message || error}</div>
-            <div>本次變更與資源消耗已全部還原。</div>
-          `;
-        }
+        pendingWeeklyAutoPlanResults = [];
+        pendingWeeklyAutoPlanContext = {
+          originalDay,
+          beforeState,
+          source: "guidedWeek",
+          queue: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+          index: 0
+        };
+        guidedWeeklyPlanInProgress = true;
+        state.activeDay = "mon";
+        renderAll();
+        planSelectionContext = { dayKey: "mon", source: "weekly" };
+        openDailyAutoPlanComparison("mon");
       }
 
       function applyWeeklyAutoPlan(targetStages = STANDARD_WEEKLY_TARGETS) {
