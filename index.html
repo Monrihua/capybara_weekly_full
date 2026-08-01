@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v219</title>
+  <title>水豚每週活動計算機｜週一至週日 v220</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -5774,6 +5774,201 @@
       }
     }
 
+  
+
+    /* v220｜補齊手機版未套用的版型 */
+    @media (max-width: 600px) {
+      /* 任務頁標題與說明不再互相擠壓 */
+      #mobileTasksPanel .section-head {
+        display: block !important;
+        padding: 10px 2px 14px !important;
+      }
+      #mobileTasksPanel .section-head h2 {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 0 6px !important;
+        font-size: 20px !important;
+        line-height: 1.25 !important;
+        white-space: normal !important;
+      }
+      #mobileTasksPanel .section-head .section-note {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+        line-height: 1.45 !important;
+      }
+
+      /* 一般任務：名稱、說明、分數、控制器各自佔一列，避免中間欄被分數標籤壓成直排 */
+      #taskPanel .task-row,
+      #taskPanel .chest-task-row,
+      #taskPanel .task-list .task-row {
+        display: grid !important;
+        grid-template-columns: 36px minmax(0, 1fr) !important;
+        grid-template-areas:
+          "icon name"
+          "icon meta"
+          ". score"
+          ". counter" !important;
+        align-items: start !important;
+        column-gap: 10px !important;
+        row-gap: 7px !important;
+        min-height: auto !important;
+        height: auto !important;
+        padding: 12px !important;
+        border: 1px solid #dce5ef !important;
+        border-radius: 16px !important;
+        background: #fff !important;
+        overflow: visible !important;
+      }
+      #taskPanel .task-row-icon {
+        grid-area: icon !important;
+        grid-column: auto !important;
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
+        padding-top: 1px !important;
+      }
+      #taskPanel .task-name {
+        grid-area: name !important;
+        grid-column: auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        font-size: 15px !important;
+        line-height: 1.35 !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: break-word !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+      }
+      #taskPanel .task-meta {
+        grid-area: meta !important;
+        grid-column: auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        display: block !important;
+        font-size: 12px !important;
+        line-height: 1.5 !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: break-word !important;
+        overflow: visible !important;
+      }
+      #taskPanel .task-meta-text {
+        display: block !important;
+        width: auto !important;
+        min-width: 0 !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: break-word !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+      }
+      #taskPanel .task-score {
+        grid-area: score !important;
+        grid-column: auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        justify-self: start !important;
+        align-self: start !important;
+        display: flex !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: 5px !important;
+        white-space: normal !important;
+        overflow: visible !important;
+      }
+      #taskPanel .task-counter,
+      #taskPanel .chest-open-counter {
+        grid-area: counter !important;
+        grid-column: auto !important;
+        justify-self: end !important;
+        align-self: end !important;
+        width: 116px !important;
+        min-width: 116px !important;
+        height: 40px !important;
+        margin: 0 !important;
+        padding: 3px 4px !important;
+        display: grid !important;
+        grid-template-columns: 30px 44px 30px !important;
+        gap: 4px !important;
+      }
+      #taskPanel .task-counter button,
+      #taskPanel .chest-open-counter button {
+        width: 30px !important;
+        height: 30px !important;
+      }
+      #taskPanel .task-counter input,
+      #taskPanel .chest-open-counter input {
+        width: 44px !important;
+        height: 30px !important;
+      }
+
+      /* 懸賞卡片沿用相同的手機排列，不再被桌面三欄規則壓縮 */
+      #taskPanel .guild-bounty-counter .task-row {
+        display: grid !important;
+        grid-template-columns: 36px minmax(0, 1fr) !important;
+        grid-template-areas:
+          "icon name"
+          "icon meta"
+          ". score"
+          ". counter" !important;
+        min-height: auto !important;
+        height: auto !important;
+        padding: 12px !important;
+        row-gap: 7px !important;
+        column-gap: 10px !important;
+      }
+      #taskPanel .guild-bounty-counter .task-row-icon { grid-area: icon !important; }
+      #taskPanel .guild-bounty-counter .task-name { grid-area: name !important; }
+      #taskPanel .guild-bounty-counter .task-meta { grid-area: meta !important; }
+      #taskPanel .guild-bounty-counter .task-score { grid-area: score !important; }
+      #taskPanel .guild-bounty-counter .task-counter {
+        grid-area: counter !important;
+        width: 116px !important;
+        min-width: 116px !important;
+      }
+
+      /* 操作卡片：有圖示、無圖示、警示卡分開定義欄位 */
+      #actionsSidebarCard .action-mockup-card .card-content {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+      }
+      #actionsSidebarCard .action-mockup-card:not(.compact):not(.warning-banner) {
+        display: grid !important;
+        grid-template-columns: 44px minmax(0, 1fr) 28px !important;
+      }
+      #actionsSidebarCard .action-mockup-card.compact {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 28px !important;
+      }
+      #actionsSidebarCard .action-mockup-card.warning-banner {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+      }
+      #actionsSidebarCard .action-card-main,
+      #actionsSidebarCard .action-card-highlight,
+      #actionsSidebarCard .action-card-sub {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: break-word !important;
+        text-align: left !important;
+      }
+      #actionsSidebarCard .action-mockup-card.compact,
+      #actionsSidebarCard .action-mockup-card.warning-banner {
+        min-height: 82px !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -5783,7 +5978,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v219</div>
+      <div class="prototype-badge">週一至週日 v220</div>
     </header>
 
     <div class="app-shell" id="appShell">
