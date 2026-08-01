@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v205</title>
+  <title>水豚每週活動計算機｜週一至週日 v206</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -3029,6 +3029,20 @@
       .stats-reward-total-head .reward-summary-toggle { width: 100%; }
     }
 
+
+
+    /* v206：手機面板切換必須尊重 hidden；避免 display:grid 覆蓋隱藏狀態 */
+    @media (max-width: 600px) {
+      .stats-view-shell[hidden],
+      .stats-pane[hidden],
+      #sidebarCard[hidden],
+      #actionsSidebarCard[hidden],
+      #mobileTasksPanel[hidden],
+      #mobileSettingsPanel[hidden],
+      #mobileActionsPanel[hidden] {
+        display: none !important;
+      }
+    }
 </style>
 </head>
 <body>
@@ -3038,7 +3052,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v205</div>
+      <div class="prototype-badge">週一至週日 v206</div>
     </header>
 
     <div class="app-shell">
@@ -3557,8 +3571,9 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v205";
+      const STORAGE_KEY = "capybara-weekly-full-v206";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v205",
         "capybara-weekly-full-v204",
         "capybara-weekly-full-v203",
         "capybara-weekly-full-v202",
