@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v204</title>
+  <title>水豚每週活動計算機｜週一至週日 v205</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -2474,6 +2474,561 @@
       }
     }
 
+
+    /* v205：桌面與手機統計面板重構 */
+    .stats-view-shell {
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .stats-dashboard-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 2px 4px 0;
+    }
+
+    .stats-dashboard-head h2 {
+      margin: 2px 0 0;
+      font-size: 25px;
+      letter-spacing: -0.03em;
+    }
+
+    .stats-dashboard-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stats-dashboard-kicker,
+    .stats-section-kicker {
+      display: block;
+      color: var(--blue);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .stats-view-tabs {
+      display: none;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px;
+      width: min(360px, 100%);
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #edf1f7;
+    }
+
+    .stats-view-tab {
+      min-height: 36px;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .stats-view-tab.active {
+      background: #fff;
+      color: var(--blue);
+      box-shadow: 0 4px 12px rgba(20, 33, 61, .09);
+    }
+
+    .stats-pane {
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .stats-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stats-kpi-card {
+      position: relative;
+      min-width: 0;
+      overflow: hidden;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .stats-kpi-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 4px;
+      background: var(--blue);
+    }
+
+    .stats-kpi-marathon {
+      background: linear-gradient(180deg, #f1f6ff 0, #fff 46%);
+      border-color: #b9cdf6;
+    }
+
+    .stats-kpi-marathon::before { background: var(--blue); }
+
+    .stats-kpi-secondary {
+      background: linear-gradient(180deg, #eefaf4 0, #fff 46%);
+      border-color: #a9d8bf;
+    }
+
+    .stats-kpi-secondary::before { background: var(--green); }
+
+    .stats-kpi-week {
+      background: linear-gradient(180deg, #f6f1ff 0, #fff 46%);
+      border-color: #cfc0f3;
+    }
+
+    .stats-kpi-week::before { background: var(--purple); }
+
+    .stats-kpi-reward {
+      background: linear-gradient(180deg, #fff8e9 0, #fff 46%);
+      border-color: #e6c789;
+    }
+
+    .stats-kpi-reward::before { background: #d18a00; }
+
+    .stats-kpi-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .stats-kpi-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .stats-kpi-title > span:last-child {
+      display: -webkit-box;
+      min-width: 0;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      white-space: normal;
+      line-height: 1.35;
+    }
+
+    .stats-kpi-icon {
+      flex: 0 0 auto;
+      font-size: 16px;
+    }
+
+    .stats-status-badge {
+      flex: 0 0 auto;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.78);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .stats-kpi-value {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      min-height: 43px;
+      margin-top: 10px;
+    }
+
+    .stats-kpi-value strong {
+      min-width: 0;
+      font-size: clamp(21px, 2.2vw, 31px);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      overflow-wrap: anywhere;
+    }
+
+    .stats-kpi-value span {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .stats-kpi-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 5px 10px;
+      min-height: 33px;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.45;
+    }
+
+    .stats-kpi-metrics strong { color: var(--text); }
+    .stats-kpi-three { justify-content: flex-start; }
+
+    .stats-next-line {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 10px;
+      padding-top: 9px;
+      border-top: 1px solid rgba(102,112,133,.17);
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .stats-next-line strong {
+      color: var(--text);
+      text-align: right;
+      line-height: 1.35;
+    }
+
+    .stats-reward-icons {
+      min-height: 43px;
+      margin-top: 7px;
+      color: #765200;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.55;
+    }
+
+    .stats-reward-progress .progress-bar {
+      background: linear-gradient(90deg, #f1bf53, #c87a00);
+    }
+
+    .stats-attention-card {
+      padding: 13px 14px;
+    }
+
+    .stats-section-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .stats-section-heading h3 {
+      margin: 2px 0 0;
+      font-size: 17px;
+    }
+
+    .stats-section-note {
+      color: var(--muted);
+      font-size: 10px;
+      text-align: right;
+    }
+
+    .stats-attention-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .stats-attention-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 31px;
+      padding: 6px 9px;
+      border: 1px solid #efc585;
+      border-radius: 999px;
+      background: #fff7e9;
+      color: #8a4b08;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .stats-attention-item.done {
+      border-color: #9ed6b5;
+      background: #edf9f2;
+      color: #176b3a;
+    }
+
+    .stats-week-head { margin-bottom: 12px; }
+
+    .stats-secondary-totals {
+      grid-template-columns: minmax(0, 1fr);
+      max-width: 420px;
+    }
+
+    .stats-secondary-totals:has(> :not([hidden]) + :not([hidden])) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      max-width: none;
+    }
+
+    .stats-week-table {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .stats-week-table-head,
+    .stats-week-row {
+      display: grid;
+      grid-template-columns: 74px minmax(245px, 1.25fr) minmax(235px, 1fr) 118px;
+      align-items: center;
+      gap: 10px;
+      min-width: 720px;
+    }
+
+    .stats-week-table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .stats-week-table-head {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--line);
+      background: #f0f4fa;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .stats-week-row {
+      width: 100%;
+      padding: 10px 12px;
+      border-bottom: 1px solid #e8edf4;
+      background: #fff;
+      color: var(--text);
+      text-align: left;
+    }
+
+    .stats-week-row:last-child { border-bottom: 0; }
+    .stats-week-row:hover { background: #f8faff; }
+    .stats-week-row.active { background: #edf3ff; }
+
+    .stats-week-day {
+      font-weight: 900;
+    }
+
+    .stats-week-metric {
+      min-width: 0;
+    }
+
+    .stats-week-metric-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 7px;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .stats-week-metric-top span:last-child {
+      color: var(--muted);
+      font-size: 9px;
+      white-space: nowrap;
+    }
+
+    .stats-week-mini-progress {
+      height: 5px;
+      margin-top: 6px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e8edf4;
+    }
+
+    .stats-week-mini-progress > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--blue);
+    }
+
+    .stats-week-secondary .stats-week-mini-progress > span { background: var(--green); }
+
+    .stats-week-status {
+      justify-self: end;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: #f1f3f6;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .stats-week-status.done {
+      background: #e8f7ee;
+      color: #1d7a45;
+    }
+
+    .stats-week-status.warn {
+      background: #fff5e6;
+      color: #a15a00;
+    }
+
+    .stats-next-reward-section { padding: 14px; }
+
+    .stats-next-reward-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .stats-next-reward-card {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fff;
+    }
+
+    .stats-next-reward-card.marathon {
+      border-color: #b9cdf6;
+      background: #f3f7ff;
+    }
+
+    .stats-next-reward-card.secondary {
+      border-color: #a9d8bf;
+      background: #f0faf5;
+    }
+
+    .stats-next-reward-card > span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .stats-next-reward-card > strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 15px;
+    }
+
+    .stats-next-reward-card > small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .stats-next-reward-card > div {
+      margin-top: 8px;
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .stats-detail-fold {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .stats-detail-fold > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 52px;
+      padding: 11px 14px;
+      cursor: pointer;
+      list-style: none;
+      background: #fff;
+    }
+
+    .stats-detail-fold > summary::-webkit-details-marker { display: none; }
+    .stats-detail-fold > summary::after {
+      content: "展開";
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .stats-detail-fold[open] > summary::after { content: "收合"; }
+    .stats-detail-fold > summary span { display: grid; gap: 2px; }
+    .stats-detail-fold > summary strong { font-size: 14px; }
+    .stats-detail-fold > summary small { color: var(--muted); font-size: 10px; }
+    .stats-detail-content { padding: 0 12px 12px; }
+
+    .stats-reward-total-section { padding: 13px; }
+    .stats-reward-total-head { align-items: flex-end; }
+    .stats-reward-total-head h3 { margin: 2px 0 0; }
+
+    @media (max-width: 1320px) {
+      .stats-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (min-width: 601px) {
+      .stats-pane[hidden] { display: grid !important; }
+    }
+
+    @media (max-width: 600px) {
+      .stats-view-shell { gap: 8px; }
+      .stats-dashboard-head {
+        position: static;
+        display: grid;
+        gap: 8px;
+        padding: 9px 8px 8px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255,255,255,.96);
+        box-shadow: 0 7px 18px rgba(20,33,61,.09);
+        backdrop-filter: blur(9px);
+        -webkit-backdrop-filter: blur(9px);
+      }
+
+      .stats-dashboard-head h2 { font-size: 20px; }
+      .stats-dashboard-head p,
+      .stats-dashboard-kicker { display: none; }
+      .stats-view-tabs { display: grid; width: 100%; }
+      .stats-summary-grid { grid-template-columns: 1fr; gap: 8px; }
+      .stats-kpi-card { padding: 12px; border-radius: 14px; }
+      .stats-kpi-title > span:last-child { white-space: normal; }
+      .stats-kpi-value { min-height: 37px; }
+      .stats-kpi-value strong { font-size: 25px; }
+      .stats-section-heading { align-items: flex-start; }
+      .stats-section-note { max-width: 42%; }
+      .stats-attention-list { display: grid; grid-template-columns: 1fr; }
+      .stats-attention-item { border-radius: 10px; }
+      .stats-secondary-totals,
+      .stats-secondary-totals:has(> :not([hidden]) + :not([hidden])) {
+        grid-template-columns: 1fr;
+        max-width: none;
+      }
+
+      .stats-week-table { border: 0; background: transparent; overflow: visible; }
+      .stats-week-table-scroll { overflow: visible; }
+      .stats-week-table-head { display: none; }
+      .stats-week-row {
+        grid-template-columns: 52px minmax(0, 1fr) auto;
+        grid-template-areas:
+          "day marathon status"
+          "day secondary status";
+        min-width: 0;
+        gap: 8px;
+        margin-bottom: 7px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+      .stats-week-day { grid-area: day; align-self: stretch; display:flex; align-items:center; }
+      .stats-week-marathon { grid-area: marathon; }
+      .stats-week-secondary { grid-area: secondary; }
+      .stats-week-status { grid-area: status; align-self: center; }
+      .stats-week-metric-top { font-size: 10px; }
+      .stats-week-metric-top span:last-child { display: none; }
+      .stats-next-reward-grid { grid-template-columns: 1fr; }
+      .stats-detail-fold > summary { min-height: 49px; }
+      .stats-reward-total-head { display: grid; grid-template-columns: 1fr; }
+      .stats-reward-total-head .reward-summary-toggle { width: 100%; }
+    }
+
 </style>
 </head>
 <body>
@@ -2483,7 +3038,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v204</div>
+      <div class="prototype-badge">週一至週日 v205</div>
     </header>
 
     <div class="app-shell">
@@ -2706,143 +3261,247 @@
         </button>
       </div>
     </div>
-        <div id="mobileStatsPanel">
-        <section class="card summary-card" aria-label="今日雙活動進度">
-          <div class="activity-summary">
-            <div class="activity-card marathon">
-              <div class="activity-name"><span class="activity-dot"></span><span id="marathonTitle">馬拉松｜週一裝備寶箱</span></div>
-              <div class="activity-score" id="marathonTotalScore">0</div>
-              <div class="activity-extra">
-                <span>星星：<strong id="marathonStars">0 / 6</strong></span>
-                <span>距離滿星：<strong id="marathonRemaining">245,000</strong></span>
-              </div>
-              <div class="progress"><div class="progress-bar" id="marathonProgress"></div></div>
-            </div>
-
-            <div class="activity-card archaeology" id="archaeologyActivityCard">
-              <div class="activity-name"><span class="activity-dot"></span><span id="archaeologyTitle">聯合考古｜週一任務</span></div>
-              <div class="activity-score" id="archaeologyTotalScore">0</div>
-              <div class="activity-extra">
-                <span><span id="archaeologyMetricLabel">幸運礦鎬</span>：<strong id="archaeologyPickaxes">0 / 56</strong></span>
-                <span><span id="archaeologyRemainingLabel">距離滿階</span>：<strong id="archaeologyRemaining">320,000</strong></span>
-              </div>
-              <div class="progress"><div class="progress-bar" id="archaeologyProgress"></div></div>
-            </div>
-          </div>
-        </section>
-
-        </div>
-
-        <div id="mobileWeeklyStagePanel">
-        <div class="mobile-stats-section-heading">本週獎勵統計</div>
-        <section class="card section-card weekly-marathon-card" id="weeklySummarySection">
-          <div class="section-head weekly-integrated-head">
+        <div class="stats-view-shell" id="statsViewShell">
+          <header class="stats-dashboard-head">
             <div>
-              <h3 id="weeklyIntegratedTitle">馬拉松｜聯合考古｜本週獎勵統計</h3>
-              <div class="section-note">依目前活動週顯示馬拉松與對應活動進度</div>
+              <span class="stats-dashboard-kicker">本週活動與獎勵</span>
+              <h2>統計總覽</h2>
+              <p id="statsViewSubtitle">快速確認今日進度、七天狀態與下一個獎勵。</p>
             </div>
-            <div class="weekly-summary-head-tools">
-              <div class="section-note" id="weeklyNextStageText">統計每日已達成階段</div>
-              <button
-                class="reward-summary-toggle"
-                id="rewardSummaryToggle"
-                type="button"
-                aria-expanded="false"
-                aria-controls="rewardSummaryContent"
-              >顯示獎勵總計</button>
-            </div>
-          </div>
+            <nav class="stats-view-tabs" id="statsViewTabs" aria-label="統計內容切換">
+              <button class="stats-view-tab active" type="button" data-stats-view="overview">總覽</button>
+              <button class="stats-view-tab" type="button" data-stats-view="week">七天</button>
+              <button class="stats-view-tab" type="button" data-stats-view="rewards">獎勵</button>
+            </nav>
+          </header>
 
-          <div class="weekly-activity-totals">
-            <div class="weekly-activity-total marathon-total">
-              <span class="weekly-total-kicker">馬拉松</span>
-              <strong id="weeklyStarTotal">0 / 30 星</strong>
-              <small>每週階段解鎖依據</small>
-              <div class="progress"><div class="progress-bar" id="weeklyStarProgress"></div></div>
-            </div>
+          <div id="mobileStatsPanel" class="stats-pane stats-overview-pane" data-stats-pane="overview">
+            <section class="stats-summary-grid" aria-label="今日與本週摘要">
+              <article class="stats-kpi-card stats-kpi-marathon">
+                <div class="stats-kpi-head">
+                  <div class="stats-kpi-title"><span class="stats-kpi-icon">⚑</span><span id="marathonTitle">馬拉松｜週一裝備寶箱</span></div>
+                  <span class="stats-status-badge" id="marathonStageSummary">第 0 階</span>
+                </div>
+                <div class="stats-kpi-value"><strong id="marathonTotalScore">0</strong><span>分</span></div>
+                <div class="stats-kpi-metrics">
+                  <span>星星 <strong id="marathonStars">0 / 6</strong></span>
+                  <span>距下一階 <strong id="marathonRemaining">5,600</strong></span>
+                </div>
+                <div class="progress"><div class="progress-bar" id="marathonProgress"></div></div>
+                <div class="stats-next-line">
+                  <span>下一階獎勵</span>
+                  <strong id="marathonNextReward">星星 ×1</strong>
+                </div>
+              </article>
 
-            <div class="weekly-activity-total archaeology-total" id="weeklyArchaeologyCard">
-              <span class="weekly-total-kicker">聯合考古</span>
-              <strong id="weeklyPickaxeTotal">0 / 336 礦鎬</strong>
-              <small>週一至週六每日最多 56</small>
-              <div class="progress weekly-pickaxe-progress"><div class="progress-bar" id="weeklyPickaxeProgress"></div></div>
-            </div>
+              <article class="stats-kpi-card stats-kpi-secondary" id="archaeologyActivityCard">
+                <div class="stats-kpi-head">
+                  <div class="stats-kpi-title"><span class="stats-kpi-icon">⚒</span><span id="archaeologyTitle">聯合考古｜週一任務</span></div>
+                  <span class="stats-status-badge" id="secondaryStageSummary">第 0 階</span>
+                </div>
+                <div class="stats-kpi-value"><strong id="archaeologyTotalScore">0</strong><span>分</span></div>
+                <div class="stats-kpi-metrics">
+                  <span><span id="archaeologyMetricLabel">幸運礦鎬</span> <strong id="archaeologyPickaxes">0 / 56</strong></span>
+                  <span><span id="archaeologyRemainingLabel">距下一階</span> <strong id="archaeologyRemaining">2,500</strong></span>
+                </div>
+                <div class="progress"><div class="progress-bar" id="archaeologyProgress"></div></div>
+                <div class="stats-next-line">
+                  <span>下一階獎勵</span>
+                  <strong id="secondaryNextReward">幸運礦鎬 ×3</strong>
+                </div>
+              </article>
 
-            <div class="weekly-activity-total bounty-total" id="weeklyBountyCard">
-              <span class="weekly-total-kicker">公會懸賞</span>
-              <strong id="weeklyBountyTotal">0 / 30,000 分</strong>
-              <small>已達階段 <span id="weeklyBountyStages">0 / 54</span></small>
-              <div class="progress weekly-bounty-progress"><div class="progress-bar" id="weeklyBountyProgress"></div></div>
-            </div>
-          </div>
+              <article class="stats-kpi-card stats-kpi-week">
+                <div class="stats-kpi-head">
+                  <div class="stats-kpi-title"><span class="stats-kpi-icon">★</span><span>本週進度</span></div>
+                  <span class="stats-status-badge">馬拉松</span>
+                </div>
+                <div class="stats-kpi-value"><strong id="weeklyStarTotal">0 / 30</strong><span>星</span></div>
+                <div class="stats-kpi-metrics stats-kpi-three">
+                  <span>銀卷 <strong id="statsWeekSilver">0 / 14</strong></span>
+                  <span>金卷 <strong id="statsWeekGold">0 / 10</strong></span>
+                  <span>距滿星 <strong id="statsWeekRemaining">30</strong></span>
+                </div>
+                <div class="progress"><div class="progress-bar" id="weeklyStarProgress"></div></div>
+                <div class="stats-next-line">
+                  <span>30 星進度</span>
+                  <strong id="statsWeekTargetText">尚未達成</strong>
+                </div>
+              </article>
 
-          <div class="weekly-day-stars" id="weeklyDayStars"></div>
+              <article class="stats-kpi-card stats-kpi-reward">
+                <div class="stats-kpi-head">
+                  <div class="stats-kpi-title"><span class="stats-kpi-icon">🎁</span><span>下一個每週獎勵</span></div>
+                  <span class="stats-status-badge" id="statsNextWeeklyStage">3 星階段</span>
+                </div>
+                <div class="stats-kpi-value"><strong id="statsNextWeeklyRemaining">還差 3 星</strong></div>
+                <div class="stats-reward-icons" id="statsNextWeeklyRewards">紫寶石 ×500・神威錘 ×1,000・暗月金卷 ×1</div>
+                <div class="progress stats-reward-progress"><div class="progress-bar" id="statsNextWeeklyProgress"></div></div>
+                <div class="stats-next-line">
+                  <span>目前已解鎖</span>
+                  <strong id="statsUnlockedWeeklyStages">0 / 5 階</strong>
+                </div>
+              </article>
+            </section>
 
-          <div class="weekly-integrated-stage-block">
-            <div class="weekly-reward-heading">
-              <strong>每週階段獎勵</strong>
-              <span>依馬拉松每日階段累積的星星解鎖</span>
-            </div>
-            <div class="stage-grid weekly-grid" id="weeklyStageGrid"></div>
-          </div>
-
-          <div class="reward-summary-content" id="rewardSummaryContent" hidden>
-            <div class="weekly-reward-block">
-              <div class="weekly-reward-heading">
-                <strong>馬拉松每日階段獎勵總計</strong>
-                <span>統計週一至週日目前已解鎖的所有物品</span>
+            <section class="card stats-attention-card" id="statsAttentionCard">
+              <div class="stats-section-heading">
+                <div>
+                  <span class="stats-section-kicker">待處理</span>
+                  <h3>尚未達標的星期</h3>
+                </div>
+                <span class="stats-section-note">依 30 星／14 卡皮幣基準</span>
               </div>
-              <div class="reward-total-list" id="dailyRewardTotals"></div>
-            </div>
-
-            <div class="weekly-reward-block" id="bountyRewardSummaryBlock">
-              <div class="weekly-reward-heading">
-                <strong>公會懸賞階段獎勵總計</strong>
-                <span>統計週一至週六目前已達成的懸賞階段</span>
-              </div>
-              <div class="reward-total-list" id="bountyRewardTotals"></div>
-            </div>
-
-            <div class="weekly-reward-block">
-              <div class="weekly-reward-heading">
-                <strong>已取得每週獎勵總計</strong>
-                <span>包含所有已解鎖的馬拉松每週階段</span>
-              </div>
-              <div class="reward-total-list" id="weeklyRewardTotals"></div>
-            </div>
+              <div class="stats-attention-list" id="statsAttentionList"></div>
+            </section>
           </div>
-        </section>
+
+          <div id="mobileWeeklyStagePanel" class="stats-pane" data-stats-pane="week">
+            <section class="card section-card weekly-marathon-card" id="weeklySummarySection">
+              <div class="section-head weekly-integrated-head stats-week-head">
+                <div>
+                  <span class="stats-section-kicker">七天進度</span>
+                  <h3 id="weeklyIntegratedTitle">馬拉松｜聯合考古｜本週總覽</h3>
+                  <div class="section-note">每列可直接切換至該星期；狀態以 30 星方案為基準。</div>
+                </div>
+                <div class="weekly-summary-head-tools">
+                  <div class="section-note" id="weeklyNextStageText">統計每日已達成階段</div>
+                </div>
+              </div>
+
+              <div class="weekly-activity-totals stats-secondary-totals">
+                <div class="weekly-activity-total archaeology-total" id="weeklyArchaeologyCard">
+                  <span class="weekly-total-kicker">聯合考古</span>
+                  <strong id="weeklyPickaxeTotal">0 / 336 礦鎬</strong>
+                  <small>週一至週六每日最多 56</small>
+                  <div class="progress weekly-pickaxe-progress"><div class="progress-bar" id="weeklyPickaxeProgress"></div></div>
+                </div>
+
+                <div class="weekly-activity-total bounty-total" id="weeklyBountyCard">
+                  <span class="weekly-total-kicker">公會懸賞</span>
+                  <strong id="weeklyBountyTotal">0 / 30,000 分</strong>
+                  <small>已達階段 <span id="weeklyBountyStages">0 / 54</span></small>
+                  <div class="progress weekly-bounty-progress"><div class="progress-bar" id="weeklyBountyProgress"></div></div>
+                </div>
+              </div>
+
+              <div class="stats-week-table" id="weeklyDayStars"></div>
+            </section>
+          </div>
+
+          <div id="mobileDailyRewardsPanel" class="stats-pane" data-stats-pane="rewards">
+            <section class="card section-card stats-next-reward-section">
+              <div class="stats-section-heading">
+                <div>
+                  <span class="stats-section-kicker">本日下一步</span>
+                  <h3>下一階獎勵</h3>
+                </div>
+                <span class="stats-section-note">優先顯示距離最近的階段</span>
+              </div>
+              <div class="stats-next-reward-grid">
+                <article class="stats-next-reward-card marathon">
+                  <span id="statsDailyMarathonNextLabel">馬拉松下一階</span>
+                  <strong id="statsDailyMarathonNextTarget">第 1 階｜5,600 分</strong>
+                  <small id="statsDailyMarathonNextRemaining">還差 5,600 分</small>
+                  <div id="statsDailyMarathonNextRewards">星星 ×1</div>
+                </article>
+                <article class="stats-next-reward-card secondary">
+                  <span id="statsDailySecondaryNextLabel">聯合考古下一階</span>
+                  <strong id="statsDailySecondaryNextTarget">第 1 階｜2,500 分</strong>
+                  <small id="statsDailySecondaryNextRemaining">還差 2,500 分</small>
+                  <div id="statsDailySecondaryNextRewards">幸運礦鎬 ×3</div>
+                </article>
+              </div>
+            </section>
+
+            <details class="card section-card stats-detail-fold" open>
+              <summary>
+                <span>
+                  <strong id="marathonStageTitle">馬拉松｜本日階段獎勵</strong>
+                  <small>完整 5 階</small>
+                </span>
+              </summary>
+              <div class="stats-detail-content">
+                <div class="stage-grid marathon-grid" id="marathonStageGrid"></div>
+              </div>
+            </details>
+
+            <details class="card section-card stats-detail-fold" id="archaeologyDailyStageSection">
+              <summary>
+                <span>
+                  <strong id="secondaryDailyStageTitle">聯合考古｜本日階段獎勵</strong>
+                  <small id="secondaryDailyStageNote">共 9 階，達成後自動標示</small>
+                </span>
+              </summary>
+              <div class="stats-detail-content">
+                <div class="stage-grid archaeology-grid" id="archaeologyStageGrid"></div>
+              </div>
+            </details>
+
+            <details class="card section-card stats-detail-fold">
+              <summary>
+                <span>
+                  <strong>每週階段獎勵</strong>
+                  <small>依馬拉松每日累積星星解鎖</small>
+                </span>
+              </summary>
+              <div class="stats-detail-content">
+                <div class="stage-grid weekly-grid" id="weeklyStageGrid"></div>
+              </div>
+            </details>
+
+            <section class="card section-card stats-reward-total-section">
+              <div class="section-head stats-reward-total-head">
+                <div>
+                  <span class="stats-section-kicker">獎勵彙整</span>
+                  <h3>目前已取得總計</h3>
+                </div>
+                <button
+                  class="reward-summary-toggle"
+                  id="rewardSummaryToggle"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="rewardSummaryContent"
+                >顯示獎勵總計</button>
+              </div>
+
+              <div class="reward-summary-content" id="rewardSummaryContent" hidden>
+                <div class="weekly-reward-block">
+                  <div class="weekly-reward-heading">
+                    <strong>馬拉松每日階段</strong>
+                    <span>週一至週日已解鎖物品</span>
+                  </div>
+                  <div class="reward-total-list" id="dailyRewardTotals"></div>
+                </div>
+
+                <div class="weekly-reward-block" id="bountyRewardSummaryBlock">
+                  <div class="weekly-reward-heading">
+                    <strong>公會懸賞階段</strong>
+                    <span>週一至週六已達成階段</span>
+                  </div>
+                  <div class="reward-total-list" id="bountyRewardTotals"></div>
+                </div>
+
+                <div class="weekly-reward-block">
+                  <div class="weekly-reward-heading">
+                    <strong>馬拉松每週階段</strong>
+                    <span>所有已解鎖的每週獎勵</span>
+                  </div>
+                  <div class="reward-total-list" id="weeklyRewardTotals"></div>
+                </div>
+              </div>
+            </section>
+          </div>
         </div>
 
         <div id="mobileTasksPanel">
-        <section class="card section-card">
-          <div class="section-head">
-            <h2 id="dayTaskTitle">週一任務</h2>
-            <div class="section-note">所有數量欄位皆可用 −／＋（可長按加速）或鍵盤 ↑／↓</div>
-          </div>
-
-          <div id="taskPanel"></div>
-
-        </section>
-        </div>
-
-        <div id="mobileDailyRewardsPanel">
-        <div class="mobile-stats-section-heading">本日階段獎勵</div>
-        <section class="card section-card">
-          <div class="section-head">
-            <h3 id="marathonStageTitle">馬拉松｜本日階段獎勵</h3>
-            <div class="section-note">達成後自動標示</div>
-          </div>
-          <div class="stage-grid marathon-grid" id="marathonStageGrid"></div>
-        </section>
-
-        <section class="card section-card" id="archaeologyDailyStageSection">
-          <div class="section-head">
-            <h3 id="secondaryDailyStageTitle">聯合考古｜本日階段獎勵</h3>
-            <div class="section-note" id="secondaryDailyStageNote">共 9 階，達成後自動標示</div>
-          </div>
-          <div class="stage-grid archaeology-grid" id="archaeologyStageGrid"></div>
-        </section>
+          <section class="card section-card">
+            <div class="section-head">
+              <h2 id="dayTaskTitle">週一任務</h2>
+              <div class="section-note">所有數量欄位皆可用 −／＋（可長按加速）或鍵盤 ↑／↓</div>
+            </div>
+            <div id="taskPanel"></div>
+          </section>
         </div>
       </div>
     </div>
@@ -2893,13 +3552,14 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "capybara-weekly-full-v204";
+      const STORAGE_KEY = "capybara-weekly-full-v205";
       const LEGACY_KEYS = [
+        "capybara-weekly-full-v204",
         "capybara-weekly-full-v203",
         "capybara-weekly-full-v202",
         "capybara-weekly-full-v201",
@@ -3727,6 +4387,32 @@
         mobileStatsPanel: document.getElementById("mobileStatsPanel"),
         mobileWeeklyStagePanel: document.getElementById("mobileWeeklyStagePanel"),
         mobileDailyRewardsPanel: document.getElementById("mobileDailyRewardsPanel"),
+        statsViewShell: document.getElementById("statsViewShell"),
+        statsViewSubtitle: document.getElementById("statsViewSubtitle"),
+        statsViewButtons: [...document.querySelectorAll("[data-stats-view]")],
+        statsPanes: [...document.querySelectorAll("[data-stats-pane]")],
+        marathonStageSummary: document.getElementById("marathonStageSummary"),
+        marathonNextReward: document.getElementById("marathonNextReward"),
+        secondaryStageSummary: document.getElementById("secondaryStageSummary"),
+        secondaryNextReward: document.getElementById("secondaryNextReward"),
+        statsWeekSilver: document.getElementById("statsWeekSilver"),
+        statsWeekGold: document.getElementById("statsWeekGold"),
+        statsWeekRemaining: document.getElementById("statsWeekRemaining"),
+        statsWeekTargetText: document.getElementById("statsWeekTargetText"),
+        statsNextWeeklyStage: document.getElementById("statsNextWeeklyStage"),
+        statsNextWeeklyRemaining: document.getElementById("statsNextWeeklyRemaining"),
+        statsNextWeeklyRewards: document.getElementById("statsNextWeeklyRewards"),
+        statsNextWeeklyProgress: document.getElementById("statsNextWeeklyProgress"),
+        statsUnlockedWeeklyStages: document.getElementById("statsUnlockedWeeklyStages"),
+        statsAttentionList: document.getElementById("statsAttentionList"),
+        statsDailyMarathonNextLabel: document.getElementById("statsDailyMarathonNextLabel"),
+        statsDailyMarathonNextTarget: document.getElementById("statsDailyMarathonNextTarget"),
+        statsDailyMarathonNextRemaining: document.getElementById("statsDailyMarathonNextRemaining"),
+        statsDailyMarathonNextRewards: document.getElementById("statsDailyMarathonNextRewards"),
+        statsDailySecondaryNextLabel: document.getElementById("statsDailySecondaryNextLabel"),
+        statsDailySecondaryNextTarget: document.getElementById("statsDailySecondaryNextTarget"),
+        statsDailySecondaryNextRemaining: document.getElementById("statsDailySecondaryNextRemaining"),
+        statsDailySecondaryNextRewards: document.getElementById("statsDailySecondaryNextRewards"),
         archaeologyActivityCard: document.getElementById("archaeologyActivityCard"),
         archaeologyDailyStageSection: document.getElementById("archaeologyDailyStageSection"),
         mobileNavButtons: [...document.querySelectorAll(".mobile-nav-btn")],
@@ -7260,10 +7946,40 @@
         els.weeklyBountyCard.hidden = !isBountyWeek;
         els.bountyRewardSummaryBlock.hidden = !isBountyWeek;
 
+        const silverTickets = toInt(summary.dailyRewards["暗月銀券"]);
+        const goldTickets = toInt(summary.weeklyRewards["暗月金卷"]);
+        const unlockedWeeklyStageCount = weeklyMarathonStages.filter(
+          stage => summary.totalStars >= stage.stars
+        ).length;
+
         els.weeklyStarTotal.textContent =
-          `${format(summary.totalStars)} / ${targetStars} 星`;
+          `${format(summary.totalStars)} / ${targetStars}`;
         els.weeklyStarProgress.style.width =
           `${Math.min(100, summary.totalStars / targetStars * 100)}%`;
+        els.statsWeekSilver.textContent = `${format(silverTickets)} / 14`;
+        els.statsWeekGold.textContent = `${format(goldTickets)} / 10`;
+        els.statsWeekRemaining.textContent = format(Math.max(0, targetStars - summary.totalStars));
+        els.statsWeekTargetText.textContent = summary.totalStars >= targetStars
+          ? "30 星目標已完成"
+          : `還差 ${format(targetStars - summary.totalStars)} 星`;
+        els.statsUnlockedWeeklyStages.textContent = `${unlockedWeeklyStageCount} / ${weeklyMarathonStages.length} 階`;
+
+        if (nextStage) {
+          const previousStars = weeklyMarathonStages[
+            Math.max(0, weeklyMarathonStages.indexOf(nextStage) - 1)
+          ]?.stars || 0;
+          const interval = Math.max(1, nextStage.stars - previousStars);
+          const intervalProgress = Math.max(0, summary.totalStars - previousStars);
+          els.statsNextWeeklyStage.textContent = `${format(nextStage.stars)} 星階段`;
+          els.statsNextWeeklyRemaining.textContent = `還差 ${format(nextStage.stars - summary.totalStars)} 星`;
+          els.statsNextWeeklyRewards.textContent = rewardText(nextStage.rewards);
+          els.statsNextWeeklyProgress.style.width = `${Math.min(100, intervalProgress / interval * 100)}%`;
+        } else {
+          els.statsNextWeeklyStage.textContent = "全部完成";
+          els.statsNextWeeklyRemaining.textContent = "5 階已解鎖";
+          els.statsNextWeeklyRewards.textContent = "本週所有階段獎勵已取得";
+          els.statsNextWeeklyProgress.style.width = "100%";
+        }
 
         const weeklyPickaxeTarget = 56 * 6;
         els.weeklyPickaxeTotal.textContent =
@@ -7284,38 +8000,90 @@
           ? `距離下一個每週獎勵還差 ${format(nextStage.stars - summary.totalStars)} 顆星`
           : `已解鎖全部每週階段獎勵`;
 
-        els.weeklyDayStars.innerHTML = dayOrder
-          .map(dayKey => {
-            const isSunday = dayKey === "sun";
-            const secondaryLabel = isBountyWeek ? "公會懸賞" : "聯合考古";
-            const secondaryText = isBountyWeek
-              ? (isSunday
-                  ? "休息"
-                  : `${format(summary.dayBountyScores[dayKey])} / 5,000 分・${summary.dayBountyStages[dayKey]} / 9 階`)
-              : (isSunday
-                  ? "休息"
-                  : `${summary.dayPickaxes[dayKey]} / 56 礦鎬`);
-            const secondaryClass = isBountyWeek
-              ? "day-bounty-value"
-              : "day-pickaxe-value";
+        const attentionItems = [];
+        const weekRows = dayOrder.map(dayKey => {
+          const isSunday = dayKey === "sun";
+          const scores = getScoresForDay(dayKey);
+          const marathonStageCount = getCompletedStageCount(scores.marathon, marathonStages);
+          const targetStage = STANDARD_WEEKLY_TARGETS[dayKey];
+          const targetReached = marathonStageCount >= targetStage;
+          const marathonProgress = Math.min(100, scores.marathon / MARATHON_TARGET * 100);
 
-            return `
-              <div class="day-star-card ${dayKey === state.activeDay ? "active" : ""}">
-                <div class="day-metric">
-                  <div class="day-card-label">${shortDayLabels[dayKey]}・馬拉松</div>
-                  <div class="day-card-value day-star-value">${summary.dayStars[dayKey]} / 6 星</div>
-                </div>
+          let secondaryTitle;
+          let secondaryMain;
+          let secondarySub;
+          let secondaryProgress;
+          let secondaryDone;
 
-                <div class="day-metric">
-                  <div class="day-card-label">${secondaryLabel}</div>
-                  <div class="day-card-value ${secondaryClass} ${isSunday ? "rest" : ""}">
-                    ${secondaryText}
-                  </div>
-                </div>
-              </div>
-            `;
-          })
-          .join("");
+          if (isBountyWeek) {
+            const score = summary.dayBountyScores[dayKey];
+            const stages = summary.dayBountyStages[dayKey];
+            secondaryTitle = "公會懸賞";
+            secondaryMain = isSunday ? "休息" : `${format(score)} 分・${stages}/9 階`;
+            secondarySub = isSunday ? "週日不開放" : "目標 5,000 分";
+            secondaryProgress = isSunday ? 0 : Math.min(100, score / GUILD_BOUNTY_TOTAL_MAX * 100);
+            secondaryDone = isSunday || stages >= 9;
+          } else {
+            const pickaxe = summary.dayPickaxes[dayKey];
+            secondaryTitle = "聯合考古";
+            secondaryMain = isSunday ? "休息" : `${pickaxe}/56 礦鎬`;
+            secondarySub = isSunday ? "週日不開放" : "每日滿階 56";
+            secondaryProgress = isSunday ? 0 : Math.min(100, pickaxe / 56 * 100);
+            secondaryDone = isSunday || pickaxe >= 56;
+          }
+
+          if (!targetReached) {
+            attentionItems.push(
+              `<button type="button" class="stats-attention-item" data-stats-day="${dayKey}">${shortDayLabels[dayKey]}・馬拉松還差 ${targetStage - marathonStageCount} 階</button>`
+            );
+          }
+
+          const statusClass = targetReached && secondaryDone ? "done" : "warn";
+          const statusText = targetReached
+            ? (secondaryDone ? "已達目標" : "馬拉松完成")
+            : `差 ${targetStage - marathonStageCount} 階`;
+
+          return `
+            <button type="button" class="stats-week-row ${dayKey === state.activeDay ? "active" : ""}" data-stats-day="${dayKey}">
+              <span class="stats-week-day">${shortDayLabels[dayKey]}</span>
+              <span class="stats-week-metric stats-week-marathon">
+                <span class="stats-week-metric-top">
+                  <span>馬拉松 第 ${marathonStageCount} 階・${summary.dayStars[dayKey]} 星</span>
+                  <span>${format(scores.marathon)} / ${format(MARATHON_TARGET)}</span>
+                </span>
+                <span class="stats-week-mini-progress"><span style="width:${marathonProgress}%"></span></span>
+              </span>
+              <span class="stats-week-metric stats-week-secondary">
+                <span class="stats-week-metric-top">
+                  <span>${secondaryTitle}・${secondaryMain}</span>
+                  <span>${secondarySub}</span>
+                </span>
+                <span class="stats-week-mini-progress"><span style="width:${secondaryProgress}%"></span></span>
+              </span>
+              <span class="stats-week-status ${statusClass}">${statusText}</span>
+            </button>
+          `;
+        }).join("");
+
+        els.weeklyDayStars.innerHTML = `
+          <div class="stats-week-table-scroll">
+            <div class="stats-week-table-head">
+              <span>星期</span>
+              <span>馬拉松進度</span>
+              <span>${isBountyWeek ? "公會懸賞進度" : "聯合考古進度"}</span>
+              <span>狀態</span>
+            </div>
+            ${weekRows}
+          </div>
+        `;
+
+        els.statsAttentionList.innerHTML = attentionItems.length
+          ? attentionItems.join("")
+          : `<span class="stats-attention-item done">✓ 30 星方案的每日階段皆已達標</span>`;
+
+        els.statsViewSubtitle.textContent = isBountyWeek
+          ? "今日馬拉松、公會懸賞、七天進度與獎勵彙整。"
+          : "今日馬拉松、聯合考古、七天進度與獎勵彙整。";
 
         renderRewardTotals(
           els.dailyRewardTotals,
@@ -7557,6 +8325,14 @@
           .join("");
       }
 
+      function getCompletedStageCount(score, stages) {
+        return stages.filter(stage => score >= stage.score).length;
+      }
+
+      function rewardText(items) {
+        return Array.isArray(items) && items.length ? items.join("・") : "全部獎勵已取得";
+      }
+
       function renderSummary() {
         const scores = getActiveScores();
         const stars = getMarathonStars(scores.marathon);
@@ -7620,12 +8396,32 @@
         els.marathonStageTitle.textContent =
           `馬拉松｜${labels.stage}階段獎勵`;
 
+        const marathonStageCount = getCompletedStageCount(scores.marathon, marathonStages);
+        const nextMarathonStage = marathonStages[marathonStageCount] || null;
         els.marathonTotalScore.textContent = format(scores.marathon);
         els.marathonStars.textContent = `${stars} / 6`;
-        els.marathonRemaining.textContent =
-          format(Math.max(0, MARATHON_TARGET - scores.marathon));
+        els.marathonStageSummary.textContent = marathonStageCount >= marathonStages.length
+          ? "已滿階"
+          : `第 ${marathonStageCount} 階`;
+        els.marathonRemaining.textContent = nextMarathonStage
+          ? format(Math.max(0, nextMarathonStage.score - scores.marathon))
+          : "0";
+        els.marathonNextReward.textContent = nextMarathonStage
+          ? rewardText(marathonRewards[state.activeDay][marathonStageCount])
+          : "本日 5 階全部取得";
         els.marathonProgress.style.width =
           `${Math.min(100, scores.marathon / MARATHON_TARGET * 100)}%`;
+
+        els.statsDailyMarathonNextLabel.textContent = `${shortDayLabels[state.activeDay]}馬拉松下一階`;
+        els.statsDailyMarathonNextTarget.textContent = nextMarathonStage
+          ? `第 ${marathonStageCount + 1} 階｜${format(nextMarathonStage.score)} 分`
+          : "本日馬拉松已滿階";
+        els.statsDailyMarathonNextRemaining.textContent = nextMarathonStage
+          ? `還差 ${format(Math.max(0, nextMarathonStage.score - scores.marathon))} 分`
+          : "5 階獎勵已全部取得";
+        els.statsDailyMarathonNextRewards.textContent = nextMarathonStage
+          ? rewardText(marathonRewards[state.activeDay][marathonStageCount])
+          : "完成";
 
         if (
           state.weekMode === "bounty" &&
@@ -7646,33 +8442,78 @@
                         ? "公會懸賞｜週二公會對決"
                         : "公會懸賞｜週一公會對決";
           els.archaeologyMetricLabel.textContent = "已達階段";
-          els.archaeologyRemainingLabel.textContent = "距離滿階";
+          els.archaeologyRemainingLabel.textContent = "距下一階";
+          els.statsDailySecondaryNextLabel.textContent = `${shortDayLabels[state.activeDay]}公會懸賞下一階`;
 
           if (state.activeDay === "sun") {
             els.archaeologyTotalScore.textContent = "休息";
             els.archaeologyPickaxes.textContent = "—";
             els.archaeologyRemaining.textContent = "—";
             els.archaeologyProgress.style.width = "0%";
+            els.secondaryStageSummary.textContent = "休息";
+            els.secondaryNextReward.textContent = "週日無公會懸賞";
+            els.statsDailySecondaryNextTarget.textContent = "週日休息";
+            els.statsDailySecondaryNextRemaining.textContent = "週一重新開始";
+            els.statsDailySecondaryNextRewards.textContent = "—";
           } else {
+            const nextBountyStage = guildBountyStages[bountyStageCount] || null;
             els.archaeologyTotalScore.textContent = format(bountySummary.totalScore);
             els.archaeologyPickaxes.textContent = `${bountyStageCount} / 9`;
-            els.archaeologyRemaining.textContent =
-              format(Math.max(0, GUILD_BOUNTY_TOTAL_MAX - bountySummary.totalScore));
+            els.archaeologyRemaining.textContent = nextBountyStage
+              ? format(Math.max(0, nextBountyStage.score - bountySummary.totalScore))
+              : "0";
             els.archaeologyProgress.style.width =
               `${Math.min(100, bountySummary.totalScore / GUILD_BOUNTY_TOTAL_MAX * 100)}%`;
+            els.secondaryStageSummary.textContent = bountyStageCount >= 9
+              ? "已滿階"
+              : `第 ${bountyStageCount} 階`;
+            els.secondaryNextReward.textContent = nextBountyStage
+              ? `武裝令牌 ×${format(nextBountyStage.token)}${nextBountyStage.merit ? `・功勳幣 ×${format(nextBountyStage.merit)}` : ""}`
+              : "本日 9 階全部取得";
+            els.statsDailySecondaryNextTarget.textContent = nextBountyStage
+              ? `第 ${bountyStageCount + 1} 階｜${format(nextBountyStage.score)} 分`
+              : "本日公會懸賞已滿階";
+            els.statsDailySecondaryNextRemaining.textContent = nextBountyStage
+              ? `還差 ${format(Math.max(0, nextBountyStage.score - bountySummary.totalScore))} 分`
+              : "9 階獎勵已全部取得";
+            els.statsDailySecondaryNextRewards.textContent = els.secondaryNextReward.textContent;
           }
         } else if (state.activeDay === "sun") {
           els.archaeologyTotalScore.textContent = "休息";
           els.archaeologyPickaxes.textContent = "—";
           els.archaeologyRemaining.textContent = "—";
           els.archaeologyProgress.style.width = "0%";
+          els.secondaryStageSummary.textContent = "休息";
+          els.secondaryNextReward.textContent = "週日無聯合考古";
+          els.statsDailySecondaryNextLabel.textContent = "聯合考古下一階";
+          els.statsDailySecondaryNextTarget.textContent = "週日休息";
+          els.statsDailySecondaryNextRemaining.textContent = "週一重新開始";
+          els.statsDailySecondaryNextRewards.textContent = "—";
         } else {
+          const archaeologyStageCount = getCompletedStageCount(scores.archaeology, archaeologyStages);
+          const nextArchaeologyStage = archaeologyStages[archaeologyStageCount] || null;
+          els.archaeologyRemainingLabel.textContent = "距下一階";
           els.archaeologyTotalScore.textContent = format(scores.archaeology);
           els.archaeologyPickaxes.textContent = `${pickaxes} / 56`;
-          els.archaeologyRemaining.textContent =
-            format(Math.max(0, ARCHAEOLOGY_TARGET - scores.archaeology));
+          els.archaeologyRemaining.textContent = nextArchaeologyStage
+            ? format(Math.max(0, nextArchaeologyStage.score - scores.archaeology))
+            : "0";
           els.archaeologyProgress.style.width =
             `${Math.min(100, scores.archaeology / ARCHAEOLOGY_TARGET * 100)}%`;
+          els.secondaryStageSummary.textContent = archaeologyStageCount >= archaeologyStages.length
+            ? "已滿階"
+            : `第 ${archaeologyStageCount} 階`;
+          els.secondaryNextReward.textContent = nextArchaeologyStage
+            ? `幸運礦鎬 ×${format(nextArchaeologyStage.pickaxes)}`
+            : "本日 9 階全部取得";
+          els.statsDailySecondaryNextLabel.textContent = `${shortDayLabels[state.activeDay]}聯合考古下一階`;
+          els.statsDailySecondaryNextTarget.textContent = nextArchaeologyStage
+            ? `第 ${archaeologyStageCount + 1} 階｜${format(nextArchaeologyStage.score)} 分`
+            : "本日聯合考古已滿階";
+          els.statsDailySecondaryNextRemaining.textContent = nextArchaeologyStage
+            ? `還差 ${format(Math.max(0, nextArchaeologyStage.score - scores.archaeology))} 分`
+            : "9 階獎勵已全部取得";
+          els.statsDailySecondaryNextRewards.textContent = els.secondaryNextReward.textContent;
         }
 
         renderStages(scores.marathon, scores.archaeology);
@@ -7685,6 +8526,11 @@
       let rewardSummaryCollapsed =
         localStorage.getItem(REWARD_SUMMARY_COLLAPSE_KEY) !== "0";
       let activeMobilePanel = "tasks";
+      const STATS_VIEW_KEY = "capybara-stats-view-v205";
+      const validStatsViews = new Set(["overview", "week", "rewards"]);
+      let activeStatsView = validStatsViews.has(localStorage.getItem(STATS_VIEW_KEY))
+        ? localStorage.getItem(STATS_VIEW_KEY)
+        : "overview";
 
       function normalizeMobilePanel(panel) {
         return ["weekly", "daily"].includes(panel) ? "stats" : panel;
@@ -8352,6 +9198,29 @@ async function downloadChartAsImage() {
         return window.matchMedia("(max-width: 600px)").matches;
       }
 
+      function renderStatsView() {
+        const isMobile = isMobileLayout();
+
+        els.statsViewButtons.forEach(button => {
+          const active = button.dataset.statsView === activeStatsView;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-selected", String(active));
+        });
+
+        els.statsPanes.forEach(pane => {
+          pane.hidden = isMobile && pane.dataset.statsPane !== activeStatsView;
+        });
+      }
+
+      function setStatsView(view) {
+        activeStatsView = validStatsViews.has(view) ? view : "overview";
+        localStorage.setItem(STATS_VIEW_KEY, activeStatsView);
+        renderStatsView();
+        if (isMobileLayout()) {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      }
+
       function renderMobilePanels() {
         const isMobile = isMobileLayout();
         const show = (element, visible) => {
@@ -8369,9 +9238,11 @@ async function downloadChartAsImage() {
           show(els.mobileSettingsPanel, true);
           show(els.mobileActionsPanel, true);
           show(els.mobileTasksPanel, true);
+          show(els.statsViewShell, true);
           show(els.mobileStatsPanel, true);
           show(els.mobileWeeklyStagePanel, true);
           show(els.mobileDailyRewardsPanel, true);
+          renderStatsView();
           if (els.sidebarHeading) els.sidebarHeading.textContent = "個人化設置";
           if (els.sidebarNote) els.sidebarNote.textContent = "設定會共用於週一至週日。";
           return;
@@ -8386,9 +9257,8 @@ async function downloadChartAsImage() {
         show(els.mobileSettingsPanel, settingsMode);
         show(els.mobileActionsPanel, actionsMode);
         show(els.mobileTasksPanel, activeMobilePanel === "tasks");
-        show(els.mobileStatsPanel, statsMode);
-        show(els.mobileWeeklyStagePanel, statsMode);
-        show(els.mobileDailyRewardsPanel, statsMode);
+        show(els.statsViewShell, statsMode);
+        if (statsMode) renderStatsView();
 
         if (els.sidebarHeading) {
           els.sidebarHeading.textContent = "個人化設置";
@@ -8453,6 +9323,7 @@ async function downloadChartAsImage() {
         renderRewardSummaryCollapse();
         updateWeekModeVisibility();
         renderMobilePanels();
+        renderStatsView();
         saveState();
       }
 
@@ -12587,6 +13458,27 @@ async function downloadChartAsImage() {
         button.addEventListener("click", () => {
           setMobilePanel(button.dataset.mobilePanel);
         });
+      });
+
+      els.statsViewButtons.forEach(button => {
+        button.addEventListener("click", () => {
+          setStatsView(button.dataset.statsView);
+        });
+      });
+
+      els.weeklyDayStars.addEventListener("click", event => {
+        const row = event.target.closest("[data-stats-day]");
+        if (!row) return;
+        state.activeDay = row.dataset.statsDay;
+        renderAll();
+      });
+
+      els.statsAttentionList.addEventListener("click", event => {
+        const item = event.target.closest("[data-stats-day]");
+        if (!item) return;
+        state.activeDay = item.dataset.statsDay;
+        if (isMobileLayout()) activeStatsView = "week";
+        renderAll();
       });
 
       window.addEventListener("resize", () => {
