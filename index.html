@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v230</title>
+  <title>水豚每週活動計算機｜週一至週日 v231</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -3034,6 +3034,7 @@
       .stats-pane[hidden],
       #sidebarCard[hidden],
       #actionsSidebarCard[hidden],
+      #helpSidebarCard[hidden],
       #mobileTasksPanel[hidden],
       #mobileSettingsPanel[hidden],
       #mobileActionsPanel[hidden] {
@@ -6296,7 +6297,7 @@
 
   
 
-    /* v230｜統計總覽補上本週考古／懸賞 */
+    /* v231｜統計總覽補上本週考古／懸賞 */
     .stats-dashboard-head {
       display: grid !important;
       grid-template-columns: minmax(0, 1fr) !important;
@@ -6387,7 +6388,7 @@
 
 
 
-    /* v230｜統計面板重整：桌機／手機一致化、降低重複資訊感 */
+    /* v231｜統計面板重整：桌機／手機一致化、降低重複資訊感 */
     .stats-dashboard-head {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -6764,7 +6765,7 @@
         font-size: 13px;
       }
     }
-    /* v230｜總覽補上本週聯合考古／公會懸賞 */
+    /* v231｜總覽補上本週聯合考古／公會懸賞 */
     .stats-kpi-week-secondary {
       background: linear-gradient(180deg, #eef9f6 0, #fff 46%);
       border-color: #b7ddd2;
@@ -6792,7 +6793,7 @@
     }
 
   
-    /* v230｜統計面板完整重設計 */
+    /* v231｜統計面板完整重設計 */
     .stats-view-shell{display:grid;gap:16px}
     .stats-dashboard-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(440px,720px);align-items:end;gap:28px;padding:4px 2px 14px;border-bottom:1px solid #e7edf5}
     .stats-dashboard-head h2{margin:4px 0 5px;color:#12233e;font-size:clamp(30px,3vw,42px);line-height:1;letter-spacing:-.04em}
@@ -6896,7 +6897,7 @@
     [hidden]{display:none!important;}
   
 
-    /* v230｜單頁統計整合：總覽、七天摘要、本日階段、本週階段、獎勵總覽 */
+    /* v231｜單頁統計整合：總覽、七天摘要、本日階段、本週階段、獎勵總覽 */
     .stats-dashboard-head-single {
       display: block;
       margin-bottom: 14px;
@@ -7141,7 +7142,7 @@
 
   
 
-    /* v230｜階段橫向列、獎勵統一、桌面全域週切換、任務頁按鈕回饋 */
+    /* v231｜階段橫向列、獎勵統一、桌面全域週切換、任務頁按鈕回饋 */
     @media (min-width: 901px) {
       .desktop-week-mode-dock {
         margin-top: auto;
@@ -7294,7 +7295,7 @@
 
   
 
-    /* v230｜移除手動儲存、統計手機寬度修正、階段卡一致化 */
+    /* v231｜移除手動儲存、統計手機寬度修正、階段卡一致化 */
     .stats-single-page,
     .stats-single-page > *,
     .stats-summary-grid,
@@ -7462,7 +7463,7 @@
     }
 
 
-    /* v230｜活動語意色統一：馬拉松綠、考古藍、懸賞紫 */
+    /* v231｜活動語意色統一：馬拉松綠、考古藍、懸賞紫 */
     :root {
       --marathon-color: #168a5b;
       --marathon-soft: #eaf8f2;
@@ -7663,6 +7664,316 @@
       background: var(--marathon-soft) !important;
     }
 
+  
+
+    /* v231｜使用說明、縮放一致性與桌面圖表輸出修正 */
+    #helpSidebarCard {
+      grid-area: content;
+      width: 100%;
+      max-width: none;
+      min-width: 0;
+      padding: 24px;
+      border-radius: 24px;
+    }
+
+    #helpSidebarCard[hidden] { display: none !important; }
+
+    .help-hero {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .help-kicker,
+    .help-section-kicker {
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .06em;
+    }
+
+    .help-hero h2 {
+      margin: 4px 0 6px;
+      font-size: 30px;
+      letter-spacing: -.04em;
+    }
+
+    .help-hero p {
+      max-width: 850px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .help-color-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .help-color-legend span {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #f4f7fb;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .help-color-legend .marathon { color: var(--marathon-color); background: var(--marathon-soft); }
+    .help-color-legend .archaeology { color: var(--archaeology-color); background: var(--archaeology-soft); }
+    .help-color-legend .bounty { color: var(--bounty-color); background: var(--bounty-soft); }
+
+    .help-layout {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .help-card {
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid #dce5ef;
+      border-radius: 20px;
+      background: linear-gradient(180deg, #fff, #fbfcff);
+      box-shadow: 0 8px 24px rgba(20,33,61,.05);
+    }
+
+    .help-card.help-wide { grid-column: 1 / -1; }
+
+    .help-card-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .help-card-head > span {
+      display: grid;
+      place-items: center;
+      flex: 0 0 34px;
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #3775ed, #7654d6);
+      color: #fff;
+      font-weight: 900;
+      box-shadow: 0 7px 16px rgba(69,93,205,.18);
+    }
+
+    .help-card h3 { margin: 0; font-size: 18px; }
+    .help-card-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+
+    .help-steps,
+    .help-check-list {
+      display: grid;
+      gap: 9px;
+      margin: 0;
+      padding-left: 22px;
+      color: #40506a;
+      line-height: 1.65;
+    }
+
+    .help-info-grid,
+    .help-formula-grid,
+    .help-plan-table {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .help-info-grid > div,
+    .help-plan-table > div,
+    .help-formula {
+      min-width: 0;
+      padding: 13px 14px;
+      border: 1px solid #e1e8f2;
+      border-radius: 15px;
+      background: #f8faff;
+    }
+
+    .help-info-grid strong,
+    .help-plan-table strong,
+    .help-formula span {
+      display: block;
+      margin-bottom: 5px;
+      color: #172842;
+      font-weight: 900;
+    }
+
+    .help-info-grid p,
+    .help-plan-table span {
+      margin: 0;
+      color: #65748a;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .help-formula code,
+    .help-equation-box code {
+      white-space: normal;
+      color: #24456f;
+      font-family: inherit;
+      font-weight: 900;
+      line-height: 1.55;
+    }
+
+    .help-note {
+      margin: 12px 0 0;
+      padding: 11px 13px;
+      border-left: 4px solid #6e65ea;
+      border-radius: 10px;
+      background: #f3f1ff;
+      color: #506078;
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .help-priority-flow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 0 12px;
+      scrollbar-width: thin;
+    }
+
+    .help-priority-flow span {
+      flex: 0 0 auto;
+      padding: 9px 12px;
+      border: 1px solid #dce5ef;
+      border-radius: 999px;
+      background: #fff;
+      color: #263a58;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .help-priority-flow b { color: #8594aa; }
+
+    .help-equation-box {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .help-equation-box p {
+      margin: 0;
+      padding: 12px 13px;
+      border: 1px solid #e1e8f2;
+      border-radius: 14px;
+      background: #fbfcff;
+      color: #56667d;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .report-export-host,
+    .report-export-sheet,
+    .report-export-sheet .report-print-area {
+      max-height: none !important;
+      overflow: visible !important;
+    }
+
+    @media (min-width: 901px) {
+      body[data-active-panel="help"] #helpSidebarCard { grid-column: 2 / span 1; }
+      .desktop-nav-btn { min-height: 78px; }
+    }
+
+    /* 601～900px 是瀏覽器縮放後最容易落入的區間：統一使用目前的行動版框架，避免舊版樣式復活。 */
+    @media (max-width: 900px) {
+      body {
+        padding-bottom: calc(98px + env(safe-area-inset-bottom));
+        overflow-x: hidden;
+      }
+
+      .desktop-app-nav { display: none !important; }
+      .mobile-bottom-nav {
+        display: grid !important;
+        grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+      }
+
+      .app-shell {
+        grid-template-columns: minmax(0, 1fr) !important;
+        grid-template-areas: "content" !important;
+        min-width: 0 !important;
+      }
+
+      #sidebarCard,
+      #actionsSidebarCard,
+      #helpSidebarCard,
+      #mainContent {
+        grid-area: content !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+      }
+
+      #helpSidebarCard { padding: 16px; border-radius: 20px; }
+      .help-hero { display: grid; grid-template-columns: 1fr; }
+      .help-color-legend { justify-content: flex-start; }
+      .help-layout { grid-template-columns: 1fr; }
+      .help-card.help-wide { grid-column: auto; }
+      .help-info-grid,
+      .help-formula-grid,
+      .help-plan-table,
+      .help-equation-box { grid-template-columns: 1fr; }
+
+      /* 操作面板在所有縮放倍率保持 v230 的填滿漸層樣式。 */
+      #actionsSidebarCard .action-mockup-grid,
+      #actionsSidebarCard .action-mockup-grid.two,
+      #actionsSidebarCard .action-mockup-grid.four {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+      }
+
+      #actionsSidebarCard .action-mockup-card,
+      #actionsSidebarCard .action-mockup-card.compact,
+      #actionsSidebarCard .action-mockup-card.warning-banner,
+      #actionsSidebarCard .action-mockup-card.hero {
+        width: 100% !important;
+        min-height: 86px !important;
+        display: grid !important;
+        grid-template-columns: 44px minmax(0, 1fr) 30px !important;
+        align-items: center !important;
+        gap: 10px !important;
+        padding: 14px !important;
+        border: 0 !important;
+        border-radius: 18px !important;
+        color: #fff !important;
+        box-shadow: 0 12px 24px rgba(20,33,61,.12) !important;
+      }
+
+      #actionsSidebarCard .action-mockup-card .action-card-main,
+      #actionsSidebarCard .action-mockup-card .action-card-highlight,
+      #actionsSidebarCard .action-mockup-card .action-card-sub {
+        color: #fff !important;
+        text-align: left !important;
+      }
+
+      #actionsSidebarCard .action-mockup-card.hero { background: linear-gradient(135deg, #168a5b, #32ad70) !important; }
+      #actionsSidebarCard .action-mockup-card.blue,
+      #actionsSidebarCard .action-mockup-card.outline-blue { background: linear-gradient(135deg, #2457d6, #487ff0) !important; }
+      #actionsSidebarCard .action-mockup-card.violet { background: linear-gradient(135deg, #7654d6, #9669ef) !important; }
+      #actionsSidebarCard .action-mockup-card.amber,
+      #actionsSidebarCard .action-mockup-card.outline-amber { background: linear-gradient(135deg, #d88708, #f0ad31) !important; }
+      #actionsSidebarCard .action-mockup-card.outline-green { background: linear-gradient(135deg, #168a5b, #49b975) !important; }
+      #actionsSidebarCard .action-mockup-card.outline-red,
+      #actionsSidebarCard .action-mockup-card.warning-banner { background: linear-gradient(135deg, #d84a4a, #ef7373) !important; }
+    }
+
+    @media (max-width: 560px) {
+      .mobile-nav-btn { min-width: 0; font-size: 10px; padding-inline: 1px; }
+      .help-hero h2 { font-size: 25px; }
+      .help-card { padding: 14px; border-radius: 17px; }
+    }
+
   </style>
 </head>
 <body>
@@ -7672,7 +7983,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v230</div>
+      <div class="prototype-badge">週一至週日 v231</div>
     </header>
 
     <div class="app-shell" id="appShell">
@@ -7685,6 +7996,7 @@
         <button class="desktop-nav-btn" type="button" data-mobile-panel="actions"><span>🛠️</span><strong>操作面板</strong></button>
         <button class="desktop-nav-btn" type="button" data-mobile-panel="stats"><span>📊</span><strong>統計</strong></button>
         <button class="desktop-nav-btn" type="button" data-mobile-panel="settings"><span>⚙️</span><strong>個人化設定</strong></button>
+        <button class="desktop-nav-btn" type="button" data-mobile-panel="help"><span>📘</span><strong>使用說明</strong></button>
         <div class="desktop-week-mode-dock" aria-label="全域活動週切換">
           <span class="desktop-week-mode-label">活動週</span>
           <button class="week-mode-tab desktop-week-mode-btn active" type="button" data-week-mode="archaeology">考古</button>
@@ -7822,6 +8134,98 @@
           </section>
         </div>
 </aside>
+
+      <aside class="card sidebar help-sidebar" id="helpSidebarCard" aria-label="使用說明" hidden>
+        <div class="help-hero">
+          <div>
+            <span class="help-kicker">新手教學</span>
+            <h2>使用說明</h2>
+            <p>先設定自己的遊戲環境，再輸入實際進度；計算機會用同一筆操作同步計算馬拉松與考古／懸賞，並替你尋找剛好或合理超額的補分方案。</p>
+          </div>
+          <div class="help-color-legend" aria-label="活動色彩說明">
+            <span class="marathon">● 馬拉松</span>
+            <span class="archaeology">● 聯合考古</span>
+            <span class="bounty">● 公會懸賞</span>
+          </div>
+        </div>
+
+        <div class="help-layout">
+          <section class="help-card help-quick-start">
+            <div class="help-card-head"><span>①</span><div><h3>第一次使用：照這個順序設定</h3><p>只需設定一次，之後修改任務數量就會自動重算。</p></div></div>
+            <ol class="help-steps">
+              <li><strong>個人化設定：</strong>勾選月卡、週卡、終身卡、貿易卡、礦卡，以及是否會看滿廣告。</li>
+              <li><strong>藏品星級：</strong>設定「神聖鐵砧」星級，預覽礦鎬恢復速度、存儲上限與一天理論可挖次數。</li>
+              <li><strong>持有資源：</strong>輸入體力、靈石、不變石、寵物蛋與各類寶箱庫存。</li>
+              <li><strong>選擇活動週：</strong>考古週選藍色，懸賞週選紫色；馬拉松固定使用綠色。</li>
+              <li><strong>輸入本週實際進度：</strong>在任務面板填入已完成次數，再到操作面板比較或套用方案。</li>
+            </ol>
+          </section>
+
+          <section class="help-card">
+            <div class="help-card-head"><span>②</span><div><h3>個人化設定會影響什麼</h3><p>推薦次數、可用任務、免費來源與上限都會依設定改變。</p></div></div>
+            <div class="help-info-grid">
+              <div><strong>特權卡與廣告</strong><p>決定免費副本、額外入場、礦鎬廣告、寵物蛋廣告、貿易與礦卡收益。自動方案會先套用可免費完成的基本任務。</p></div>
+              <div><strong>神聖鐵砧星級</strong><p>恢復加成率＝10%＋星級×5%；恢復間隔＝12÷(1＋加成率) 分鐘。一天自然恢復＝⌊1440÷恢復間隔⌋。</p></div>
+              <div><strong>礦鎬理論上限</strong><p>一天理論最多＝自然恢復＋礦卡每日領取＋廣告礦鎬。這只是上限預覽，實際挖礦次數仍需手動輸入。</p></div>
+              <div><strong>寶箱庫存步進</strong><p>持有少於 10 個時，每次增減 1；10～99 個時每次 10；100 個以上時每次 50。開箱方案會依實際庫存與批次尋找組合。</p></div>
+            </div>
+          </section>
+
+          <section class="help-card help-wide">
+            <div class="help-card-head"><span>③</span><div><h3>任務輸入、分數與 ALL IN 預覽</h3><p>一筆操作只輸入一次，馬拉松與第二活動會同時計分。</p></div></div>
+            <div class="help-formula-grid">
+              <div class="help-formula"><span>單項得分</span><code>任務得分 ＝ 完成次數 × 每次分數</code></div>
+              <div class="help-formula"><span>目前總分</span><code>目前分數 ＝ Σ（各任務完成次數 × 各任務分數）</code></div>
+              <div class="help-formula"><span>距離目標</span><code>缺口 Δ ＝ max(0, 目標門檻 − 目前分數)</code></div>
+              <div class="help-formula"><span>單一來源補足</span><code>所需次數 n ＝ ceil(缺口 Δ ÷ 每次得分)</code></div>
+            </div>
+            <p class="help-note">ALL IN 會把「目前已輸入的進度＋你設定的全部可用庫存」套入同一套計分公式，預覽把體力、靈石、不變石、寵物蛋或寶箱全數投入後可得到的分數；它只做預覽，不會自動扣除資源。</p>
+          </section>
+
+          <section class="help-card help-wide">
+            <div class="help-card-head"><span>④</span><div><h3>自動補分的核心邏輯</h3><p>不是單純追求最省，也不是無條件選最小超額，而是找「合理超額、操作少、資源成本低」的平衡解。</p></div></div>
+            <div class="help-priority-flow">
+              <span>免費基本任務</span><b>→</b><span>懸賞週補齊 6 個個人任務</span><b>→</b><span>先達馬拉松底線</span><b>→</b><span>再補考古／懸賞目標</span>
+            </div>
+            <div class="help-equation-box">
+              <p><strong>候選方案：</strong>每個方案都有得分 <code>G</code>、操作次數 <code>A</code>、資源成本 <code>C</code>、稀有度成本 <code>R</code>。</p>
+              <p><strong>先找最小達標值：</strong><code>G ≥ 目標缺口</code>，取得最低可達成分數 <code>G₀</code>。</p>
+              <p><strong>允許合理超額：</strong><code>G ≤ G₀ ＋ 容許批次</code>。體力／寵物蛋通常以最小一批作容許值；寶箱用最低達標方案中的典型開箱批次作容許值。</p>
+              <p><strong>在容許範圍內排序：</strong><code>操作次數 A → 總得分 G → 資源成本 C → 稀有度成本 R → 使用種類數</code>，由小到大選第一個。</p>
+            </div>
+            <p class="help-note">因此缺 45 體時，可以選一次 10 倍、補 50 體；寵物蛋可把多個 1 倍整併成 5 倍；青銅寶箱接近 10 批時，也可能改用一批白銀寶箱。只要超額落在容許批次內，就優先減少操作次數。</p>
+          </section>
+
+          <section class="help-card">
+            <div class="help-card-head"><span>⑤</span><div><h3>永續省資源方案</h3><p>只補馬拉松關鍵門檻，不主動追求考古／懸賞滿階。</p></div></div>
+            <div class="help-plan-table">
+              <div><strong>只補馬拉松 30 星</strong><span>週一 3 階、週二 5 階、週三 5 階、週四 3 階、週五 3 階、週六 3 階、週日 5 階，合計剛好 30 星。</span></div>
+              <div><strong>只補馬拉松全 5 階</strong><span>週一至週日都補到第 5 階，用於取得每日第 4／5 階銀券等獎勵。</span></div>
+            </div>
+            <p class="help-note">每一天都先執行基本免費任務，再計算馬拉松缺口；若是懸賞週，會先把六個個人任務補齊，避免先補完馬拉松後又為懸賞任務多花資源。</p>
+          </section>
+
+          <section class="help-card">
+            <div class="help-card-head"><span>⑥</span><div><h3>逐日考古／懸賞方案</h3><p>資源足夠時，針對每一天比較可用來源與活動目標。</p></div></div>
+            <div class="help-plan-table">
+              <div><strong>考古週</strong><span>先確保馬拉松底線，再以同時能替馬拉松與考古加分、或單位資源收益較高的任務補考古階段。</span></div>
+              <div><strong>懸賞週</strong><span>先完成基本任務與個人懸賞，再依白／紫／金任務的可接數、分數和剩餘格數提出接取建議。</span></div>
+              <div><strong>週日</strong><span>沒有考古／懸賞目標，會比較體力、培育、寵物蛋、寶箱等多種馬拉松補足方式。</span></div>
+            </div>
+          </section>
+
+          <section class="help-card help-wide">
+            <div class="help-card-head"><span>⑦</span><div><h3>如何看統計與產出圖表</h3><p>統計頁用於快速檢查，圖表則提供完整一週明細與資源流向。</p></div></div>
+            <ul class="help-check-list">
+              <li><strong>總覽卡：</strong>看今天分數、本週星星、考古礦鎬／懸賞分數與下一個每週獎勵。</li>
+              <li><strong>七天摘要：</strong>快速找出哪一天尚未達到預定馬拉松階段，並查看第二活動進度。</li>
+              <li><strong>本日／本週階段：</strong>查看每一階門檻、獎勵與已達成狀態。</li>
+              <li><strong>獎勵總覽：</strong>與「確認並產出圖表」共用同一個整合獎勵計算結果。</li>
+              <li><strong>圖表下載：</strong>手機使用系統分享／儲存圖片；電腦直接下載 PNG，不再開啟系統分享視窗。</li>
+            </ul>
+          </section>
+        </div>
+      </aside>
 
       <aside class="card sidebar right-sidebar" id="actionsSidebarCard" aria-label="操作按鈕">
 
@@ -8212,6 +8616,7 @@
     <button class="mobile-nav-btn" type="button" data-mobile-panel="actions">操作按鈕</button>
     <button class="mobile-nav-btn" type="button" data-mobile-panel="stats">統計</button>
     <button class="mobile-nav-btn" type="button" data-mobile-panel="settings">個人化</button>
+    <button class="mobile-nav-btn" type="button" data-mobile-panel="help">說明</button>
   </nav>
 
   <div class="chart-modal" id="chartModal" hidden>
@@ -9083,12 +9488,10 @@
         sidebarHeading: document.getElementById("sidebarHeading"),
         sidebarNote: document.getElementById("sidebarNote"),
         actionsSidebarCard: document.getElementById("actionsSidebarCard"),
+        helpSidebarCard: document.getElementById("helpSidebarCard"),
         mobileSettingsPanel: document.getElementById("mobileSettingsPanel"),
         mobileActionsPanel: document.getElementById("mobileActionsPanel"),
         mobileTasksPanel: document.getElementById("mobileTasksPanel"),
-        mobileStatsPanel: document.getElementById("mobileStatsPanel"),
-        mobileWeeklyStagePanel: document.getElementById("mobileWeeklyStagePanel"),
-        mobileDailyRewardsPanel: document.getElementById("mobileDailyRewardsPanel"),
         statsViewShell: document.getElementById("statsViewShell"),
         statsViewSubtitle: document.getElementById("statsViewSubtitle"),
         statsViewButtons: [...document.querySelectorAll("[data-stats-view]")],
@@ -13392,12 +13795,14 @@
       const APP_PANEL_KEY = "capybara-app-panel-v207";
       let activeMobilePanel = normalizeMobilePanel(localStorage.getItem(APP_PANEL_KEY) || "tasks");
       const STATS_VIEW_KEY = "capybara-stats-view-v207";
-      const validStatsViews = new Set(["overview"]);
       let activeStatsView = "overview";
       let activeDailyStageView = "marathon";
 
       function normalizeMobilePanel(panel) {
-        return ["weekly", "daily"].includes(panel) ? "stats" : panel;
+        const normalized = ["weekly", "daily"].includes(panel) ? "stats" : panel;
+        return ["tasks", "actions", "stats", "settings", "help"].includes(normalized)
+          ? normalized
+          : "tasks";
       }
 
 
@@ -13884,18 +14289,21 @@ function closeChartModal() {
   document.body.classList.remove("modal-open");
 }
 
+function shouldUseSystemShareForImage(file) {
+  if (!file || !navigator.share || !navigator.canShare) return false;
+  const coarsePointer = window.matchMedia?.("(pointer: coarse)")?.matches;
+  const compactViewport = window.matchMedia?.("(max-width: 900px)")?.matches;
+  const mobileUserAgent = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+  return Boolean((mobileUserAgent || (coarsePointer && compactViewport)) && navigator.canShare({ files: [file] }));
+}
+
 async function saveGeneratedImageBlob(blob, filename) {
   const file = typeof File === "function"
     ? new File([blob], filename, { type: blob.type || "application/octet-stream" })
     : null;
 
-  // iPhone／iPad 對 a[download] 支援不一致；可用系統分享表直接儲存圖片。
-  if (
-    file &&
-    navigator.share &&
-    navigator.canShare &&
-    navigator.canShare({ files: [file] })
-  ) {
+  // 只有手機／平板才開系統分享表；桌面一律直接下載，避免跳出 Windows 分享視窗。
+  if (shouldUseSystemShareForImage(file)) {
     try {
       await navigator.share({ files: [file], title: filename });
       return;
@@ -13912,7 +14320,7 @@ async function saveGeneratedImageBlob(blob, filename) {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
 }
 
 function canvasToPngBlob(canvas) {
@@ -13948,6 +14356,58 @@ function buildReportSvgBlob(report) {
   return new Blob([html], { type: "image/svg+xml;charset=utf-8" });
 }
 
+async function createReportExportTarget(report) {
+  const exportHost = document.createElement("div");
+  exportHost.className = "report-export-host";
+  Object.assign(exportHost.style, {
+    position: "fixed",
+    left: "-100000px",
+    top: "0",
+    width: "800px",
+    maxWidth: "none",
+    overflow: "visible",
+    pointerEvents: "none",
+    zIndex: "-1",
+    background: "#f6f8fc"
+  });
+
+  const exportSheet = document.createElement("div");
+  exportSheet.className = "report-sheet report-export-sheet";
+  exportSheet.style.width = "760px";
+  exportSheet.style.maxWidth = "none";
+  exportSheet.style.margin = "0";
+  exportSheet.style.overflow = "visible";
+  exportSheet.innerHTML = report.innerHTML;
+  exportHost.appendChild(exportSheet);
+  document.body.appendChild(exportHost);
+
+  if (document.fonts?.ready) {
+    try { await document.fonts.ready; } catch (_) {}
+  }
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+  const target = exportSheet.firstElementChild || exportSheet;
+  target.style.maxHeight = "none";
+  target.style.height = "auto";
+  target.style.overflow = "visible";
+
+  return {
+    host: exportHost,
+    target,
+    width: Math.max(1, Math.ceil(target.scrollWidth)),
+    height: Math.max(1, Math.ceil(target.scrollHeight))
+  };
+}
+
+function getSafeReportCanvasScale(width, height) {
+  const preferred = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+  const maxDimension = 15000;
+  const maxArea = 80000000;
+  const dimensionScale = Math.min(maxDimension / width, maxDimension / height);
+  const areaScale = Math.sqrt(maxArea / Math.max(1, width * height));
+  return Math.max(0.35, Math.min(preferred, dimensionScale, areaScale));
+}
+
 async function downloadChartAsImage() {
   const report = els.chartReport;
   if (!report || !report.firstElementChild) return;
@@ -13959,12 +14419,14 @@ async function downloadChartAsImage() {
 
   const stamp = formatReportTime().replace(/[/: ]/g, "-");
   const pngName = `水豚馬拉松-本週任務配置圖表-${stamp}.png`;
+  let exportTarget = null;
 
   try {
+    exportTarget = await createReportExportTarget(report);
+
     if (typeof window.html2canvas === "function") {
-      const target = report.firstElementChild;
-      const scale = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
-      const canvas = await window.html2canvas(target, {
+      const scale = getSafeReportCanvasScale(exportTarget.width, exportTarget.height);
+      const canvas = await window.html2canvas(exportTarget.target, {
         backgroundColor: "#f6f8fc",
         scale,
         useCORS: true,
@@ -13972,35 +14434,31 @@ async function downloadChartAsImage() {
         logging: false,
         scrollX: 0,
         scrollY: 0,
-        width: Math.ceil(target.scrollWidth),
-        height: Math.ceil(target.scrollHeight),
-        windowWidth: Math.ceil(target.scrollWidth),
-        windowHeight: Math.ceil(target.scrollHeight)
+        width: exportTarget.width,
+        height: exportTarget.height,
+        windowWidth: exportTarget.width,
+        windowHeight: exportTarget.height,
+        removeContainer: true
       });
       const pngBlob = await canvasToPngBlob(canvas);
       await saveGeneratedImageBlob(pngBlob, pngName);
       return;
     }
 
-    // 離線或 CDN 無法載入時，至少下載可直接開啟的 SVG 圖片，不再只顯示失敗。
-    const svgBlob = buildReportSvgBlob(report);
-    await saveGeneratedImageBlob(
-      svgBlob,
-      pngName.replace(/\.png$/i, ".svg")
-    );
+    const svgBlob = buildReportSvgBlob(exportTarget.target.parentElement || report);
+    await saveGeneratedImageBlob(svgBlob, pngName.replace(/\.png$/i, ".svg"));
   } catch (error) {
     console.error("下載圖片失敗", error);
     try {
-      const svgBlob = buildReportSvgBlob(report);
-      await saveGeneratedImageBlob(
-        svgBlob,
-        pngName.replace(/\.png$/i, ".svg")
-      );
+      const fallbackSource = exportTarget?.target?.parentElement || report;
+      const svgBlob = buildReportSvgBlob(fallbackSource);
+      await saveGeneratedImageBlob(svgBlob, pngName.replace(/\.png$/i, ".svg"));
     } catch (fallbackError) {
       console.error("SVG 備援下載失敗", fallbackError);
       alert(`下載圖片失敗：${fallbackError?.message || error?.message || "未知錯誤"}`);
     }
   } finally {
+    exportTarget?.host?.remove();
     button.disabled = false;
     button.textContent = originalText;
   }
@@ -14110,6 +14568,7 @@ async function downloadChartAsImage() {
         const actionsMode = activeMobilePanel === "actions";
         const statsMode = activeMobilePanel === "stats";
         const tasksMode = activeMobilePanel === "tasks";
+        const helpMode = activeMobilePanel === "help";
 
         els.mobileNavButtons.forEach(button => {
           const active = button.dataset.mobilePanel === activeMobilePanel;
@@ -14119,6 +14578,7 @@ async function downloadChartAsImage() {
 
         show(els.sidebarCard, settingsMode);
         show(els.actionsSidebarCard, actionsMode);
+        show(els.helpSidebarCard, helpMode);
         show(els.mainContent, tasksMode || statsMode);
         show(els.mobileSettingsPanel, settingsMode);
         show(els.mobileActionsPanel, actionsMode);
