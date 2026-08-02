@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v228</title>
+  <title>水豚每週活動計算機｜週一至週日 v229</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -6296,7 +6296,7 @@
 
   
 
-    /* v228｜統計總覽補上本週考古／懸賞 */
+    /* v229｜統計總覽補上本週考古／懸賞 */
     .stats-dashboard-head {
       display: grid !important;
       grid-template-columns: minmax(0, 1fr) !important;
@@ -6387,7 +6387,7 @@
 
 
 
-    /* v228｜統計面板重整：桌機／手機一致化、降低重複資訊感 */
+    /* v229｜統計面板重整：桌機／手機一致化、降低重複資訊感 */
     .stats-dashboard-head {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -6764,7 +6764,7 @@
         font-size: 13px;
       }
     }
-    /* v228｜總覽補上本週聯合考古／公會懸賞 */
+    /* v229｜總覽補上本週聯合考古／公會懸賞 */
     .stats-kpi-week-secondary {
       background: linear-gradient(180deg, #eef9f6 0, #fff 46%);
       border-color: #b7ddd2;
@@ -6792,7 +6792,7 @@
     }
 
   
-    /* v228｜統計面板完整重設計 */
+    /* v229｜統計面板完整重設計 */
     .stats-view-shell{display:grid;gap:16px}
     .stats-dashboard-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(440px,720px);align-items:end;gap:28px;padding:4px 2px 14px;border-bottom:1px solid #e7edf5}
     .stats-dashboard-head h2{margin:4px 0 5px;color:#12233e;font-size:clamp(30px,3vw,42px);line-height:1;letter-spacing:-.04em}
@@ -6896,7 +6896,7 @@
     [hidden]{display:none!important;}
   
 
-    /* v228｜單頁統計整合：總覽、七天摘要、本日階段、本週階段、獎勵總覽 */
+    /* v229｜單頁統計整合：總覽、七天摘要、本日階段、本週階段、獎勵總覽 */
     .stats-dashboard-head-single {
       display: block;
       margin-bottom: 14px;
@@ -7141,7 +7141,7 @@
 
   
 
-    /* v228｜階段橫向列、獎勵統一、桌面全域週切換、任務頁按鈕回饋 */
+    /* v229｜階段橫向列、獎勵統一、桌面全域週切換、任務頁按鈕回饋 */
     @media (min-width: 901px) {
       .desktop-week-mode-dock {
         margin-top: auto;
@@ -7292,6 +7292,175 @@
       }
     }
 
+  
+
+    /* v229｜移除手動儲存、統計手機寬度修正、階段卡一致化 */
+    .stats-single-page,
+    .stats-single-page > *,
+    .stats-summary-grid,
+    .stats-dashboard-section,
+    .stats-daily-stage-pane,
+    .stats-stage-pane-title,
+    .stats-overview-week-cards,
+    .stats-integrated-reward-section,
+    .reward-summary-content {
+      min-width: 0;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .stats-single-page {
+      grid-template-columns: minmax(0, 1fr) !important;
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    .stats-single-page .stats-summary-grid {
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .stats-single-page .stats-kpi-card {
+      width: auto;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    /* 本日馬拉松／考古／懸賞與本週階段共用相同高度及橫向列 */
+    .stats-daily-stage-section .marathon-grid,
+    .stats-daily-stage-section .archaeology-grid,
+    .stats-week-stage-section .stats-weekly-stage-grid {
+      display: grid !important;
+      grid-template-columns: none !important;
+      grid-auto-flow: column !important;
+      grid-auto-columns: minmax(190px, 1fr) !important;
+      align-items: stretch;
+      gap: 10px;
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 2px 2px 10px;
+      scroll-snap-type: x proximity;
+      overscroll-behavior-inline: contain;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
+
+    .stats-daily-stage-section .marathon-grid .stage,
+    .stats-daily-stage-section .archaeology-grid .stage,
+    .stats-week-stage-section .stats-weekly-stage-grid .stage {
+      min-width: 0 !important;
+      min-height: 116px !important;
+      height: 116px !important;
+      box-sizing: border-box;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .stats-daily-stage-section .marathon-grid .stage-rewards,
+    .stats-daily-stage-section .archaeology-grid .stage-rewards,
+    .stats-week-stage-section .stats-weekly-stage-grid .stage-rewards {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+      line-height: 1.35;
+    }
+
+    .stats-daily-stage-section .archaeology-grid .stage[style*="grid-column"] {
+      min-width: 190px !important;
+      width: auto !important;
+    }
+
+    /* 底部只保留本日歸零，進度持續由既有自動儲存處理 */
+    .task-bottom-actions {
+      grid-template-columns: minmax(150px, auto) minmax(0, 1fr) !important;
+      align-items: center;
+    }
+
+    #taskFooterResetAll {
+      width: auto;
+      min-width: 160px;
+    }
+
+    @media (max-width: 820px) {
+      .stats-view-shell,
+      .stats-overview-pane,
+      .stats-single-page,
+      .stats-single-page > *,
+      .stats-dashboard-section,
+      .stats-summary-grid {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+      }
+
+      .stats-single-page {
+        padding-inline: 0 !important;
+        overflow-x: hidden !important;
+      }
+
+      .stats-single-page .stats-summary-grid {
+        grid-template-columns: minmax(0, 1fr) !important;
+      }
+
+      .stats-single-page .stats-kpi-card {
+        width: 100% !important;
+      }
+
+      .stats-stage-section-head,
+      .stats-stage-pane-title,
+      .stats-dashboard-section-head {
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .stats-stage-switch {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+
+      .stats-stage-switch-btn {
+        min-width: 0 !important;
+        padding-inline: 8px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .stats-daily-stage-section .marathon-grid,
+      .stats-daily-stage-section .archaeology-grid,
+      .stats-week-stage-section .stats-weekly-stage-grid {
+        grid-auto-columns: minmax(176px, 78vw) !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      .stats-daily-stage-section .marathon-grid .stage,
+      .stats-daily-stage-section .archaeology-grid .stage,
+      .stats-week-stage-section .stats-weekly-stage-grid .stage {
+        min-height: 112px !important;
+        height: 112px !important;
+      }
+
+      .task-bottom-actions {
+        grid-template-columns: 1fr !important;
+      }
+
+      #taskFooterResetAll {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -7301,7 +7470,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v228</div>
+      <div class="prototype-badge">週一至週日 v229</div>
     </header>
 
     <div class="app-shell" id="appShell">
@@ -7827,7 +7996,6 @@
               </div>
               <div class="task-bottom-actions">
                 <button class="task-footer-btn secondary" id="taskFooterResetAll" type="button">本日全部歸零</button>
-                <button class="task-footer-btn primary" id="taskFooterSaveProgress" type="button">立即儲存進度</button>
                 <span class="task-footer-status" id="taskFooterStatus" role="status" aria-live="polite"></span>
               </div>
             </div>
@@ -18259,14 +18427,6 @@ async function downloadChartAsImage() {
           return;
         }
 
-        const saveButton = event.target.closest("#taskFooterSaveProgress");
-        if (saveButton) {
-          const saved = saveState();
-          showTaskFooterStatus(
-            saved ? "目前進度已儲存到此瀏覽器" : "儲存失敗，請檢查瀏覽器儲存權限",
-            saved ? "success" : "warning"
-          );
-        }
       });
       els.taskPanel.addEventListener("pointerdown", event => {
         if (event.button != null && event.button !== 0) return;
