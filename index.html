@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v229</title>
+  <title>水豚每週活動計算機｜週一至週日 v230</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -6296,7 +6296,7 @@
 
   
 
-    /* v229｜統計總覽補上本週考古／懸賞 */
+    /* v230｜統計總覽補上本週考古／懸賞 */
     .stats-dashboard-head {
       display: grid !important;
       grid-template-columns: minmax(0, 1fr) !important;
@@ -6387,7 +6387,7 @@
 
 
 
-    /* v229｜統計面板重整：桌機／手機一致化、降低重複資訊感 */
+    /* v230｜統計面板重整：桌機／手機一致化、降低重複資訊感 */
     .stats-dashboard-head {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -6764,7 +6764,7 @@
         font-size: 13px;
       }
     }
-    /* v229｜總覽補上本週聯合考古／公會懸賞 */
+    /* v230｜總覽補上本週聯合考古／公會懸賞 */
     .stats-kpi-week-secondary {
       background: linear-gradient(180deg, #eef9f6 0, #fff 46%);
       border-color: #b7ddd2;
@@ -6792,7 +6792,7 @@
     }
 
   
-    /* v229｜統計面板完整重設計 */
+    /* v230｜統計面板完整重設計 */
     .stats-view-shell{display:grid;gap:16px}
     .stats-dashboard-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(440px,720px);align-items:end;gap:28px;padding:4px 2px 14px;border-bottom:1px solid #e7edf5}
     .stats-dashboard-head h2{margin:4px 0 5px;color:#12233e;font-size:clamp(30px,3vw,42px);line-height:1;letter-spacing:-.04em}
@@ -6896,7 +6896,7 @@
     [hidden]{display:none!important;}
   
 
-    /* v229｜單頁統計整合：總覽、七天摘要、本日階段、本週階段、獎勵總覽 */
+    /* v230｜單頁統計整合：總覽、七天摘要、本日階段、本週階段、獎勵總覽 */
     .stats-dashboard-head-single {
       display: block;
       margin-bottom: 14px;
@@ -7141,7 +7141,7 @@
 
   
 
-    /* v229｜階段橫向列、獎勵統一、桌面全域週切換、任務頁按鈕回饋 */
+    /* v230｜階段橫向列、獎勵統一、桌面全域週切換、任務頁按鈕回饋 */
     @media (min-width: 901px) {
       .desktop-week-mode-dock {
         margin-top: auto;
@@ -7294,7 +7294,7 @@
 
   
 
-    /* v229｜移除手動儲存、統計手機寬度修正、階段卡一致化 */
+    /* v230｜移除手動儲存、統計手機寬度修正、階段卡一致化 */
     .stats-single-page,
     .stats-single-page > *,
     .stats-summary-grid,
@@ -7461,6 +7461,208 @@
       }
     }
 
+
+    /* v230｜活動語意色統一：馬拉松綠、考古藍、懸賞紫 */
+    :root {
+      --marathon-color: #168a5b;
+      --marathon-soft: #eaf8f2;
+      --marathon-line: #9dd8bd;
+      --archaeology-color: #2457d6;
+      --archaeology-soft: #edf3ff;
+      --archaeology-line: #a9c2f6;
+      --bounty-color: #7654d6;
+      --bounty-soft: #f2eeff;
+      --bounty-line: #c8b8f3;
+    }
+
+    /* 週模式切換：所有位置使用相同色系 */
+    .week-mode-tab[data-week-mode="archaeology"].active,
+    .desktop-week-mode-btn.week-mode-tab[data-week-mode="archaeology"].active {
+      border-color: transparent !important;
+      background: linear-gradient(135deg, #3775ed, var(--archaeology-color)) !important;
+      color: #fff !important;
+      box-shadow: 0 8px 18px rgba(36, 87, 214, .24) !important;
+    }
+
+    .week-mode-tab[data-week-mode="bounty"].active,
+    .desktop-week-mode-btn.week-mode-tab[data-week-mode="bounty"].active {
+      border-color: transparent !important;
+      background: linear-gradient(135deg, #8b67e6, var(--bounty-color)) !important;
+      color: #fff !important;
+      box-shadow: 0 8px 18px rgba(118, 84, 214, .24) !important;
+    }
+
+    /* 任務分數與分類標籤 */
+    .score-chip.marathon,
+    .task-score .marathon,
+    .type-badge.type-marathon {
+      color: var(--marathon-color) !important;
+      background: var(--marathon-soft) !important;
+    }
+
+    .score-chip.archaeology,
+    .task-score .archaeology,
+    .type-badge.type-arch {
+      color: var(--archaeology-color) !important;
+      background: var(--archaeology-soft) !important;
+    }
+
+    .score-chip.bounty,
+    .task-score .bounty,
+    .type-badge.type-bounty {
+      color: var(--bounty-color) !important;
+      background: var(--bounty-soft) !important;
+    }
+
+    #taskPanel .task-block-title:has(.type-marathon)::before {
+      background: var(--marathon-color) !important;
+    }
+
+    #taskPanel .task-block-title:has(.type-arch)::before {
+      background: var(--archaeology-color) !important;
+    }
+
+    #taskPanel .task-block-title:has(.type-bounty)::before {
+      background: var(--bounty-color) !important;
+    }
+
+    /* 總覽：馬拉松固定綠色 */
+    .stats-kpi-marathon,
+    .stats-kpi-week {
+      border-color: var(--marathon-line) !important;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fdfa 100%) !important;
+    }
+
+    .stats-kpi-marathon::before,
+    .stats-kpi-week::before {
+      background: var(--marathon-color) !important;
+    }
+
+    .stats-kpi-marathon .stats-kpi-title,
+    .stats-kpi-week .stats-kpi-title,
+    .stats-overview-day-metric.marathon,
+    .day-star-value,
+    .mini-stat.marathon strong {
+      color: var(--marathon-color) !important;
+    }
+
+    .stats-kpi-marathon .progress-bar,
+    .stats-kpi-week .progress-bar,
+    .activity-card.marathon .progress-bar {
+      background: linear-gradient(90deg, #45b77d, var(--marathon-color)) !important;
+    }
+
+    /* 考古週：所有次要活動資訊固定藍色 */
+    body[data-week-mode="archaeology"] .stats-kpi-secondary,
+    body[data-week-mode="archaeology"] .stats-kpi-week-secondary {
+      border-color: var(--archaeology-line) !important;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%) !important;
+    }
+
+    body[data-week-mode="archaeology"] .stats-kpi-secondary::before,
+    body[data-week-mode="archaeology"] .stats-kpi-week-secondary::before {
+      background: var(--archaeology-color) !important;
+    }
+
+    body[data-week-mode="archaeology"] .stats-kpi-secondary .stats-kpi-title,
+    body[data-week-mode="archaeology"] .stats-kpi-week-secondary .stats-kpi-title,
+    body[data-week-mode="archaeology"] .stats-overview-day-metric.secondary,
+    body[data-week-mode="archaeology"] .mini-stat.archaeology strong,
+    .day-pickaxe-value {
+      color: var(--archaeology-color) !important;
+    }
+
+    body[data-week-mode="archaeology"] .stats-kpi-secondary .progress-bar,
+    body[data-week-mode="archaeology"] .stats-kpi-week-secondary .progress-bar,
+    body[data-week-mode="archaeology"] .activity-card.archaeology .progress-bar {
+      background: linear-gradient(90deg, #4b88f5, var(--archaeology-color)) !important;
+    }
+
+    /* 懸賞週：所有次要活動資訊固定紫色 */
+    body[data-week-mode="bounty"] .stats-kpi-secondary,
+    body[data-week-mode="bounty"] .stats-kpi-week-secondary {
+      border-color: var(--bounty-line) !important;
+      background: linear-gradient(180deg, #ffffff 0%, #faf8ff 100%) !important;
+    }
+
+    body[data-week-mode="bounty"] .stats-kpi-secondary::before,
+    body[data-week-mode="bounty"] .stats-kpi-week-secondary::before {
+      background: var(--bounty-color) !important;
+    }
+
+    body[data-week-mode="bounty"] .stats-kpi-secondary .stats-kpi-title,
+    body[data-week-mode="bounty"] .stats-kpi-week-secondary .stats-kpi-title,
+    body[data-week-mode="bounty"] .stats-overview-day-metric.secondary {
+      color: var(--bounty-color) !important;
+    }
+
+    body[data-week-mode="bounty"] .stats-kpi-secondary .progress-bar,
+    body[data-week-mode="bounty"] .stats-kpi-week-secondary .progress-bar {
+      background: linear-gradient(90deg, #9a77ed, var(--bounty-color)) !important;
+    }
+
+    /* 本日階段切換與達成階段 */
+    .stats-stage-switch-btn[data-daily-stage-view="marathon"].active {
+      border-color: transparent !important;
+      background: linear-gradient(135deg, #45b77d, var(--marathon-color)) !important;
+      color: #fff !important;
+    }
+
+    body[data-week-mode="archaeology"] .stats-stage-switch-btn[data-daily-stage-view="secondary"].active {
+      border-color: transparent !important;
+      background: linear-gradient(135deg, #4b88f5, var(--archaeology-color)) !important;
+      color: #fff !important;
+    }
+
+    body[data-week-mode="bounty"] .stats-stage-switch-btn[data-daily-stage-view="secondary"].active {
+      border-color: transparent !important;
+      background: linear-gradient(135deg, #9a77ed, var(--bounty-color)) !important;
+      color: #fff !important;
+    }
+
+    .stats-daily-stage-section .marathon-grid .stage.done,
+    .stats-week-stage-section .stats-weekly-stage-grid .stage.done {
+      border-color: var(--marathon-line) !important;
+      background: var(--marathon-soft) !important;
+    }
+
+    .stats-daily-stage-section .marathon-grid .stage.done .stage-status,
+    .stats-week-stage-section .stats-weekly-stage-grid .stage.done .stage-status {
+      color: var(--marathon-color) !important;
+      background: #d8f2e5 !important;
+    }
+
+    body[data-week-mode="archaeology"] .stats-daily-stage-section .archaeology-grid .stage.done {
+      border-color: var(--archaeology-line) !important;
+      background: var(--archaeology-soft) !important;
+    }
+
+    body[data-week-mode="archaeology"] .stats-daily-stage-section .archaeology-grid .stage.done .stage-status {
+      color: var(--archaeology-color) !important;
+      background: #dfe9ff !important;
+    }
+
+    body[data-week-mode="bounty"] .stats-daily-stage-section .archaeology-grid .stage.done {
+      border-color: var(--bounty-line) !important;
+      background: var(--bounty-soft) !important;
+    }
+
+    body[data-week-mode="bounty"] .stats-daily-stage-section .archaeology-grid .stage.done .stage-status {
+      color: var(--bounty-color) !important;
+      background: #e8e0ff !important;
+    }
+
+    /* 每週馬拉松星星與活動卡 */
+    .weekly-stage-card {
+      background: linear-gradient(180deg, rgba(234, 248, 242, .9), rgba(255,255,255,0) 120px), var(--card) !important;
+    }
+
+    .reward-total-chip.star {
+      color: var(--marathon-color) !important;
+      border-color: var(--marathon-line) !important;
+      background: var(--marathon-soft) !important;
+    }
+
   </style>
 </head>
 <body>
@@ -7470,7 +7672,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v229</div>
+      <div class="prototype-badge">週一至週日 v230</div>
     </header>
 
     <div class="app-shell" id="appShell">
@@ -12717,7 +12919,7 @@
         const activeScores = getScoresForDay(state.activeDay);
         const activeMarathonStageCount = getCompletedStageCount(activeScores.marathon, marathonStages);
         const activeSecondaryStageCount = state.activeDay === "sun" ? 0 : (isBountyWeek ? toInt(summary.dayBountyStages[state.activeDay]) : getCompletedStageCount(activeScores.archaeology, archaeologyStages));
-        const activeSecondaryStageMax = isBountyWeek ? 9 : 5;
+        const activeSecondaryStageMax = isBountyWeek ? guildBountyStages.length : archaeologyStages.length;
         if (els.statsOverviewUnlockedSummary) {
           els.statsOverviewUnlockedSummary.innerHTML = `<div class="stats-overview-unlocked-item"><span>本週馬拉松</span><strong>${unlockedWeeklyStageCount} / ${weeklyMarathonStages.length} 階</strong><small>${unlockedWeeklyStageCount ? "已解鎖" : "尚未解鎖"}</small></div><div class="stats-overview-unlocked-item"><span>今日馬拉松</span><strong>${activeMarathonStageCount} / ${marathonStages.length} 階</strong><small>${activeMarathonStageCount ? "已有獎勵" : "尚未達階"}</small></div><div class="stats-overview-unlocked-item"><span>${isBountyWeek ? "今日懸賞" : "今日考古"}</span><strong>${activeSecondaryStageCount} / ${activeSecondaryStageMax} 階</strong><small>${state.activeDay === "sun" ? "休息日" : (activeSecondaryStageCount ? "已有獎勵" : "尚未達階")}</small></div><div class="stats-overview-unlocked-item"><span>待補星期</span><strong>${attentionItems.length} 日</strong><small>${attentionItems.length ? "需要處理" : "全部達標"}</small></div>`;
         }
@@ -13825,6 +14027,7 @@ async function downloadChartAsImage() {
 
       function updateWeekModeVisibility() {
         const isBountyWeek = state.weekMode === "bounty";
+        document.body.dataset.weekMode = state.weekMode;
 
         els.weekModeTabs.forEach(tab => {
           tab.classList.toggle("active", tab.dataset.weekMode === state.weekMode);
