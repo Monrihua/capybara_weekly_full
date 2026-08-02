@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v231</title>
+  <title>水豚每週活動計算機｜週一至週日 v232</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -7974,16 +7974,144 @@
       .help-card { padding: 14px; border-radius: 17px; }
     }
 
+
+    /* v232｜手機操作卡、全域活動週切換與初始載入穩定化 */
+    .mobile-week-mode-dock { display: none; }
+
+    @media (max-width: 900px) {
+      body {
+        padding-bottom: calc(142px + env(safe-area-inset-bottom)) !important;
+      }
+
+      .mobile-bottom-nav {
+        grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+        grid-template-rows: auto auto;
+        gap: 6px !important;
+        padding-top: 7px !important;
+      }
+
+      .mobile-week-mode-dock {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: auto repeat(2, minmax(0, 1fr));
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        padding: 0 2px;
+      }
+
+      .mobile-week-mode-label {
+        color: #66758a;
+        font-size: 10px;
+        font-weight: 900;
+        white-space: nowrap;
+      }
+
+      .mobile-week-mode-btn {
+        min-width: 0 !important;
+        min-height: 32px !important;
+        height: 32px !important;
+        padding: 4px 8px !important;
+        border-radius: 10px !important;
+        border: 1px solid #d9e2ef !important;
+        background: #fff !important;
+        box-shadow: none !important;
+        font-size: 11px !important;
+        line-height: 1 !important;
+      }
+
+      .mobile-week-mode-btn[data-week-mode="archaeology"] {
+        color: var(--archaeology-color) !important;
+      }
+
+      .mobile-week-mode-btn[data-week-mode="bounty"] {
+        color: var(--bounty-color) !important;
+      }
+
+      .mobile-week-mode-btn[data-week-mode="archaeology"].active {
+        color: #fff !important;
+        border-color: var(--archaeology-color) !important;
+        background: linear-gradient(135deg, #4b88f5, var(--archaeology-color)) !important;
+      }
+
+      .mobile-week-mode-btn[data-week-mode="bounty"].active {
+        color: #fff !important;
+        border-color: var(--bounty-color) !important;
+        background: linear-gradient(135deg, #9a77ed, var(--bounty-color)) !important;
+      }
+
+      /* 無左側圖示的重置卡改用兩欄，避免文字被塞進 44px 圖示欄。 */
+      #actionsSidebarCard .action-mockup-card.compact {
+        grid-template-columns: minmax(0, 1fr) 30px !important;
+        grid-template-areas: "content arrow" !important;
+        min-height: 90px !important;
+      }
+
+      #actionsSidebarCard .action-mockup-card.compact .card-content {
+        grid-area: content !important;
+        grid-column: auto !important;
+        min-width: 0 !important;
+        width: 100% !important;
+      }
+
+      #actionsSidebarCard .action-mockup-card.compact .card-arrow {
+        grid-area: arrow !important;
+        grid-column: auto !important;
+        justify-self: end !important;
+      }
+
+      #actionsSidebarCard .action-mockup-card.warning-banner {
+        grid-template-columns: minmax(0, 1fr) !important;
+        grid-template-areas: "content" !important;
+        min-height: 82px !important;
+      }
+
+      #actionsSidebarCard .action-mockup-card.warning-banner .card-content {
+        grid-area: content !important;
+        grid-column: auto !important;
+        min-width: 0 !important;
+        width: 100% !important;
+      }
+
+      #actionsSidebarCard .action-mockup-card.compact .action-card-main,
+      #actionsSidebarCard .action-mockup-card.warning-banner .action-card-main {
+        font-size: 14px !important;
+        line-height: 1.35 !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+      }
+
+      #actionsSidebarCard .action-mockup-card.compact .action-card-sub,
+      #actionsSidebarCard .action-mockup-card.warning-banner .action-card-sub {
+        margin-top: 4px !important;
+        font-size: 11px !important;
+        line-height: 1.45 !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+      }
+    }
+
+    @media (max-width: 420px) {
+      body {
+        padding-bottom: calc(138px + env(safe-area-inset-bottom)) !important;
+      }
+      .mobile-bottom-nav { gap: 4px !important; padding-inline: 6px !important; }
+      .mobile-week-mode-dock { gap: 4px; }
+      .mobile-week-mode-label { font-size: 9px; }
+      .mobile-week-mode-btn { font-size: 10px !important; padding-inline: 5px !important; }
+      .mobile-nav-btn { min-height: 48px !important; }
+    }
+
   </style>
 </head>
-<body>
+<body data-active-panel="tasks">
   <main class="page">
     <header class="hero">
       <div>
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v231</div>
+      <div class="prototype-badge">週一至週日 v232</div>
     </header>
 
     <div class="app-shell" id="appShell">
@@ -8003,7 +8131,7 @@
           <button class="week-mode-tab desktop-week-mode-btn" type="button" data-week-mode="bounty">懸賞</button>
         </div>
       </nav>
-      <aside class="card sidebar" id="sidebarCard" aria-label="個人化設置">
+      <aside class="card sidebar" id="sidebarCard" aria-label="個人化設置" hidden>
 
         <h2 id="sidebarHeading">個人化設定</h2>
         <div class="sidebar-note" id="sidebarNote">自訂你的偏好與資源設定，讓使用體驗更符合你的習慣。</div>
@@ -8227,7 +8355,7 @@
         </div>
       </aside>
 
-      <aside class="card sidebar right-sidebar" id="actionsSidebarCard" aria-label="操作按鈕">
+      <aside class="card sidebar right-sidebar" id="actionsSidebarCard" aria-label="操作按鈕" hidden>
 
         <h2>操作面板</h2>
         <div class="sidebar-note">執行各種操作與方案，協助你更有效率地規劃每週活動。</div>
@@ -8358,7 +8486,7 @@
         </button>
       </div>
     </div>
-        <div class="stats-view-shell" id="statsViewShell">
+        <div class="stats-view-shell" id="statsViewShell" hidden>
           <header class="stats-dashboard-head stats-dashboard-head-single">
             <div>
               <span class="stats-dashboard-kicker">本週活動與獎勵</span>
@@ -8612,6 +8740,11 @@
   </main>
 
   <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="手機頁面切換">
+    <div class="mobile-week-mode-dock" aria-label="全域活動週切換">
+      <span class="mobile-week-mode-label">活動週</span>
+      <button class="week-mode-tab mobile-week-mode-btn active" type="button" data-week-mode="archaeology">考古週</button>
+      <button class="week-mode-tab mobile-week-mode-btn" type="button" data-week-mode="bounty">懸賞週</button>
+    </div>
     <button class="mobile-nav-btn active" type="button" data-mobile-panel="tasks">任務</button>
     <button class="mobile-nav-btn" type="button" data-mobile-panel="actions">操作按鈕</button>
     <button class="mobile-nav-btn" type="button" data-mobile-panel="stats">統計</button>
@@ -14360,8 +14493,8 @@ async function createReportExportTarget(report) {
   const exportHost = document.createElement("div");
   exportHost.className = "report-export-host";
   Object.assign(exportHost.style, {
-    position: "fixed",
-    left: "-100000px",
+    position: "absolute",
+    left: "-20000px",
     top: "0",
     width: "800px",
     maxWidth: "none",
@@ -14401,11 +14534,75 @@ async function createReportExportTarget(report) {
 
 function getSafeReportCanvasScale(width, height) {
   const preferred = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
-  const maxDimension = 15000;
-  const maxArea = 80000000;
+  // 保守限制最長邊，避免 Windows／Chromium 在長圖超過 GPU 畫布上限時裁掉週六以後內容。
+  const maxDimension = 7600;
+  const maxArea = 30000000;
   const dimensionScale = Math.min(maxDimension / width, maxDimension / height);
   const areaScale = Math.sqrt(maxArea / Math.max(1, width * height));
-  return Math.max(0.35, Math.min(preferred, dimensionScale, areaScale));
+  return Math.max(0.5, Math.min(preferred, dimensionScale, areaScale));
+}
+
+function isCompactImageExportEnvironment() {
+  const coarsePointer = window.matchMedia?.("(pointer: coarse)")?.matches;
+  const compactViewport = window.matchMedia?.("(max-width: 900px)")?.matches;
+  const mobileUserAgent = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+  return Boolean(mobileUserAgent || (coarsePointer && compactViewport));
+}
+
+async function renderReportCanvas(target, width, height, scale) {
+  return window.html2canvas(target, {
+    backgroundColor: "#f6f8fc",
+    scale,
+    useCORS: true,
+    allowTaint: false,
+    logging: false,
+    scrollX: 0,
+    scrollY: 0,
+    width,
+    height,
+    windowWidth: width,
+    windowHeight: Math.min(height + 120, 8000),
+    removeContainer: true
+  });
+}
+
+async function renderReportCanvasBySections(target, width, height, scale) {
+  const sections = [...target.children].filter(section => {
+    const rect = section.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  });
+  if (sections.length < 2) return renderReportCanvas(target, width, height, scale);
+
+  const output = document.createElement("canvas");
+  output.width = Math.max(1, Math.ceil(width * scale));
+  output.height = Math.max(1, Math.ceil(height * scale));
+  const context = output.getContext("2d", { alpha: false });
+  if (!context) throw new Error("無法建立完整報表畫布");
+  context.fillStyle = "#f6f8fc";
+  context.fillRect(0, 0, output.width, output.height);
+
+  const rootRect = target.getBoundingClientRect();
+  for (const section of sections) {
+    const rect = section.getBoundingClientRect();
+    const sectionCanvas = await window.html2canvas(section, {
+      backgroundColor: null,
+      scale,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      scrollX: 0,
+      scrollY: 0,
+      width: Math.ceil(rect.width),
+      height: Math.ceil(rect.height),
+      windowWidth: width,
+      windowHeight: Math.min(Math.ceil(rect.height) + 120, 4000),
+      removeContainer: true
+    });
+    const x = Math.round((rect.left - rootRect.left) * scale);
+    const y = Math.round((rect.top - rootRect.top) * scale);
+    context.drawImage(sectionCanvas, x, y);
+  }
+  return output;
 }
 
 async function downloadChartAsImage() {
@@ -14426,20 +14623,23 @@ async function downloadChartAsImage() {
 
     if (typeof window.html2canvas === "function") {
       const scale = getSafeReportCanvasScale(exportTarget.width, exportTarget.height);
-      const canvas = await window.html2canvas(exportTarget.target, {
-        backgroundColor: "#f6f8fc",
-        scale,
-        useCORS: true,
-        allowTaint: false,
-        logging: false,
-        scrollX: 0,
-        scrollY: 0,
-        width: exportTarget.width,
-        height: exportTarget.height,
-        windowWidth: exportTarget.width,
-        windowHeight: exportTarget.height,
-        removeContainer: true
-      });
+      let canvas;
+      if (isCompactImageExportEnvironment()) {
+        canvas = await renderReportCanvas(
+          exportTarget.target,
+          exportTarget.width,
+          exportTarget.height,
+          scale
+        );
+      } else {
+        // 桌面長圖分區繪製後再合併，避免單次長畫布只輸出到週六。
+        canvas = await renderReportCanvasBySections(
+          exportTarget.target,
+          exportTarget.width,
+          exportTarget.height,
+          scale
+        );
+      }
       const pngBlob = await canvasToPngBlob(canvas);
       await saveGeneratedImageBlob(pngBlob, pngName);
       return;
