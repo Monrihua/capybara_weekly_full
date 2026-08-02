@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v233</title>
+  <title>水豚每週活動計算機｜週一至週日 v235</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -8184,7 +8184,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v233</div>
+      <div class="prototype-badge">週一至週日 v235</div>
     </header>
 
     <div class="app-shell" id="appShell">
@@ -16527,7 +16527,7 @@ async function downloadChartAsImage() {
           }
           plans.push(createMondayArchaeologyPlan(base, {
             key: "stamina-only",
-            name: "只靠體力",
+            name: "只靠消體力",
             badge: "雙加分",
             highlight: true,
             staminaPlan: staminaOnlyPlan || zeroPlan,
@@ -16578,8 +16578,8 @@ async function downloadChartAsImage() {
           }
           plans.push(createMondayArchaeologyPlan(base, {
             key: "stamina-floor-cube",
-            name: "體力完成馬拉松底線＋靈能洗煉",
-            badge: "考古補尾",
+            name: "體力完成馬拉松底線＋靈能洗煉補足",
+            badge: "針對考古補足",
             staminaPlan: staminaCubePlan || zeroPlan,
             staminaPlanValid: staminaCubeValid,
             cubeAdd: staminaCubeAdd,
@@ -16608,8 +16608,8 @@ async function downloadChartAsImage() {
           }
           plans.push(createMondayArchaeologyPlan(base, {
             key: "equip-floor-cube",
-            name: "抽裝備完成馬拉松底線＋靈能洗煉",
-            badge: "200 體後補尾",
+            name: "抽裝備完成馬拉松底線＋200體+靈能洗煉補足",
+            badge: "200 體後針對考古補足",
             staminaPlan: equipCubePlan || zeroPlan,
             staminaPlanValid: equipCubeValid,
             equipAdd: equipFloorAdd,
@@ -16891,7 +16891,7 @@ async function downloadChartAsImage() {
           return [
             makePlan({
               key: "bounty-floor-stamina",
-              name: "基本任務＋懸賞缺項＋體力補馬拉松底線",
+              name: "基本任務＋懸賞缺項＋消體力補馬拉松底線",
               badge: "體力方案",
               floorType: "stamina"
             }),
@@ -17295,7 +17295,7 @@ async function downloadChartAsImage() {
             { label: "追加不變石", value: `${format(outcome.stones)} 個` },
             { label: "培育配置", value: formatTuesdayCultivationCounts(totalCounts) },
             { label: "追加卡皮貿易 發 UR／閃金商船", value: `${format(outcome.tradeAdd)} 艘` },
-            { label: "追加寶石抽獎", value: `${format(outcome.treasureAdd)} 次` },
+            { label: "追加抽秘寶", value: `${format(outcome.treasureAdd)} 次` },
             { label: "馬拉松積分", value: `${format(outcome.marathon)} / ${format(base.marathonTargetScore)} 分` },
             { label: "馬拉松星星", value: `${format(getMarathonStars(outcome.marathon))} / 6 星` },
             { label: "考古已達成", value: `階段 ${format(archaeologyProgress.achievedStage)} / ${format(archaeologyProgress.achievedThreshold)} 分` },
@@ -17358,7 +17358,7 @@ async function downloadChartAsImage() {
           return [
             createTuesdayArchaeologyPlan(base, {
               key: "tue-arch-cultivation-only",
-              name: "只靠培育｜全程不鎖詞綴",
+              name: "只靠寵物培育｜不鎖定詞綴",
               badge: "雙加分",
               highlight: true,
               floorPlan,
@@ -17370,8 +17370,8 @@ async function downloadChartAsImage() {
             }),
             createTuesdayArchaeologyPlan(base, {
               key: "tue-arch-trade-cultivation",
-              name: `培育底線＋貿易開滿 ${format(tradeLimit)} 艘＋不鎖培育補足`,
-              badge: "貿易＋培育",
+              name: `寵物培育完成馬拉松底線＋貿易開滿 ${format(tradeLimit)} 艘＋不鎖定詞綴補足`,
+              badge: "針對考古補足",
               floorPlan,
               tailBaseActions: cultivationAfterTrade,
               tradeAdd: fullTradeAdd,
@@ -17381,25 +17381,25 @@ async function downloadChartAsImage() {
             }),
             createTuesdayArchaeologyPlan(base, {
               key: "tue-arch-treasure-only",
-              name: "培育底線＋寶石抽獎補足",
-              badge: "寶石補足",
+              name: "寵物培育完成馬拉松底線＋抽秘寶補足",
+              badge: "針對考古補足",
               floorPlan,
               tailBaseActions: 0,
               tradeAdd: 0,
               treasureAdd: treasureTail,
               description: "先用不鎖詞綴培育完成馬拉松底線。",
-              tailDescription: `再以珍寶商店抽寶石 × ${format(treasureTail)} 補到考古目標`
+              tailDescription: `再以珍寶商店抽秘寶 × ${format(treasureTail)} 補到考古目標`
             }),
             createTuesdayArchaeologyPlan(base, {
               key: "tue-arch-trade-treasure",
-              name: `培育底線＋貿易開滿 ${format(tradeLimit)} 艘＋寶石抽獎補足`,
-              badge: "貿易＋寶石",
+              name: `寵物培育完成馬拉松底線＋貿易開滿 ${format(tradeLimit)} 艘＋抽秘寶補足`,
+              badge: "針對考古補足",
               floorPlan,
               tailBaseActions: 0,
               tradeAdd: fullTradeAdd,
               treasureAdd: treasureAfterTrade,
               description: "先用不鎖詞綴培育完成馬拉松底線。",
-              tailDescription: `將卡皮貿易補至每日上限 ${format(tradeLimit)} 艘，再以寶石抽獎 × ${format(treasureAfterTrade)} 補到考古目標`
+              tailDescription: `將卡皮貿易補至每日上限 ${format(tradeLimit)} 艘，再以抽秘寶 × ${format(treasureAfterTrade)} 補到考古目標`
             })
           ];
         } finally {
@@ -17516,8 +17516,8 @@ async function downloadChartAsImage() {
           return [
             createTuesdayBountyPlan(base, {
               key: "tue-bounty-unlocked",
-              name: "基本任務＋懸賞缺項＋不鎖培育方案",
-              badge: "不鎖詞綴",
+              name: "基本任務＋懸賞缺項＋寵物培育｜不鎖定詞綴補馬拉松底線",
+              badge: "寵物培育方案",
               highlight: true,
               floorPlan: unlockedFloor,
               description: "基本任務與懸賞缺項完成後，培育與後續馬拉松補分全部使用不鎖詞綴，不配置任何不變石。"
@@ -17634,7 +17634,7 @@ async function downloadChartAsImage() {
           els.autoPlanStatus.innerHTML = `
             <strong>週二｜已採用「${selected.name}」</strong>
             <div>馬拉松底線：第 ${marathonStage} 階；聯合考古目標：第 ${activityStage} 階。</div>
-            <div>培育配置：${formatTuesdayCultivationCounts(selected.application.cultivationCounts)}；追加卡皮貿易 發 UR／閃金商船 ${format(selected.application.tradeAdd)} 艘、寶石抽獎 ${format(selected.application.treasureAdd)} 次。</div>
+            <div>培育配置：${formatTuesdayCultivationCounts(selected.application.cultivationCounts)}；追加卡皮貿易 發 UR／閃金商船 ${format(selected.application.tradeAdd)} 艘、抽秘寶 ${format(selected.application.treasureAdd)} 次。</div>
             <div>最終馬拉松 ${format(scores.marathon)} 分、${format(getMarathonStars(scores.marathon))} / 6 星；考古 ${format(scores.archaeology)} 分、${format(getArchaeologyPickaxes(scores.archaeology))} / 56 礦鎬。</div>
           `;
         }
@@ -20082,6 +20082,8 @@ async function downloadChartAsImage() {
         return metrics;
       }
 
+      // v234｜週四貿易方案文字依特權卡動態顯示每日上限（4／6 艘）
+      // v235｜週二聯合考古方案的珍寶商店資源統一標示為「秘寶」，避免誤寫成寶石抽獎
       function unifiedPlanDefinitions(dayKey, weekMode) {
         if (weekMode === "bounty") {
           const names = {
@@ -20094,24 +20096,27 @@ async function downloadChartAsImage() {
         }
         if (dayKey === "wed") return [
           { key: "egg-only", name: "只靠寵物蛋", badge: "雙加分" },
-          { key: "egg-200-egg", name: "寵物蛋完成馬拉松底線＋200 體＋寵物蛋", badge: "高收益體力" },
-          { key: "egg-200-brand", name: "寵物蛋完成馬拉松底線＋200 體＋抽烙印", badge: "考古補足" }
+          { key: "egg-200-egg", name: "寵物蛋完成馬拉松底線＋200 體＋寵物蛋補足", badge: "200 體後針對考古補足" },
+          { key: "egg-200-brand", name: "寵物蛋完成馬拉松底線＋200 體＋抽烙印補足", badge: "針對考古補足" }
         ];
-        if (dayKey === "thu") return [
-          { key: "chest-only", name: "只靠開寶箱", badge: "雙加分" },
-          { key: "chest-trade-chest", name: "寶箱完成馬拉松底線＋貿易開滿 4／6 艘＋寶箱", badge: "貿易優先" },
-          { key: "chest-treasure", name: "寶箱完成馬拉松底線＋抽秘寶", badge: "考古補足" },
-          { key: "chest-trade-treasure", name: "寶箱完成馬拉松底線＋貿易開滿 4／6 艘＋抽秘寶", badge: "貿易優先" }
-        ];
+        if (dayKey === "thu") {
+          const tradeLimit = state.settings.tradeCard ? 6 : 4;
+          return [
+            { key: "chest-only", name: "只靠開寶箱", badge: "雙加分" },
+            { key: "chest-trade-chest", name: `寶箱完成馬拉松底線＋貿易開滿 ${format(tradeLimit)} 艘＋開寶箱補足`, badge: "貿易後針對考古補足" },
+            { key: "chest-treasure", name: "寶箱完成馬拉松底線＋抽秘寶補足", badge: "考古補足" },
+            { key: "chest-trade-treasure", name: `寶箱完成馬拉松底線＋貿易開滿 ${format(tradeLimit)} 艘＋抽秘寶補足`, badge: "貿易後針對考古補足" }
+          ];
+        }
         if (dayKey === "fri") return [
-          { key: "gem-only", name: "抽寶石完成馬拉松底線＋只靠抽寶石補考古", badge: "馬拉松抽寶石" },
-          { key: "gem-immortal", name: "抽寶石完成馬拉松底線＋不朽洗煉", badge: "考古補足" },
-          { key: "gem-transcendent", name: "抽寶石完成馬拉松底線＋超越洗煉", badge: "考古補足" },
-          { key: "gem-peerless", name: "抽寶石完成馬拉松底線＋絕世洗煉", badge: "考古補足" }
+          { key: "gem-only", name: "只靠抽寶石", badge: "雙加分" },
+          { key: "gem-immortal", name: "抽寶石完成馬拉松底線＋不朽洗煉補足", badge: "針對考古補足" },
+          { key: "gem-transcendent", name: "抽寶石完成馬拉松底線＋超越洗煉補足", badge: "針對考古補足" },
+          { key: "gem-peerless", name: "抽寶石完成馬拉松底線＋絕世洗煉補足", badge: "針對考古補足" }
         ];
         if (dayKey === "sat") return [
-          { key: "horseshoe-only", name: "金蹄鐵完成馬拉松底線＋只靠金蹄鐵補考古", badge: "馬拉松金蹄鐵" },
-          { key: "horseshoe-200-brand", name: "金蹄鐵完成馬拉松底線＋200 體＋抽烙印", badge: "高收益體力" }
+          { key: "horseshoe-only", name: "只靠金蹄鐵", badge: "雙加分" },
+          { key: "horseshoe-200-brand", name: "金蹄鐵完成馬拉松底線＋200 體＋抽烙印補足", badge: "200 體後針對考古補足" }
         ];
         return [];
       }
