@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v227</title>
+  <title>水豚每週活動計算機｜週一至週日 v228</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -6296,7 +6296,7 @@
 
   
 
-    /* v227｜統計總覽補上本週考古／懸賞 */
+    /* v228｜統計總覽補上本週考古／懸賞 */
     .stats-dashboard-head {
       display: grid !important;
       grid-template-columns: minmax(0, 1fr) !important;
@@ -6387,7 +6387,7 @@
 
 
 
-    /* v227｜統計面板重整：桌機／手機一致化、降低重複資訊感 */
+    /* v228｜統計面板重整：桌機／手機一致化、降低重複資訊感 */
     .stats-dashboard-head {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -6764,7 +6764,7 @@
         font-size: 13px;
       }
     }
-    /* v227｜總覽補上本週聯合考古／公會懸賞 */
+    /* v228｜總覽補上本週聯合考古／公會懸賞 */
     .stats-kpi-week-secondary {
       background: linear-gradient(180deg, #eef9f6 0, #fff 46%);
       border-color: #b7ddd2;
@@ -6792,7 +6792,7 @@
     }
 
   
-    /* v227｜統計面板完整重設計 */
+    /* v228｜統計面板完整重設計 */
     .stats-view-shell{display:grid;gap:16px}
     .stats-dashboard-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(440px,720px);align-items:end;gap:28px;padding:4px 2px 14px;border-bottom:1px solid #e7edf5}
     .stats-dashboard-head h2{margin:4px 0 5px;color:#12233e;font-size:clamp(30px,3vw,42px);line-height:1;letter-spacing:-.04em}
@@ -6896,7 +6896,7 @@
     [hidden]{display:none!important;}
   
 
-    /* v227｜單頁統計整合：總覽、七天摘要、本日階段、本週階段、獎勵總覽 */
+    /* v228｜單頁統計整合：總覽、七天摘要、本日階段、本週階段、獎勵總覽 */
     .stats-dashboard-head-single {
       display: block;
       margin-bottom: 14px;
@@ -7139,6 +7139,159 @@
       }
     }
 
+  
+
+    /* v228｜階段橫向列、獎勵統一、桌面全域週切換、任務頁按鈕回饋 */
+    @media (min-width: 901px) {
+      .desktop-week-mode-dock {
+        margin-top: auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        padding: 10px 8px 12px;
+        border-top: 1px solid rgba(255,255,255,.10);
+        background: rgba(6, 20, 37, .18);
+      }
+
+      .desktop-week-mode-label {
+        grid-column: 1 / -1;
+        color: #aebed4;
+        font-size: 10px;
+        font-weight: 900;
+        text-align: center;
+        letter-spacing: .08em;
+      }
+
+      .desktop-week-mode-btn.week-mode-tab {
+        min-width: 0;
+        min-height: 34px;
+        padding: 5px 3px;
+        border: 1px solid rgba(255,255,255,.16);
+        border-radius: 10px;
+        background: rgba(255,255,255,.07);
+        color: #dce7f6;
+        font-size: 11px;
+        box-shadow: none;
+      }
+
+      .desktop-week-mode-btn.week-mode-tab.active {
+        border-color: transparent;
+        background: linear-gradient(135deg, #2aa45a, #198b4d);
+        color: #fff;
+        box-shadow: 0 7px 14px rgba(0,0,0,.18);
+      }
+
+      .desktop-week-mode-btn.week-mode-tab[data-week-mode="bounty"].active {
+        background: linear-gradient(135deg, #356bdc, #7454e8);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .desktop-week-mode-dock { display: none !important; }
+    }
+
+    /* 考古／懸賞 9 階改為單列，與馬拉松階段卡相同高度 */
+    .stats-daily-stage-section .archaeology-grid {
+      display: grid !important;
+      grid-template-columns: none !important;
+      grid-auto-flow: column !important;
+      grid-auto-columns: minmax(190px, 1fr) !important;
+      align-items: stretch;
+      gap: 10px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 2px 2px 9px;
+      scroll-snap-type: x proximity;
+      overscroll-behavior-inline: contain;
+      scrollbar-width: thin;
+    }
+
+    .stats-daily-stage-section .archaeology-grid .stage,
+    .stats-daily-stage-section .marathon-grid .stage {
+      min-height: 104px;
+      height: 104px;
+      box-sizing: border-box;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .stats-daily-stage-section .archaeology-grid .stage[style*="grid-column"] {
+      min-width: min(100%, 360px);
+    }
+
+    .weekly-reward-block-integrated {
+      border-color: #c9d7f6 !important;
+      background: linear-gradient(180deg, #f5f8ff 0%, #ffffff 100%) !important;
+    }
+
+    .weekly-reward-block-integrated .reward-total-list {
+      grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+    }
+
+    .reward-source-details {
+      border: 1px solid #e1e7f0;
+      border-radius: 15px;
+      background: #fbfcff;
+      overflow: hidden;
+    }
+
+    .reward-source-details > summary {
+      cursor: pointer;
+      padding: 12px 14px;
+      color: #355eaa;
+      font-weight: 900;
+      font-size: 13px;
+      list-style-position: inside;
+    }
+
+    .reward-source-grid {
+      display: grid;
+      gap: 10px;
+      padding: 0 10px 10px;
+    }
+
+    .task-footer-status {
+      min-width: 0;
+      align-self: center;
+      color: #66758a;
+      font-size: 12px;
+      font-weight: 800;
+      opacity: 0;
+      transition: opacity .18s ease;
+    }
+
+    .task-footer-status.show { opacity: 1; }
+    .task-footer-status.success { color: #21814a; }
+    .task-footer-status.warning { color: #b36b00; }
+
+    @media (max-width: 820px) {
+      .stats-daily-stage-section .archaeology-grid {
+        grid-template-columns: none !important;
+        grid-auto-columns: minmax(172px, 78vw) !important;
+      }
+
+      .stats-daily-stage-section .archaeology-grid .stage,
+      .stats-daily-stage-section .marathon-grid .stage {
+        min-height: 104px;
+        height: 104px;
+      }
+
+      .weekly-reward-block-integrated .reward-total-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .task-bottom-actions {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .task-footer-status {
+        grid-column: 1 / -1;
+        text-align: center;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -7148,7 +7301,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v227</div>
+      <div class="prototype-badge">週一至週日 v228</div>
     </header>
 
     <div class="app-shell" id="appShell">
@@ -7161,6 +7314,11 @@
         <button class="desktop-nav-btn" type="button" data-mobile-panel="actions"><span>🛠️</span><strong>操作面板</strong></button>
         <button class="desktop-nav-btn" type="button" data-mobile-panel="stats"><span>📊</span><strong>統計</strong></button>
         <button class="desktop-nav-btn" type="button" data-mobile-panel="settings"><span>⚙️</span><strong>個人化設定</strong></button>
+        <div class="desktop-week-mode-dock" aria-label="全域活動週切換">
+          <span class="desktop-week-mode-label">活動週</span>
+          <button class="week-mode-tab desktop-week-mode-btn active" type="button" data-week-mode="archaeology">考古</button>
+          <button class="week-mode-tab desktop-week-mode-btn" type="button" data-week-mode="bounty">懸賞</button>
+        </div>
       </nav>
       <aside class="card sidebar" id="sidebarCard" aria-label="個人化設置">
 
@@ -7587,29 +7745,42 @@
               </div>
 
               <div class="reward-summary-content" id="rewardSummaryContent">
-                <div class="weekly-reward-block">
+                <div class="weekly-reward-block weekly-reward-block-integrated">
                   <div class="weekly-reward-heading">
-                    <strong>馬拉松每日階段</strong>
-                    <span>週一至週日已解鎖物品</span>
+                    <strong>本週整合獎勵總覽</strong>
+                    <span>與「確認並產出圖表」使用相同計算結果</span>
                   </div>
-                  <div class="reward-total-list" id="dailyRewardTotals"></div>
+                  <div class="reward-total-list" id="integratedRewardTotals"></div>
                 </div>
 
-                <div class="weekly-reward-block" id="bountyRewardSummaryBlock">
-                  <div class="weekly-reward-heading">
-                    <strong>公會懸賞階段</strong>
-                    <span>週一至週六已達成階段</span>
-                  </div>
-                  <div class="reward-total-list" id="bountyRewardTotals"></div>
-                </div>
+                <details class="reward-source-details">
+                  <summary>查看獎勵來源拆分</summary>
+                  <div class="reward-source-grid">
+                    <div class="weekly-reward-block">
+                      <div class="weekly-reward-heading">
+                        <strong>馬拉松每日階段</strong>
+                        <span>週一至週日已解鎖物品</span>
+                      </div>
+                      <div class="reward-total-list" id="dailyRewardTotals"></div>
+                    </div>
 
-                <div class="weekly-reward-block">
-                  <div class="weekly-reward-heading">
-                    <strong>馬拉松每週階段</strong>
-                    <span>所有已解鎖的每週獎勵</span>
+                    <div class="weekly-reward-block" id="bountyRewardSummaryBlock">
+                      <div class="weekly-reward-heading">
+                        <strong>公會懸賞階段</strong>
+                        <span>週一至週六已達成階段</span>
+                      </div>
+                      <div class="reward-total-list" id="bountyRewardTotals"></div>
+                    </div>
+
+                    <div class="weekly-reward-block">
+                      <div class="weekly-reward-heading">
+                        <strong>馬拉松每週階段</strong>
+                        <span>所有已解鎖的每週獎勵</span>
+                      </div>
+                      <div class="reward-total-list" id="weeklyRewardTotals"></div>
+                    </div>
                   </div>
-                  <div class="reward-total-list" id="weeklyRewardTotals"></div>
-                </div>
+                </details>
               </div>
             </section>
           </div>
@@ -7655,8 +7826,9 @@
                 <span class="dot purple">依星期變化</span>
               </div>
               <div class="task-bottom-actions">
-                <button class="task-footer-btn secondary" id="taskFooterResetAll" type="button">重置全部</button>
-                <button class="task-footer-btn primary" id="taskFooterSaveProgress" type="button">儲存進度</button>
+                <button class="task-footer-btn secondary" id="taskFooterResetAll" type="button">本日全部歸零</button>
+                <button class="task-footer-btn primary" id="taskFooterSaveProgress" type="button">立即儲存進度</button>
+                <span class="task-footer-status" id="taskFooterStatus" role="status" aria-live="polite"></span>
               </div>
             </div>
           </section>
@@ -8656,6 +8828,7 @@
         weeklyNextStageText: document.getElementById("weeklyNextStageText"),
         weeklyDayStars: document.getElementById("weeklyDayStars"),
         weeklyStageGrid: document.getElementById("weeklyStageGrid"),
+        integratedRewardTotals: document.getElementById("integratedRewardTotals"),
         dailyRewardTotals: document.getElementById("dailyRewardTotals"),
         weeklyRewardTotals: document.getElementById("weeklyRewardTotals"),
         bountyRewardSummaryBlock: document.getElementById("bountyRewardSummaryBlock"),
@@ -12129,7 +12302,10 @@
           "白銀寶箱",
           "寶石鑰匙",
           "金蹄鐵",
-          "傳說鑰匙"
+          "傳說鑰匙",
+          "幸運礦鎬",
+          "寵物武裝令牌",
+          "功勳幣"
         ];
 
         const index = preferredOrder.indexOf(name);
@@ -12397,6 +12573,12 @@
         els.statsViewSubtitle.textContent = isBountyWeek
           ? "今日馬拉松、公會懸賞、七天進度與獎勵彙整。"
           : "今日馬拉松、聯合考古、七天進度與獎勵彙整。";
+
+        renderRewardTotals(
+          els.integratedRewardTotals,
+          getIntegratedWeeklyRewardTotals(summary, isBountyWeek),
+          "weekly"
+        );
 
         renderRewardTotals(
           els.dailyRewardTotals,
@@ -12875,6 +13057,16 @@ function mergeRewardTotals(...sources) {
   return totals;
 }
 
+function getIntegratedWeeklyRewardTotals(summary, isBountyWeek = state.weekMode === "bounty") {
+  return mergeRewardTotals(
+    summary.dailyRewards,
+    summary.weeklyRewards,
+    isBountyWeek
+      ? summary.bountyRewards
+      : { "幸運礦鎬": summary.totalPickaxes }
+  );
+}
+
 
 function formatTotalsAsList(totals) {
   return Object.entries(totals || {})
@@ -13235,11 +13427,7 @@ function buildWeeklyReportHtml() {
     ? `每日 5,000 分 × 6 天｜已達 ${format(summary.totalBountyStages)} / 54 階`
     : `每日最多 56 礦鎬 × 6 天`;
 
-  const combinedRewardTotals = mergeRewardTotals(
-    summary.dailyRewards,
-    summary.weeklyRewards,
-    isBountyWeek ? summary.bountyRewards : { "幸運礦鎬": summary.totalPickaxes }
-  );
+  const combinedRewardTotals = getIntegratedWeeklyRewardTotals(summary, isBountyWeek);
   const combinedRewardLines = formatTotalsAsList(combinedRewardTotals);
 
   const dayCardsHtml = dayOrder.map(dayKey => {
@@ -18049,22 +18237,35 @@ async function downloadChartAsImage() {
       }
 
 
+      let taskFooterStatusTimer = 0;
+      function showTaskFooterStatus(message, type = "success") {
+        const status = document.getElementById("taskFooterStatus");
+        if (!status) return;
+        clearTimeout(taskFooterStatusTimer);
+        status.className = `task-footer-status show ${type}`;
+        status.textContent = message;
+        taskFooterStatusTimer = window.setTimeout(() => {
+          status.className = "task-footer-status";
+          status.textContent = "";
+        }, 3200);
+      }
+
       document.addEventListener("click", event => {
-        if (event.target.id === "taskFooterResetAll") {
+        const resetButton = event.target.closest("#taskFooterResetAll");
+        if (resetButton) {
           zeroCurrentDayTasks(state.activeDay);
-          if (els.autoPlanStatus) {
-            els.autoPlanStatus.className = "auto-plan-status show success";
-            els.autoPlanStatus.innerHTML = `<strong>${dayLabels[state.activeDay]} 已重置</strong><div>已將目前日期的任務數值全部歸零。</div>`;
-          }
           renderAll();
+          showTaskFooterStatus(`${dayLabels[state.activeDay]}已全部歸零`, "success");
           return;
         }
-        if (event.target.id === "taskFooterSaveProgress") {
-          saveState();
-          if (els.autoPlanStatus) {
-            els.autoPlanStatus.className = "auto-plan-status show success";
-            els.autoPlanStatus.innerHTML = `<strong>已儲存目前進度</strong><div>${dayLabels[state.activeDay]} 的任務與設定已寫入本機瀏覽器。</div>`;
-          }
+
+        const saveButton = event.target.closest("#taskFooterSaveProgress");
+        if (saveButton) {
+          const saved = saveState();
+          showTaskFooterStatus(
+            saved ? "目前進度已儲存到此瀏覽器" : "儲存失敗，請檢查瀏覽器儲存權限",
+            saved ? "success" : "warning"
+          );
         }
       });
       els.taskPanel.addEventListener("pointerdown", event => {
