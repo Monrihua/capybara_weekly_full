@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v223</title>
+  <title>水豚每週活動計算機｜週一至週日 v224</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -6296,7 +6296,7 @@
 
   
 
-    /* v223｜統計分頁左右對齊，桌面與手機共用相同內容 */
+    /* v224｜統計總覽補上本週考古／懸賞 */
     .stats-dashboard-head {
       display: grid !important;
       grid-template-columns: minmax(0, 1fr) !important;
@@ -6383,6 +6383,35 @@
       }
     }
 
+  
+
+    /* v224｜總覽補上本週聯合考古／公會懸賞 */
+    .stats-kpi-week-secondary {
+      background: linear-gradient(180deg, #eef9f6 0, #fff 46%);
+      border-color: #b7ddd2;
+    }
+    .stats-kpi-week-secondary::before {
+      background: linear-gradient(90deg, #25a87d, #4f7ee8);
+    }
+    .stats-kpi-week-secondary .stats-kpi-title {
+      color: #23876b;
+    }
+    .stats-kpi-week-secondary .progress-bar {
+      background: linear-gradient(90deg, #36b58a, #4f7ee8);
+    }
+
+    @media (min-width: 1501px) {
+      .stats-summary-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1321px) and (max-width: 1500px) {
+      .stats-summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -6392,7 +6421,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v223</div>
+      <div class="prototype-badge">週一至週日 v224</div>
     </header>
 
     <div class="app-shell" id="appShell">
@@ -6722,8 +6751,8 @@
 
               <article class="stats-kpi-card stats-kpi-week">
                 <div class="stats-kpi-head">
-                  <div class="stats-kpi-title"><span class="stats-kpi-icon">★</span><span>本週進度</span></div>
-                  <span class="stats-status-badge">馬拉松</span>
+                  <div class="stats-kpi-title"><span class="stats-kpi-icon">★</span><span>本週馬拉松</span></div>
+                  <span class="stats-status-badge">30 星目標</span>
                 </div>
                 <div class="stats-kpi-value"><strong id="weeklyStarTotal">0 / 30</strong><span>星</span></div>
                 <div class="stats-kpi-metrics stats-kpi-three">
@@ -6735,6 +6764,25 @@
                 <div class="stats-next-line">
                   <span>30 星進度</span>
                   <strong id="statsWeekTargetText">尚未達成</strong>
+                </div>
+              </article>
+
+              <article class="stats-kpi-card stats-kpi-week-secondary" id="statsWeeklySecondaryCard">
+                <div class="stats-kpi-head">
+                  <div class="stats-kpi-title"><span class="stats-kpi-icon" id="statsWeeklySecondaryIcon">⚒</span><span id="statsWeeklySecondaryTitle">本週聯合考古</span></div>
+                  <span class="stats-status-badge" id="statsWeeklySecondaryBadge">聯合考古</span>
+                </div>
+                <div class="stats-kpi-value">
+                  <strong id="statsWeeklySecondaryValue">0 / 336</strong><span id="statsWeeklySecondaryUnit">礦鎬</span>
+                </div>
+                <div class="stats-kpi-metrics">
+                  <span><span id="statsWeeklySecondaryMetricLabel">滿階日數</span> <strong id="statsWeeklySecondaryMetric">0 / 6</strong></span>
+                  <span><span id="statsWeeklySecondaryRemainingLabel">距全滿</span> <strong id="statsWeeklySecondaryRemaining">336</strong></span>
+                </div>
+                <div class="progress"><div class="progress-bar" id="statsWeeklySecondaryProgress"></div></div>
+                <div class="stats-next-line">
+                  <span>週一至週六</span>
+                  <strong id="statsWeeklySecondaryTargetText">尚未全部滿階</strong>
                 </div>
               </article>
 
@@ -7823,6 +7871,18 @@
         statsWeekGold: document.getElementById("statsWeekGold"),
         statsWeekRemaining: document.getElementById("statsWeekRemaining"),
         statsWeekTargetText: document.getElementById("statsWeekTargetText"),
+        statsWeeklySecondaryCard: document.getElementById("statsWeeklySecondaryCard"),
+        statsWeeklySecondaryIcon: document.getElementById("statsWeeklySecondaryIcon"),
+        statsWeeklySecondaryTitle: document.getElementById("statsWeeklySecondaryTitle"),
+        statsWeeklySecondaryBadge: document.getElementById("statsWeeklySecondaryBadge"),
+        statsWeeklySecondaryValue: document.getElementById("statsWeeklySecondaryValue"),
+        statsWeeklySecondaryUnit: document.getElementById("statsWeeklySecondaryUnit"),
+        statsWeeklySecondaryMetricLabel: document.getElementById("statsWeeklySecondaryMetricLabel"),
+        statsWeeklySecondaryMetric: document.getElementById("statsWeeklySecondaryMetric"),
+        statsWeeklySecondaryRemainingLabel: document.getElementById("statsWeeklySecondaryRemainingLabel"),
+        statsWeeklySecondaryRemaining: document.getElementById("statsWeeklySecondaryRemaining"),
+        statsWeeklySecondaryProgress: document.getElementById("statsWeeklySecondaryProgress"),
+        statsWeeklySecondaryTargetText: document.getElementById("statsWeeklySecondaryTargetText"),
         statsNextWeeklyStage: document.getElementById("statsNextWeeklyStage"),
         statsNextWeeklyRemaining: document.getElementById("statsNextWeeklyRemaining"),
         statsNextWeeklyRewards: document.getElementById("statsNextWeeklyRewards"),
@@ -11449,6 +11509,49 @@
           ? "30 星目標已完成"
           : `還差 ${format(targetStars - summary.totalStars)} 星`;
         els.statsUnlockedWeeklyStages.textContent = `${unlockedWeeklyStageCount} / ${weeklyMarathonStages.length} 階`;
+
+        if (isBountyWeek) {
+          const weeklyBountyTarget = 5000 * 6;
+          const weeklyBountyStageTarget = 9 * 6;
+          const completedBountyDays = dayOrder
+            .filter(dayKey => dayKey !== "sun")
+            .filter(dayKey => toInt(summary.dayBountyStages[dayKey]) >= 9)
+            .length;
+
+          els.statsWeeklySecondaryIcon.textContent = "⚔";
+          els.statsWeeklySecondaryTitle.textContent = "本週公會懸賞";
+          els.statsWeeklySecondaryBadge.textContent = "公會懸賞";
+          els.statsWeeklySecondaryValue.textContent = `${format(summary.totalBountyScore)} / ${format(weeklyBountyTarget)}`;
+          els.statsWeeklySecondaryUnit.textContent = "分";
+          els.statsWeeklySecondaryMetricLabel.textContent = "已達階段";
+          els.statsWeeklySecondaryMetric.textContent = `${format(summary.totalBountyStages)} / ${format(weeklyBountyStageTarget)}`;
+          els.statsWeeklySecondaryRemainingLabel.textContent = "距全滿";
+          els.statsWeeklySecondaryRemaining.textContent = format(Math.max(0, weeklyBountyTarget - summary.totalBountyScore));
+          els.statsWeeklySecondaryProgress.style.width = `${Math.min(100, summary.totalBountyScore / weeklyBountyTarget * 100)}%`;
+          els.statsWeeklySecondaryTargetText.textContent = completedBountyDays >= 6
+            ? "六日全部滿階"
+            : `${completedBountyDays} / 6 日滿階`;
+        } else {
+          const weeklyPickaxeTarget = 56 * 6;
+          const completedArchaeologyDays = dayOrder
+            .filter(dayKey => dayKey !== "sun")
+            .filter(dayKey => toInt(summary.dayPickaxes[dayKey]) >= 56)
+            .length;
+
+          els.statsWeeklySecondaryIcon.textContent = "⚒";
+          els.statsWeeklySecondaryTitle.textContent = "本週聯合考古";
+          els.statsWeeklySecondaryBadge.textContent = "聯合考古";
+          els.statsWeeklySecondaryValue.textContent = `${format(summary.totalPickaxes)} / ${format(weeklyPickaxeTarget)}`;
+          els.statsWeeklySecondaryUnit.textContent = "礦鎬";
+          els.statsWeeklySecondaryMetricLabel.textContent = "滿階日數";
+          els.statsWeeklySecondaryMetric.textContent = `${completedArchaeologyDays} / 6`;
+          els.statsWeeklySecondaryRemainingLabel.textContent = "距全滿";
+          els.statsWeeklySecondaryRemaining.textContent = format(Math.max(0, weeklyPickaxeTarget - summary.totalPickaxes));
+          els.statsWeeklySecondaryProgress.style.width = `${Math.min(100, summary.totalPickaxes / weeklyPickaxeTarget * 100)}%`;
+          els.statsWeeklySecondaryTargetText.textContent = completedArchaeologyDays >= 6
+            ? "六日全部滿階"
+            : `${completedArchaeologyDays} / 6 日滿階`;
+        }
 
         if (nextStage) {
           const previousStars = weeklyMarathonStages[
