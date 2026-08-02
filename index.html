@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v232</title>
+  <title>水豚每週活動計算機｜週一至週日 v233</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -8102,6 +8102,79 @@
       .mobile-nav-btn { min-height: 48px !important; }
     }
 
+  
+
+    /* v233｜單一全域活動週切換與跨模式資源保護 */
+    /* 上方只保留星期與每日方案，不再重複顯示活動週切換。 */
+    .top-tabs-stack > .week-mode-tabs { display: none !important; }
+
+    @media (min-width: 901px) {
+      .desktop-week-mode-dock {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+        padding: 14px 10px 16px !important;
+        background: linear-gradient(180deg, rgba(7, 25, 45, .16), rgba(7, 25, 45, .34)) !important;
+      }
+
+      .desktop-week-mode-label {
+        grid-column: auto !important;
+        padding-bottom: 2px;
+        color: #d6e2f2 !important;
+        font-size: 11px !important;
+        letter-spacing: .06em !important;
+      }
+
+      .desktop-week-mode-btn.week-mode-tab {
+        width: 100% !important;
+        min-height: 48px !important;
+        padding: 8px 5px !important;
+        border-radius: 13px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 5px !important;
+        font-size: 13px !important;
+        line-height: 1.1 !important;
+      }
+
+      .desktop-week-mode-btn.week-mode-tab span {
+        font-size: 15px;
+        line-height: 1;
+      }
+
+      .desktop-week-mode-btn.week-mode-tab[data-week-mode="archaeology"].active {
+        background: linear-gradient(135deg, #4b88f5, var(--archaeology-color)) !important;
+        box-shadow: 0 9px 18px rgba(47, 111, 228, .30) !important;
+      }
+
+      .desktop-week-mode-btn.week-mode-tab[data-week-mode="bounty"].active {
+        background: linear-gradient(135deg, #9a77ed, var(--bounty-color)) !important;
+        box-shadow: 0 9px 18px rgba(122, 82, 214, .30) !important;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .mobile-week-mode-dock {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+        width: 100% !important;
+        padding: 0 !important;
+      }
+
+      .mobile-week-mode-btn {
+        width: 100% !important;
+        min-height: 36px !important;
+        height: 36px !important;
+        padding-inline: 8px !important;
+        font-size: 12px !important;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .mobile-week-mode-dock { gap: 6px !important; }
+      .mobile-week-mode-btn { font-size: 11px !important; padding-inline: 4px !important; }
+    }
+
   </style>
 </head>
 <body data-active-panel="tasks">
@@ -8111,7 +8184,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v232</div>
+      <div class="prototype-badge">週一至週日 v233</div>
     </header>
 
     <div class="app-shell" id="appShell">
@@ -8126,9 +8199,9 @@
         <button class="desktop-nav-btn" type="button" data-mobile-panel="settings"><span>⚙️</span><strong>個人化設定</strong></button>
         <button class="desktop-nav-btn" type="button" data-mobile-panel="help"><span>📘</span><strong>使用說明</strong></button>
         <div class="desktop-week-mode-dock" aria-label="全域活動週切換">
-          <span class="desktop-week-mode-label">活動週</span>
-          <button class="week-mode-tab desktop-week-mode-btn active" type="button" data-week-mode="archaeology">考古</button>
-          <button class="week-mode-tab desktop-week-mode-btn" type="button" data-week-mode="bounty">懸賞</button>
+          <span class="desktop-week-mode-label">切換活動週</span>
+          <button class="week-mode-tab desktop-week-mode-btn active" type="button" data-week-mode="archaeology"><span aria-hidden="true">⛏️</span>考古週</button>
+          <button class="week-mode-tab desktop-week-mode-btn" type="button" data-week-mode="bounty"><span aria-hidden="true">⚔️</span>懸賞週</button>
         </div>
       </nav>
       <aside class="card sidebar" id="sidebarCard" aria-label="個人化設置" hidden>
@@ -8284,7 +8357,7 @@
               <li><strong>個人化設定：</strong>勾選月卡、週卡、終身卡、貿易卡、礦卡，以及是否會看滿廣告。</li>
               <li><strong>藏品星級：</strong>設定「神聖鐵砧」星級，預覽礦鎬恢復速度、存儲上限與一天理論可挖次數。</li>
               <li><strong>持有資源：</strong>輸入體力、靈石、不變石、寵物蛋與各類寶箱庫存。</li>
-              <li><strong>選擇活動週：</strong>考古週選藍色，懸賞週選紫色；馬拉松固定使用綠色。</li>
+              <li><strong>選擇活動週：</strong>考古週使用藍色、懸賞週使用紫色；馬拉松固定使用綠色。切換活動週時，系統會自動返還已配置的體力、靈石、不變石、寵物蛋與寶箱，並將對應的資源任務歸零，避免同一份庫存在兩種活動週重複使用。</li>
               <li><strong>輸入本週實際進度：</strong>在任務面板填入已完成次數，再到操作面板比較或套用方案。</li>
             </ol>
           </section>
@@ -8465,11 +8538,6 @@
 
       <div class="main" id="mainContent">
     <div class="top-tabs-stack" id="topTabsStack">
-      <nav class="week-mode-tabs" aria-label="活動週切換">
-        <button class="week-mode-tab active" type="button" data-week-mode="archaeology">考古週</button>
-        <button class="week-mode-tab" type="button" data-week-mode="bounty">懸賞週</button>
-      </nav>
-
       <nav class="day-tabs" aria-label="星期切換">
         <button class="day-tab active" type="button" data-day="mon">週一</button>
         <button class="day-tab" type="button" data-day="tue">週二</button>
@@ -8741,9 +8809,8 @@
 
   <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="手機頁面切換">
     <div class="mobile-week-mode-dock" aria-label="全域活動週切換">
-      <span class="mobile-week-mode-label">活動週</span>
-      <button class="week-mode-tab mobile-week-mode-btn active" type="button" data-week-mode="archaeology">考古週</button>
-      <button class="week-mode-tab mobile-week-mode-btn" type="button" data-week-mode="bounty">懸賞週</button>
+      <button class="week-mode-tab mobile-week-mode-btn active" type="button" data-week-mode="archaeology">⛏️ 考古週</button>
+      <button class="week-mode-tab mobile-week-mode-btn" type="button" data-week-mode="bounty">⚔️ 懸賞週</button>
     </div>
     <button class="mobile-nav-btn active" type="button" data-mobile-panel="tasks">任務</button>
     <button class="mobile-nav-btn" type="button" data-mobile-panel="actions">操作按鈕</button>
@@ -18980,10 +19047,39 @@ async function downloadChartAsImage() {
         });
       });
 
+      function releaseAllocatedResourcesForWeekModeSwitch() {
+        // 先還原自動方案，再返還所有人工或方案配置的共用資源。
+        // 只清除會扣庫存的任務，不抹除免費任務與非資源進度。
+        restoreAllAppliedPlans({ render: false });
+        clearAllAppliedPlans();
+        for (const dayKey of dayOrder) {
+          returnAllocatedResourcesForDay(dayKey);
+        }
+      }
+
+      function switchWeekModeSafely(nextMode) {
+        const normalizedMode = nextMode === "bounty" ? "bounty" : "archaeology";
+        if (state.weekMode === normalizedMode) return;
+
+        releaseAllocatedResourcesForWeekModeSwitch();
+        state.weekMode = normalizedMode;
+        pendingDailyPlanComparison = null;
+        planSelectionContext = null;
+        closeDailyPlanModal();
+        renderAll();
+
+        const modeName = normalizedMode === "bounty" ? "懸賞週" : "考古週";
+        const notice = `已切換為${modeName}；原活動週已配置的體力、資源與寶箱已自動返還。`;
+        showTaskFooterStatus(notice, "success");
+        if (els.autoPlanStatus) {
+          els.autoPlanStatus.className = "auto-plan-status action-status-banner success";
+          els.autoPlanStatus.textContent = notice;
+        }
+      }
+
       els.weekModeTabs.forEach(tab => {
         tab.addEventListener("click", () => {
-          state.weekMode = tab.dataset.weekMode === "bounty" ? "bounty" : "archaeology";
-          renderAll();
+          switchWeekModeSafely(tab.dataset.weekMode);
         });
       });
 
