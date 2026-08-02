@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v221</title>
+  <title>水豚每週活動計算機｜週一至週日 v222</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -6156,6 +6156,144 @@
       }
     }
 
+  
+
+    /* v222｜手機控制器加寬、體力卡重排、重置卡分隔 */
+    @media (max-width: 600px) {
+      /* 一般任務、寶箱、懸賞：加寬 - / 數值 / + 控制器 */
+      #taskPanel .task-counter,
+      #taskPanel .chest-open-counter,
+      #taskPanel .guild-bounty-counter .task-counter {
+        grid-template-columns: 36px 58px 36px !important;
+        gap: 4px !important;
+        width: 148px !important;
+        min-width: 148px !important;
+        height: 46px !important;
+        padding: 4px 5px !important;
+      }
+      #taskPanel .task-counter button,
+      #taskPanel .chest-open-counter button,
+      #taskPanel .guild-bounty-counter .task-counter button {
+        width: 36px !important;
+        min-width: 36px !important;
+        height: 36px !important;
+        border-radius: 11px !important;
+      }
+      #taskPanel .task-counter input,
+      #taskPanel .chest-open-counter input,
+      #taskPanel .guild-bounty-counter .task-counter input {
+        width: 58px !important;
+        min-width: 58px !important;
+        height: 36px !important;
+        font-size: 15px !important;
+      }
+
+      /* 體力選項：資訊在上、控制器獨立置底，避免與分數標籤重疊 */
+      #taskPanel .stamina-options .stamina-option {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        grid-template-areas:
+          "info"
+          "counter" !important;
+        align-items: start !important;
+        row-gap: 10px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        height: auto !important;
+        padding: 12px !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+      }
+      #taskPanel .stamina-options .option-info {
+        grid-area: info !important;
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+      }
+      #taskPanel .stamina-options .option-name,
+      #taskPanel .stamina-options .option-meta {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+      #taskPanel .stamina-options .option-name {
+        font-size: 15px !important;
+        line-height: 1.35 !important;
+      }
+      #taskPanel .stamina-options .option-meta {
+        margin-top: 2px !important;
+        font-size: 12px !important;
+      }
+      #taskPanel .stamina-options .score-pair {
+        display: flex !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        margin-top: 7px !important;
+        flex-wrap: wrap !important;
+        gap: 5px !important;
+      }
+      #taskPanel .stamina-options .score-chip {
+        width: auto !important;
+        max-width: 100% !important;
+        white-space: normal !important;
+        line-height: 1.3 !important;
+      }
+      #taskPanel .stamina-options .counter-wrap {
+        grid-area: counter !important;
+        display: flex !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        gap: 0 !important;
+        overflow: visible !important;
+      }
+      #taskPanel .stamina-options .counter-wrap > span {
+        display: none !important;
+      }
+      #taskPanel .stamina-options .counter {
+        display: grid !important;
+        grid-template-columns: 36px 58px 36px !important;
+        gap: 4px !important;
+        width: 148px !important;
+        min-width: 148px !important;
+        height: 46px !important;
+        margin: 0 !important;
+        padding: 4px 5px !important;
+        box-sizing: border-box !important;
+        border: 1px solid #d8e2ef !important;
+        border-radius: 999px !important;
+        background: #fff !important;
+        align-items: center !important;
+        overflow: visible !important;
+      }
+      #taskPanel .stamina-options .counter button {
+        width: 36px !important;
+        min-width: 36px !important;
+        height: 36px !important;
+        padding: 0 !important;
+        border-radius: 11px !important;
+      }
+      #taskPanel .stamina-options .counter input {
+        width: 58px !important;
+        min-width: 58px !important;
+        height: 36px !important;
+        padding: 0 !important;
+        font-size: 15px !important;
+        text-align: center !important;
+      }
+
+      /* 本週全部歸零與上一張卡保留清楚間距 */
+      #actionsSidebarCard .reset-group .warning-banner,
+      #actionsSidebarCard #zeroAllDays {
+        margin-top: 12px !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -6165,7 +6303,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v221</div>
+      <div class="prototype-badge">週一至週日 v222</div>
     </header>
 
     <div class="app-shell" id="appShell">
