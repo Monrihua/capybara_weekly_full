@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v222</title>
+  <title>水豚每週活動計算機｜週一至週日 v223</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -6294,6 +6294,95 @@
       }
     }
 
+  
+
+    /* v223｜統計分頁左右對齊，桌面與手機共用相同內容 */
+    .stats-dashboard-head {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) !important;
+      align-items: stretch !important;
+    }
+    .stats-dashboard-head > div {
+      width: 100% !important;
+      min-width: 0 !important;
+    }
+    .stats-view-tabs {
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      width: 100% !important;
+      max-width: none !important;
+      min-width: 0 !important;
+      justify-self: stretch !important;
+      align-self: stretch !important;
+      box-sizing: border-box !important;
+      margin: 12px 0 0 !important;
+    }
+    .stats-view-tab {
+      width: 100% !important;
+      min-width: 0 !important;
+      box-sizing: border-box !important;
+      text-align: center !important;
+    }
+
+    @media (min-width: 901px) {
+      body[data-active-panel="stats"] .stats-dashboard-head {
+        min-height: 0 !important;
+        padding-bottom: 14px !important;
+      }
+      body[data-active-panel="stats"] .stats-view-tabs {
+        display: grid !important;
+        margin-top: 14px !important;
+        padding: 4px !important;
+        border: 1px solid #e0e7f1 !important;
+        border-radius: 14px !important;
+        background: #f3f6fb !important;
+      }
+      body[data-active-panel="stats"] .stats-view-tab {
+        min-height: 42px !important;
+        border-radius: 10px !important;
+        color: #66758a !important;
+        font-size: 13px !important;
+        font-weight: 900 !important;
+      }
+      body[data-active-panel="stats"] .stats-view-tab.active {
+        background: linear-gradient(135deg, #8b66ff, #6c4de2) !important;
+        color: #fff !important;
+        box-shadow: 0 6px 15px rgba(108,77,226,.22) !important;
+      }
+      body[data-active-panel="stats"] .stats-pane[hidden] {
+        display: none !important;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .stats-dashboard-head {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+      }
+      .stats-view-tabs {
+        width: 100% !important;
+        max-width: none !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .stats-dashboard-head {
+        padding: 12px !important;
+      }
+      .stats-view-tabs {
+        gap: 3px !important;
+        padding: 3px !important;
+        border-radius: 13px !important;
+      }
+      .stats-view-tab {
+        min-height: 40px !important;
+        border-radius: 10px !important;
+        font-size: 13px !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -6303,7 +6392,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v222</div>
+      <div class="prototype-badge">週一至週日 v223</div>
     </header>
 
     <div class="app-shell" id="appShell">
@@ -12606,7 +12695,8 @@ async function downloadChartAsImage() {
         });
 
         els.statsPanes.forEach(pane => {
-          pane.hidden = isMobile && pane.dataset.statsPane !== activeStatsView;
+          // 桌面與手機共用同一組統計分頁與內容，避免兩邊顯示項目不一致。
+          pane.hidden = pane.dataset.statsPane !== activeStatsView;
         });
       }
 
