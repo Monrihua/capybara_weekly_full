@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-  <title>水豚每週活動計算機｜週一至週日 v226</title>
+  <title>水豚每週活動計算機｜週一至週日 v227</title>
   <script>
     document.documentElement.classList.add("viewport-ready");
   </script>
@@ -6296,7 +6296,7 @@
 
   
 
-    /* v226｜統計總覽補上本週考古／懸賞 */
+    /* v227｜統計總覽補上本週考古／懸賞 */
     .stats-dashboard-head {
       display: grid !important;
       grid-template-columns: minmax(0, 1fr) !important;
@@ -6387,7 +6387,7 @@
 
 
 
-    /* v226｜統計面板重整：桌機／手機一致化、降低重複資訊感 */
+    /* v227｜統計面板重整：桌機／手機一致化、降低重複資訊感 */
     .stats-dashboard-head {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -6764,7 +6764,7 @@
         font-size: 13px;
       }
     }
-    /* v226｜總覽補上本週聯合考古／公會懸賞 */
+    /* v227｜總覽補上本週聯合考古／公會懸賞 */
     .stats-kpi-week-secondary {
       background: linear-gradient(180deg, #eef9f6 0, #fff 46%);
       border-color: #b7ddd2;
@@ -6792,7 +6792,7 @@
     }
 
   
-    /* v226｜統計面板完整重設計 */
+    /* v227｜統計面板完整重設計 */
     .stats-view-shell{display:grid;gap:16px}
     .stats-dashboard-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(440px,720px);align-items:end;gap:28px;padding:4px 2px 14px;border-bottom:1px solid #e7edf5}
     .stats-dashboard-head h2{margin:4px 0 5px;color:#12233e;font-size:clamp(30px,3vw,42px);line-height:1;letter-spacing:-.04em}
@@ -6894,6 +6894,251 @@
 
   
     [hidden]{display:none!important;}
+  
+
+    /* v227｜單頁統計整合：總覽、七天摘要、本日階段、本週階段、獎勵總覽 */
+    .stats-dashboard-head-single {
+      display: block;
+      margin-bottom: 14px;
+    }
+
+    .stats-dashboard-head-single h2 {
+      margin-bottom: 5px;
+    }
+
+    .stats-single-page {
+      display: grid;
+      gap: 14px;
+    }
+
+    .stats-single-page .stats-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stats-single-page .stats-kpi-card,
+    .stats-single-page .stats-kpi-marathon,
+    .stats-single-page .stats-kpi-secondary,
+    .stats-single-page .stats-kpi-week,
+    .stats-single-page .stats-kpi-week-secondary,
+    .stats-single-page .stats-kpi-reward {
+      grid-column: auto;
+      min-width: 0;
+      min-height: 210px;
+    }
+
+    .stats-single-page .stats-kpi-title {
+      font-size: 15px;
+    }
+
+    .stats-single-page .stats-kpi-value strong {
+      font-size: clamp(30px, 2.7vw, 43px);
+    }
+
+    .stats-single-page .stats-dashboard-section {
+      padding: 16px;
+      border-radius: 20px;
+      background: #fff;
+      border: 1px solid #dfe7f1;
+      box-shadow: 0 10px 24px rgba(22, 44, 82, .055);
+    }
+
+    .stats-stage-section-head {
+      align-items: center;
+    }
+
+    .stats-stage-switch {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(110px, 1fr));
+      gap: 5px;
+      padding: 4px;
+      border: 1px solid #dbe4ef;
+      border-radius: 14px;
+      background: #f3f6fb;
+    }
+
+    .stats-stage-switch-btn {
+      min-height: 36px;
+      padding: 0 14px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: #60718a;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .stats-stage-switch-btn.active {
+      background: linear-gradient(90deg, #356fe7, #7855e8);
+      color: #fff;
+      box-shadow: 0 7px 16px rgba(71, 93, 213, .2);
+    }
+
+    .stats-daily-stage-pane {
+      display: none;
+    }
+
+    .stats-daily-stage-pane.active {
+      display: block;
+    }
+
+    .stats-stage-pane-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: #f6f8fc;
+      color: #1a2e4b;
+    }
+
+    .stats-stage-pane-title strong {
+      font-size: 15px;
+    }
+
+    .stats-stage-pane-title span {
+      color: #6f7e93;
+      font-size: 12px;
+    }
+
+    .stats-daily-stage-section .stage-grid,
+    .stats-week-stage-section .stage-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stats-daily-stage-section .archaeology-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .stats-daily-stage-section .stage-card,
+    .stats-week-stage-section .stage-card,
+    .stats-daily-stage-section .weekly-stage-card,
+    .stats-week-stage-section .weekly-stage-card {
+      min-width: 0;
+      min-height: 126px;
+      padding: 12px;
+      border-radius: 15px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      border: 1px solid #dce5ef;
+      box-shadow: none;
+    }
+
+    .stats-week-stage-section .stage-card,
+    .stats-week-stage-section .weekly-stage-card {
+      min-height: 142px;
+    }
+
+    .stats-integrated-reward-section {
+      margin: 0;
+    }
+
+    .stats-integrated-reward-section .reward-summary-content {
+      display: grid;
+      gap: 12px;
+    }
+
+    .stats-integrated-reward-section .weekly-reward-block {
+      margin: 0;
+      padding: 13px;
+      border: 1px solid #e2e8f1;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fbfcff 0%, #ffffff 100%);
+    }
+
+    .stats-integrated-reward-section .reward-total-list {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .stats-integrated-reward-section .reward-total-chip {
+      min-width: 0;
+      justify-content: center;
+    }
+
+    .stats-legacy-support {
+      display: none !important;
+    }
+
+    @media (max-width: 1250px) {
+      .stats-single-page .stats-summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .stats-single-page .stats-kpi-reward {
+        grid-column: span 2;
+      }
+
+      .stats-daily-stage-section .stage-grid,
+      .stats-week-stage-section .stage-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .stats-integrated-reward-section .reward-total-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 820px) {
+      .stats-single-page {
+        gap: 12px;
+      }
+
+      .stats-single-page .stats-summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-single-page .stats-kpi-card,
+      .stats-single-page .stats-kpi-reward {
+        grid-column: auto;
+        min-height: 0;
+      }
+
+      .stats-single-page .stats-dashboard-section {
+        padding: 13px;
+        border-radius: 17px;
+      }
+
+      .stats-stage-section-head {
+        display: grid;
+        grid-template-columns: 1fr;
+        align-items: stretch;
+      }
+
+      .stats-stage-switch {
+        width: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .stats-stage-pane-title {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+
+      .stats-daily-stage-section .stage-grid,
+      .stats-daily-stage-section .archaeology-grid,
+      .stats-week-stage-section .stage-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-daily-stage-section .stage-card,
+      .stats-week-stage-section .stage-card,
+      .stats-daily-stage-section .weekly-stage-card,
+      .stats-week-stage-section .weekly-stage-card {
+        min-height: 0;
+      }
+
+      .stats-integrated-reward-section .reward-total-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -6903,7 +7148,7 @@
         <h1>水豚每週活動計算機</h1>
         <p>完整一週整合原型：同一筆遊戲操作只輸入一次，同時計算馬拉松與聯合考古。</p>
       </div>
-      <div class="prototype-badge">週一至週日 v226</div>
+      <div class="prototype-badge">週一至週日 v227</div>
     </header>
 
     <div class="app-shell" id="appShell">
@@ -7181,21 +7426,16 @@
       </div>
     </div>
         <div class="stats-view-shell" id="statsViewShell">
-          <header class="stats-dashboard-head">
+          <header class="stats-dashboard-head stats-dashboard-head-single">
             <div>
               <span class="stats-dashboard-kicker">本週活動與獎勵</span>
               <h2>統計總覽</h2>
-              <p id="statsViewSubtitle">先看今天與本週進度，再從七天與獎勵分頁查看細節。</p>
+              <p id="statsViewSubtitle">集中查看今天、本週、七天進度、階段與已解鎖獎勵。</p>
               <div class="stats-dashboard-meta">目前活動週・週一至週日</div>
             </div>
-            <nav class="stats-view-tabs" id="statsViewTabs" aria-label="統計內容切換">
-              <button class="stats-view-tab active" type="button" data-stats-view="overview">總覽</button>
-              <button class="stats-view-tab" type="button" data-stats-view="week">七天</button>
-              <button class="stats-view-tab" type="button" data-stats-view="rewards">獎勵</button>
-            </nav>
           </header>
 
-          <div id="mobileStatsPanel" class="stats-pane stats-overview-pane" data-stats-pane="overview">
+          <div id="mobileStatsPanel" class="stats-pane stats-overview-pane stats-single-page" data-stats-pane="overview">
             <section class="stats-summary-grid" aria-label="今日與本週摘要">
               <article class="stats-kpi-card stats-kpi-marathon">
                 <div class="stats-kpi-head">
@@ -7283,161 +7523,70 @@
               </article>
             </section>
 
-            
-          
             <section class="stats-dashboard-section stats-overview-week-section">
               <div class="stats-dashboard-section-head">
                 <div><span class="stats-section-kicker">七天進度摘要</span><h3>本週每日狀態</h3></div>
-                <button class="stats-section-link" type="button" data-open-stats-view="week">查看完整七天進度</button>
+                <span class="stats-section-note">點選星期可切換目前查看日</span>
               </div>
               <div class="stats-overview-week-cards" id="statsOverviewWeekCards"></div>
             </section>
 
-            <section class="stats-dashboard-section stats-overview-reward-section">
-              <div class="stats-dashboard-section-head">
-                <div><span class="stats-section-kicker">獎勵整理</span><h3>接下來與已解鎖</h3></div>
-                <button class="stats-section-link" type="button" data-open-stats-view="rewards">查看全部獎勵</button>
-              </div>
-              <div class="stats-overview-reward-grid">
-                <article class="stats-overview-next-card">
-                  <div class="stats-overview-next-icon">🎁</div>
-                  <div class="stats-overview-next-content">
-                    <span class="stats-overview-card-kicker">本週下一階</span>
-                    <strong id="statsOverviewNextStage">尚未開始</strong>
-                    <small id="statsOverviewNextRemaining">距離下一階尚待計算</small>
-                    <div class="progress"><div class="progress-bar" id="statsOverviewNextProgress"></div></div>
-                    <p id="statsOverviewNextRewards">尚無獎勵資料</p>
-                  </div>
-                </article>
-                <article class="stats-overview-unlocked-card">
-                  <span class="stats-overview-card-kicker">已解鎖摘要</span>
-                  <div class="stats-overview-unlocked-grid" id="statsOverviewUnlockedSummary"></div>
-                </article>
-              </div>
-            </section>
-</div>
-
-          <div id="mobileWeeklyStagePanel" class="stats-pane" data-stats-pane="week">
-            <section class="card section-card weekly-marathon-card" id="weeklySummarySection">
-              <div class="section-head weekly-integrated-head stats-week-head">
+            <section class="stats-dashboard-section stats-daily-stage-section">
+              <div class="stats-dashboard-section-head stats-stage-section-head">
                 <div>
-                  <span class="stats-section-kicker">七天進度</span>
-                  <h3 id="weeklyIntegratedTitle">七天詳細進度</h3>
-                  <div class="section-note">逐日檢查馬拉松與考古／懸賞是否達到目標。</div>
+                  <span class="stats-section-kicker">本日階段</span>
+                  <h3>查看今天每一階的門檻與獎勵</h3>
                 </div>
-                <div class="weekly-summary-head-tools">
-                  <div class="section-note" id="weeklyNextStageText">已達目標／下一個要補</div>
-                </div>
-              </div>
-
-              <div class="weekly-activity-totals stats-secondary-totals">
-                <div class="weekly-activity-total archaeology-total" id="weeklyArchaeologyCard">
-                  <span class="weekly-total-kicker">聯合考古</span>
-                  <strong id="weeklyPickaxeTotal">0 / 336 礦鎬</strong>
-                  <small>週一至週六每日最多 56</small>
-                  <div class="progress weekly-pickaxe-progress"><div class="progress-bar" id="weeklyPickaxeProgress"></div></div>
-                </div>
-
-                <div class="weekly-activity-total bounty-total" id="weeklyBountyCard">
-                  <span class="weekly-total-kicker">公會懸賞</span>
-                  <strong id="weeklyBountyTotal">0 / 30,000 分</strong>
-                  <small>已達階段 <span id="weeklyBountyStages">0 / 54</span></small>
-                  <div class="progress weekly-bounty-progress"><div class="progress-bar" id="weeklyBountyProgress"></div></div>
+                <div class="stats-stage-switch" role="tablist" aria-label="本日階段切換">
+                  <button class="stats-stage-switch-btn active" type="button" data-daily-stage-view="marathon" aria-selected="true">馬拉松</button>
+                  <button class="stats-stage-switch-btn" id="dailyStageSecondaryButton" type="button" data-daily-stage-view="secondary" aria-selected="false">聯合考古</button>
                 </div>
               </div>
 
-              <div class="stats-week-table" id="weeklyDayStars"></div>
-            </section>
-          
-            <section class="card stats-attention-card" id="statsAttentionCard">
-              <div class="stats-section-heading">
-                <div>
-                  <span class="stats-section-kicker">待處理</span>
-                  <h3>本週待補的星期</h3>
-                </div>
-                <span class="stats-section-note">依 30 星／14 卡皮幣基準</span>
-              </div>
-              <div class="stats-attention-list" id="statsAttentionList"></div>
-            </section>
-          </div>
-
-          <div id="mobileDailyRewardsPanel" class="stats-pane" data-stats-pane="rewards">
-            <section class="card section-card stats-next-reward-section">
-              <div class="stats-section-heading">
-                <div>
-                  <span class="stats-section-kicker">本日下一步</span>
-                  <h3>今日最近的下一階</h3>
-                </div>
-                <span class="stats-section-note">優先顯示距離最近的階段</span>
-              </div>
-              <div class="stats-next-reward-grid">
-                <article class="stats-next-reward-card marathon">
-                  <span id="statsDailyMarathonNextLabel">馬拉松下一階</span>
-                  <strong id="statsDailyMarathonNextTarget">第 1 階｜5,600 分</strong>
-                  <small id="statsDailyMarathonNextRemaining">還差 5,600 分</small>
-                  <div id="statsDailyMarathonNextRewards">星星 ×1</div>
-                </article>
-                <article class="stats-next-reward-card secondary">
-                  <span id="statsDailySecondaryNextLabel">聯合考古下一階</span>
-                  <strong id="statsDailySecondaryNextTarget">第 1 階｜2,500 分</strong>
-                  <small id="statsDailySecondaryNextRemaining">還差 2,500 分</small>
-                  <div id="statsDailySecondaryNextRewards">幸運礦鎬 ×3</div>
-                </article>
-              </div>
-            </section>
-
-            <details class="card section-card stats-detail-fold" open>
-              <summary>
-                <span>
+              <div class="stats-daily-stage-pane active" data-daily-stage-pane="marathon">
+                <div class="stats-stage-pane-title">
                   <strong id="marathonStageTitle">馬拉松｜本日階段獎勵</strong>
-                  <small>完整 5 階</small>
-                </span>
-              </summary>
-              <div class="stats-detail-content">
+                  <span>完整 5 階，已達成階段會自動標示</span>
+                </div>
                 <div class="stage-grid marathon-grid" id="marathonStageGrid"></div>
               </div>
-            </details>
 
-            <details class="card section-card stats-detail-fold" id="archaeologyDailyStageSection">
-              <summary>
-                <span>
+              <div class="stats-daily-stage-pane" id="archaeologyDailyStageSection" data-daily-stage-pane="secondary">
+                <div class="stats-stage-pane-title">
                   <strong id="secondaryDailyStageTitle">聯合考古｜本日階段獎勵</strong>
-                  <small id="secondaryDailyStageNote">共 9 階，達成後自動標示</small>
-                </span>
-              </summary>
-              <div class="stats-detail-content">
+                  <span id="secondaryDailyStageNote">共 9 階，已達成階段會自動標示</span>
+                </div>
                 <div class="stage-grid archaeology-grid" id="archaeologyStageGrid"></div>
               </div>
-            </details>
+            </section>
 
-            <details class="card section-card stats-detail-fold">
-              <summary>
-                <span>
-                  <strong>每週階段獎勵</strong>
-                  <small>依馬拉松每日累積星星解鎖</small>
-                </span>
-              </summary>
-              <div class="stats-detail-content">
-                <div class="stage-grid weekly-grid" id="weeklyStageGrid"></div>
-              </div>
-            </details>
-
-            <section class="card section-card stats-reward-total-section">
-              <div class="section-head stats-reward-total-head">
+            <section class="stats-dashboard-section stats-week-stage-section">
+              <div class="stats-dashboard-section-head">
                 <div>
-                  <span class="stats-section-kicker">獎勵彙整</span>
-                  <h3>目前已取得總計</h3>
+                  <span class="stats-section-kicker">本週階段</span>
+                  <h3>馬拉松每週星星階段</h3>
+                </div>
+                <span class="stats-section-note">依全週累積星星解鎖</span>
+              </div>
+              <div class="stage-grid weekly-grid stats-weekly-stage-grid" id="weeklyStageGrid"></div>
+            </section>
+
+            <section class="stats-dashboard-section stats-reward-total-section stats-integrated-reward-section">
+              <div class="stats-dashboard-section-head stats-reward-total-head">
+                <div>
+                  <span class="stats-section-kicker">獎勵總覽</span>
+                  <h3>本週已解鎖獎勵</h3>
                 </div>
                 <button
                   class="reward-summary-toggle"
                   id="rewardSummaryToggle"
                   type="button"
-                  aria-expanded="false"
+                  aria-expanded="true"
                   aria-controls="rewardSummaryContent"
-                >顯示獎勵總計</button>
+                >收合獎勵總覽</button>
               </div>
 
-              <div class="reward-summary-content" id="rewardSummaryContent" hidden>
+              <div class="reward-summary-content" id="rewardSummaryContent">
                 <div class="weekly-reward-block">
                   <div class="weekly-reward-heading">
                     <strong>馬拉松每日階段</strong>
@@ -7463,6 +7612,30 @@
                 </div>
               </div>
             </section>
+          </div>
+
+          <!-- 保留運算與事件所需的舊統計節點，但不再顯示成分頁。 -->
+          <div class="stats-legacy-support" hidden aria-hidden="true">
+            <div id="mobileWeeklyStagePanel" class="stats-pane" data-stats-pane="week">
+              <section id="weeklySummarySection">
+                <h3 id="weeklyIntegratedTitle">七天詳細進度</h3>
+                <span id="weeklyNextStageText"></span>
+                <div id="weeklyArchaeologyCard"><strong id="weeklyPickaxeTotal"></strong><div><div id="weeklyPickaxeProgress"></div></div></div>
+                <div id="weeklyBountyCard"><strong id="weeklyBountyTotal"></strong><span id="weeklyBountyStages"></span><div><div id="weeklyBountyProgress"></div></div></div>
+                <div id="weeklyDayStars"></div>
+              </section>
+              <div id="statsAttentionList"></div>
+            </div>
+            <div id="mobileDailyRewardsPanel" class="stats-pane" data-stats-pane="rewards">
+              <span id="statsDailyMarathonNextLabel"></span>
+              <strong id="statsDailyMarathonNextTarget"></strong>
+              <small id="statsDailyMarathonNextRemaining"></small>
+              <div id="statsDailyMarathonNextRewards"></div>
+              <span id="statsDailySecondaryNextLabel"></span>
+              <strong id="statsDailySecondaryNextTarget"></strong>
+              <small id="statsDailySecondaryNextRemaining"></small>
+              <div id="statsDailySecondaryNextRewards"></div>
+            </div>
           </div>
         </div>
 
@@ -12663,15 +12836,13 @@
       const REWARD_SUMMARY_COLLAPSE_KEY =
         "capybara-reward-summary-collapsed-v25";
 
-      let rewardSummaryCollapsed =
-        localStorage.getItem(REWARD_SUMMARY_COLLAPSE_KEY) !== "0";
+      let rewardSummaryCollapsed = false;
       const APP_PANEL_KEY = "capybara-app-panel-v207";
       let activeMobilePanel = normalizeMobilePanel(localStorage.getItem(APP_PANEL_KEY) || "tasks");
       const STATS_VIEW_KEY = "capybara-stats-view-v207";
-      const validStatsViews = new Set(["overview", "week", "rewards"]);
-      let activeStatsView = validStatsViews.has(localStorage.getItem(STATS_VIEW_KEY))
-        ? localStorage.getItem(STATS_VIEW_KEY)
-        : "overview";
+      const validStatsViews = new Set(["overview"]);
+      let activeStatsView = "overview";
+      let activeDailyStageView = "marathon";
 
       function normalizeMobilePanel(panel) {
         return ["weekly", "daily"].includes(panel) ? "stats" : panel;
@@ -13339,28 +13510,35 @@ async function downloadChartAsImage() {
         return window.matchMedia("(max-width: 600px)").matches;
       }
 
-      function renderStatsView() {
-        const isMobile = isMobileLayout();
+      function renderDailyStageView() {
+        const secondaryButton = document.getElementById("dailyStageSecondaryButton");
+        if (secondaryButton) {
+          secondaryButton.textContent = state.weekMode === "bounty" ? "公會懸賞" : "聯合考古";
+        }
 
-        els.statsViewButtons.forEach(button => {
-          const active = button.dataset.statsView === activeStatsView;
+        document.querySelectorAll("[data-daily-stage-view]").forEach(button => {
+          const active = button.dataset.dailyStageView === activeDailyStageView;
           button.classList.toggle("active", active);
           button.setAttribute("aria-selected", String(active));
         });
 
-        els.statsPanes.forEach(pane => {
-          // 桌面與手機共用同一組統計分頁與內容，避免兩邊顯示項目不一致。
-          pane.hidden = pane.dataset.statsPane !== activeStatsView;
+        document.querySelectorAll("[data-daily-stage-pane]").forEach(pane => {
+          pane.classList.toggle("active", pane.dataset.dailyStagePane === activeDailyStageView);
         });
       }
 
-      function setStatsView(view) {
-        activeStatsView = validStatsViews.has(view) ? view : "overview";
+      function renderStatsView() {
+        activeStatsView = "overview";
+        els.statsPanes.forEach(pane => {
+          pane.hidden = pane.dataset.statsPane !== "overview";
+        });
+        renderDailyStageView();
+      }
+
+      function setStatsView() {
+        activeStatsView = "overview";
         localStorage.setItem(STATS_VIEW_KEY, activeStatsView);
         renderStatsView();
-        if (isMobileLayout()) {
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }
       }
 
       function renderMobilePanels() {
@@ -13457,6 +13635,7 @@ async function downloadChartAsImage() {
         updateWeekModeVisibility();
         renderMobilePanels();
         renderStatsView();
+        renderDailyStageView();
         saveState();
       }
 
@@ -17599,6 +17778,13 @@ async function downloadChartAsImage() {
         button.addEventListener("click", () => {
           setStatsView(button.dataset.statsView);
         });
+      });
+
+      document.addEventListener("click", event => {
+        const stageButton = event.target.closest("[data-daily-stage-view]");
+        if (!stageButton) return;
+        activeDailyStageView = stageButton.dataset.dailyStageView === "secondary" ? "secondary" : "marathon";
+        renderDailyStageView();
       });
 
       document.addEventListener("click", event => {
